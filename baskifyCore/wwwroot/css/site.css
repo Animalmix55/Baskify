@@ -1,0 +1,233 @@
+﻿/* Please see documentation at https://docs.microsoft.com/aspnet/core/client-side/bundling-and-minification
+for details on configuring this project to bundle and minify static web assets. */
+
+a.navbar-brand {
+  white-space: normal;
+  text-align: center;
+  word-break: break-all;
+}
+
+/* Provide sufficient contrast against white background */
+a {
+  color: #0366d6;
+}
+
+.btn-primary {
+  color: #fff;
+  background-color: #1b6ec2;
+  border-color: #1861ac;
+}
+
+.nav-pills .nav-link.active, .nav-pills .show > .nav-link {
+  color: #fff;
+  background-color: #1b6ec2;
+  border-color: #1861ac;
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  font-size: 14px;
+}
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.border-top {
+  border-top: 1px solid #e5e5e5;
+}
+.border-bottom {
+  border-bottom: 1px solid #e5e5e5;
+}
+
+.box-shadow {
+  box-shadow: 0 .25rem .75rem rgba(0, 0, 0, .05);
+}
+
+button.accept-policy {
+  font-size: 1rem;
+  line-height: inherit;
+}
+
+/* Sticky footer styles
+-------------------------------------------------- */
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  /* Margin bottom by footer height */
+  margin-bottom: 60px;
+}
+.footer {
+  position: absolute;
+  bottom: 0;
+  width: 100%;
+  white-space: nowrap;
+  line-height: 60px; /* Vertically center the text there */
+}
+/* New material
+-------------------------------------------------- */
+.navigationBar{
+    display: flex;
+    flex-direction: row;
+    align-content: center;
+    flex-wrap: wrap;
+    width: 100%;
+    height: 96px;
+    background-color: white;
+    border-bottom: 1px solid gray;
+    align-content: center;
+    vertical-align: middle;
+}
+.navBarElement{
+    display: flex;
+    height: inherit;
+}
+.navigationBarBrand {
+    position: relative;
+    height: inherit;
+    text-transform: uppercase;
+    color: black;
+    font-weight: bold;
+    text-decoration: none;
+    align-items: center;
+    margin-right: auto;
+    margin-left: 10px;
+    font-size: 30pt;
+}
+.navigationBarBrand:hover{
+    text-decoration-line: none;
+}
+.navUserContainer{
+    position: relative;
+    display: flex;
+    margin-left: auto;
+    align-items: center;
+    margin-right: 10px;
+}
+.navUserContainer #userAccount{
+    padding-right:10px;
+}
+.navUserContainer img{
+    height: 75%;
+    width: auto;
+    border-radius: 36px;
+}
+.navUserContainer:hover+.userDropdown  {
+    max-height: 1000px;
+    transition: height 1s;
+}
+.userDropdown{
+    position: absolute;
+    background: white;
+    font-weight:bold;
+    color: white;
+    right: 10px;
+    top: 96px;
+    width: 152px;
+    text-align:center;
+    max-height:0;
+    overflow: hidden;
+    background: rgba(40, 40, 40, 0.27);
+    cursor: pointer;
+}
+.userDropdown:hover{
+    max-height: 1000px;
+}
+.userDropdown tr:hover{
+    background-color: rgb(174, 174, 174);
+    transition: background-color .2s;
+}
+.searchBar {
+    display: flex;
+    flex-grow: 1;
+    font-size: 150%;
+    font-weight: bold;
+}
+
+.searchBarContainerParent {
+    min-width: 170px;
+    width: 40%;
+}
+
+.searchBarContainer {
+    flex-wrap: nowrap;
+    left: 0;
+    right: 0;
+    margin: auto;
+    flex-grow: 1;
+    display: flex;
+    flex-direction: row;
+    justify-content: center;
+}
+.searchButton{
+    display: flex;
+    flex-grow: 0;
+}
+
+@media (max-width: 624px) {
+    .searchBarContainerParent{
+        order: 5;
+        width: 100%;
+        height: auto;
+    }
+    .searchBarContainer {
+        width: 100%;
+    }
+
+    .searchBar {
+        max-width: initial;
+        height: 60px;
+    }
+
+    .navigationBar {
+        height: 240px;
+        transition: height .5s;
+    }
+
+    .navUserContainer {
+        order: 3;
+        height: 50%
+    }
+
+    .navigationBarBrand {
+        height: 50%;
+    }
+
+    .userDropdown{
+        font-size: 150%;
+        position: relative;
+        display: flex;
+        order: 4;
+        max-height: initial;
+    }
+    .userDropdown tr{
+        display: inline-block;
+        width: 50%;
+        
+    }
+    .userDropdown td{
+        text-align: center;
+        width: inherit;
+        display: inline;
+    }
+
+    .userDropdown{
+        width:100%;
+        top: 0;
+        right: 0;
+    }
+
+}
+
+@media (max-width: 790px) {
+    .searchButton {
+        display: none;
+    }
+
+}
+

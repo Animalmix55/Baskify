@@ -1,0 +1,65 @@
+﻿@model baskifyCore.Models.UserModel;
+<nav class="navigationBar">
+    <a class="navigationBarBrand navBarElement" href="#">Baskify</a>
+
+    <div class="navBarElement searchBarContainerParent" id="navbarColor03">
+        @using (Html.BeginForm("Search", "Auctions", FormMethod.Post, new { @class = "form-inline my-2 my-lg-0 searchBarContainer" }))
+        {
+            @Html.TextBox("searchQuery", null, new { @class = "form-control mr-sm-2 searchBar", placeholder = "Search" })
+            <Button Class="btn btn-secondary my-2 my-sm-0 searchButton" type="submit">Search</Button>
+        }
+    </div>
+    <div class="navBarElement navUserContainer">
+
+        <div id="userAccount">
+            <div>@Html.DisplayName(Model.FirstName + " " + Model.LastName)</div>
+            <div style="font-size:60%; color:gray">
+                @if (Model.UserRole == 1)
+                {
+                    <text>User</text>
+                }
+                else if (Model.UserRole == 2)
+                {
+                    <text>Company</text>
+                }
+            </div>
+        </div>
+        <img class="userIcon" src="@Model.iconUrl" />
+
+    </div>
+    <div class="userDropdown">
+        <table style="width: inherit">
+            @if (Model.UserRole == baskifyCore.Models.Roles.USER)
+            {
+                <tr><td>My Account</td></tr>
+                <tr><td>Raffle Results</td></tr>
+                <tr><td>My Ticket Wallet</td></tr>
+                <tr><td onclick="redirect('/login/signout')">Sign Out</td></tr>
+            }
+            else if (Model.UserRole == baskifyCore.Models.Roles.COMPANY)
+            {
+                <tr><td>My Account</td></tr>
+                <tr><td>My Raffles</td></tr>
+                <tr><td onclick="redirect('/login/signout')">Sign Out</td></tr>
+            }
+            else
+            {
+                <tr><td onclick="openSignOnModal()">Sign in</td></tr>
+            }
+        </table>
+    </div>
+</nav>
+@await Html.PartialAsync("SignInPartialView")
+
+<script>
+    function openSignOnModal() {
+        $("#SignOnModal").modal('toggle'); 
+    }
+    function redirect(dest) {
+        window.location = dest;
+    }
+    $(function () {
+        $("#navbarColor03").css("display", "none");
+    })
+</script>
+
