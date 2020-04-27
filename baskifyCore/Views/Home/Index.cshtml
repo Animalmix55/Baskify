@@ -4,8 +4,64 @@
     //Model.SearchModel.render = false;
     ViewData["Title"] = "Home Page";
 }
+<style>
+    #navbarColor03 {
+        display: none;
+    }
+</style>
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+<script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+<div id="homePagePhotoWall">
+    <div id="searchBarPhotoWall">
+        @using (Html.BeginForm("Search", "Auctions", FormMethod.Post, new { @class = "form-inline my-2 my-lg-0 searchBarContainer" }))
+        {
+            @Html.TextBox("searchQueryHome", null, new { @class = "form-control mr-sm-2 searchBar", placeholder = "Search" })
+            <Button id="searchQueryButtonHome" Class="btn btn-secondary my-2 my-sm-0 searchButton" type="submit">Search</Button>
+        }
+    </div>
 </div>
+
+<div id="homePagePhotoModal" class="container jumbotron">
+    <h1 class="display-3">Welcome to Baskify!</h1>
+    <p class="lead">
+        Begin your search here to find your organization's basket raffle. We do our best to support non-profit organizations by providing a low-cost online basket raffle
+        solution. With our platform, you no longer have to physically be present to win a theme basket, you just have to have a computer! Our reduced-contact theme basket platform
+        is designed to simplify the experience of crowding around boards with ticket numbers or circling baskets like predatory birds. All you have to do is find your organization,
+        select their basket raffle, buy tickets, and start contributing to their worthy cause!
+    </p>
+    <hr class="my-4">
+    <div id="aboutUs">
+        <img src="~/Content/Basket1.png" data-aos="fade-left" />
+        <div class="aboutUsText">
+            <h4>Founding</h4>
+            We were founded in mid-2020 with the goal of better facilitating non-profit fundraising efforts during the COVID-19 pandemic. We realized that many non-profit organizations rely on theme basket
+            auctions as a means to bring in funds to support their causes. Noting the unique challenges posed by social distancing restrictions on theme basket auctions, we
+            set out to create a service that will allow for contact-free theme basket donations and auctions for those suffering organizations.
+        </div>
+        <div class="aboutUsText">
+            <h4>About Us</h4>
+            Baskify is a website owned and operated by the sole proprietor of <a href="https://www.corycherven.com/logic_gator/">Logic Gator</a>, Cory Cherven, out of Western New York.
+            Cory has a condition called <a href="https://www.hydroassoc.org/what-is-hydrocephalus/">hydrocephalus</a> and, in a normal non-COVID-19 year, he would be preparing to fundraise for
+            <a href="https://www.hydroassoc.org/">The Hydrocephalus Association's</a> annual Hydrocephalus WALK fundraising event. A big part of this event is a theme basket auction comprising of
+            donated good from across Western New York. Noting the newfound complications of theme basket auctions and WALK events, he set out to create this service using his programming skills to better aid the Hydrocephalus Association
+            and any other organization in need of an alternate means of fundraising.
+        </div>
+        <img src="~/Content/Basket2.png" data-aos="fade-right" />
+        <img src="~/Content/Basket3.png" data-aos="fade-left"/>
+        <div class="aboutUsText">
+            <h4>What our Service Does</h4>
+            Using Baskify, organizations can create virtual theme basket auctions, providing their members with a special access link to upload (an thereby "donate") a basket to the auction.
+            Once the organization is ready, they can greenlight the auction and make it live to the public, at which point they will get indexed in our searchbar and will receive a unique
+            link to share. At which point, <i>anybody</i> within the organization's set distance limit can donate and receive virtual tickets that they can place in each basket. Once
+            the auction is over, the organization will then be responsible for delivering the baskets to their appropriate winners or arranging pickup (that is why we need everybody's address!).
+        </div>
+
+
+    </div>
+</div>
+
+<script>AOS.init();
+
+</script>
+

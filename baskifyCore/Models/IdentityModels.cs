@@ -1,5 +1,5 @@
-﻿using System.Configuration;
-using System.Data.Entity;
+﻿using System.Data.Entity;
+using System.Configuration;
 
 
 namespace baskifyCore.Models
@@ -11,5 +11,8 @@ namespace baskifyCore.Models
         public DbSet<UserModel> UserModel { get; set; }
 
         public DbSet<BearerTokenModel> BearerTokenModel { get; set; }
+        public DbSet<UserAlertModel> UserAlert { get; set; }
+        public DbSet<EmailChangeModel> EmailChange { get; set; }
+
     }
 }
