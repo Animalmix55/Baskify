@@ -1,49 +1,70 @@
-﻿@model UserModel
-    <div id="SignOnModal" class="modal">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title">Modal title</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <div class="modal-body">
-                    <form id="SignOnForm">
-                        <input id="inputUsername" type="text" placeholder="Username" class="form-control"/>
-                        <div class="form-group has-danger">
-                            <input id="inputPassword" type="password" placeholder="Password" class="form-control">
-                            <div id="passwordFeedback" class="invalid-feedback"></div>
-                        </div>
+﻿@model string;
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Sign In</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <div class="modal-body">
+                <form id="SignOnForm">
+                    <label for="inputUsername">Username:</label>
+                    <input id="inputUsername" type="text" placeholder="Username" class="form-control" />
+                    <div class="form-group has-danger">
+                        <label for="inputPassword">Password:</label>
+                        <input id="inputPassword" type="password" placeholder="Password" class="form-control">
+                        <div id="passwordFeedback" class="invalid-feedback"></div>
+                    </div>
+                    <div style="display: flex;">
                         <button id="loginButton" type="submit" class="btn btn-primary">Sign In</button>
-                    </form>
-                </div>
-                <div class="modal-footer">
-                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                </div>
+                        <div id="loginLoader" class="loading-spinner" style="height: 48px; width: 48px; margin-left: 10px;">
+                            <div class="loading-body">
+                                <div></div><div></div><div></div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
             </div>
         </div>
     </div>
 
-<script>
+    <script>
     $(document).ready(function () {
         $("#SignOnForm").submit(function (e) {
             e.preventDefault();
             $("#loginButton").prop('disabled', true);
+            $("#loginLoader").css("visibility", "visible");
             $.post("/login", { username: $("#inputUsername").val(), password: $("#inputPassword").val() },
                 function (data) { //post will return the new, logged in header
                     $("#loginButton").prop('disabled', false);
                     if (!data.startsWith("ERROR:")) {
                         $("#SignOnModal").modal('toggle'); //close modal
-                        $("header").html(data);
+                        $("header").html(data); //reload the nav bar
+
+                        @if(Model == "reloadPage")//this case means the whole page should reload
+                        {
+                            <text>window.location.reload();</text>
+                        }
+                        else if (Model != null)
+                        {
+                            <text>$.post(@ViewData["actionUrl"], @ViewData["jsonParams"], function (data) {
+                                $("#@Model").html(data);
+                            });</text> //reload the given data if told to.
+                        }
+
                         $("#inputPassword").removeClass("is-invalid")
                     }
                     else {
                         $("#inputPassword").addClass("is-invalid")
                         $("#passwordFeedback").html(data);
+                        $("#loginLoader").css("visibility", "hidden");
                     }
                 });
             return false;
-        })
+        });
     })
-</script>
+    </script>

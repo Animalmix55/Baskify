@@ -1,0 +1,82 @@
+﻿@model string
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.lux.min.css" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Login</title>
+</head>
+<body>
+    <nav class="navigationBar">
+        <a class="navigationBarBrand navBarElement" href="#">Baskify</a>
+    </nav>
+    <div class="alert alert-dismissible alert-warning">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <h4 class="alert-heading">Please login here!</h4>
+        <p class="mb-0">Please sign in before accessing personal content.</p>
+    </div>
+
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title">Sign In</h5>
+            </div>
+            <div class="modal-body">
+                <form id="SignOnForm">
+                    <label for="inputUsername">Username:</label>
+                    <input id="inputUsername" type="text" placeholder="Username" class="form-control" />
+                    <div class="form-group has-danger">
+                        <label for="inputPassword">Password:</label>
+                        <input id="inputPassword" type="password" placeholder="Password" class="form-control">
+                        <div id="passwordFeedback" class="invalid-feedback"></div>
+                    </div>
+                    <div style="display: flex;">
+                        <button id="loginButton" type="submit" class="btn btn-primary">Sign In</button>
+                        <div id="loginLoader" class="loading-spinner" style="height: 48px; width: 48px; margin-left: 10px;">
+                            <div class="loading-body">
+                                <div></div><div></div><div></div>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        $(document).ready(function () {
+            $("#SignOnForm").submit(function (e) {
+                e.preventDefault();
+                $("#loginButton").prop('disabled', true);
+                $("#loginLoader").css("visibility", "visible");
+                $.post("/Login/LoginRedirect", { username: $("#inputUsername").val(), password: $("#inputPassword").val(), redirectUrl: "@Model" },
+                    function (data) { //post will return the new, logged in header
+                        $("#loginButton").prop('disabled', false);
+                        if (!data.startsWith("ERROR:")) {
+                            window.location = data; //to get the data
+                            $("#inputPassword").removeClass("is-invalid")
+                        }
+                        else {
+                            $("#inputPassword").addClass("is-invalid")
+                            $("#passwordFeedback").html(data);
+                            $("#loginLoader").css("visibility", "hidden");
+                        }
+                    });
+                return false;
+            });
+        })
+
+        $(function () { $("#SignOnModal").modal("show"); });
+
+    </script>
+</body>
+
+</html>

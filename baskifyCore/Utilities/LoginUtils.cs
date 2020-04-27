@@ -14,25 +14,22 @@ using Microsoft.CodeAnalysis.CSharp.Syntax;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.Extensions.Logging.Abstractions;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Http.Extensions;
 
 namespace baskifyCore.Utilities
 {
     public static class LoginUtils
     {
-        private static ApplicationDbContext _context;
-        static LoginUtils() //construct the context only once
-        {
-            _context = new ApplicationDbContext();
-        }
         /// <summary>
         /// Gets a logged in user if they exist, otherwise throws an exception. Automatically builds a new bearer token into the UserModel.
         /// </summary>
         /// <param name="username"></param>
         /// <param name="password"></param>
         /// <returns></returns>
-        public static async Task<UserModel> getUserAsync(string username, string password)
+        public static async Task<UserModel> getUserAsync(string username, string password, ApplicationDbContext _context)
         {
             var user = _context.UserModel.Find(username);
+            _context.Entry(user).Collection("UserAlerts").Load(); //bring in any alerts as well
             var hashBytes = SHA256.Create().ComputeHash(Encoding.UTF8.GetBytes(password));
             StringBuilder Sb = new StringBuilder();
             foreach (var b in hashBytes)
@@ -46,7 +43,7 @@ namespace baskifyCore.Utilities
             }
             else
             {
-                user.bearerToken = await buildToken(user); //give the user a token
+                user.bearerToken = await buildToken(user, _context); //give the user a token
                 return user;
             }
         }
@@ -57,7 +54,7 @@ namespace baskifyCore.Utilities
         /// <param name="token"></param>
         /// <param name="validateAgainstDB"></param>
         /// <returns></returns>
-        public static bool CheckToken(string token, bool validateAgainstDB = true)
+        public static bool CheckToken(string token, ApplicationDbContext _context, bool validateAgainstDB = true)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var validationParameters = GetValidationParameters();
@@ -82,13 +79,14 @@ namespace baskifyCore.Utilities
 
         }
 
+
         /// <summary>
         /// Gets the UserModel for a user from a given token. Returns null if there's an issue.
         /// If given a response object, will assume it's getting a cookie and delete the cookie if there's an issue.
         /// </summary>
         /// <param name="token"></param>
         /// <returns></returns>
-        public static UserModel getUserFromToken(string token, HttpResponse response=null)
+        public static UserModel getUserFromToken(string token, ApplicationDbContext _context, HttpResponse response=null)
         {
             var tokenHandler = new JwtSecurityTokenHandler();
             var validationParameters = GetValidationParameters();
@@ -98,7 +96,7 @@ namespace baskifyCore.Utilities
                 SecurityToken validatedToken;
                 IPrincipal principal = tokenHandler.ValidateToken(token, validationParameters, out validatedToken);
                 //now get the token from the DB
-                var bearerTokenModel = _context.BearerTokenModel.Include("UserModel").Where(b => b.TokenIdentifier == validatedToken.Id).FirstOrDefault();
+                var bearerTokenModel = _context.BearerTokenModel.Include("UserModel.UserAlerts").Where(b => b.TokenIdentifier == validatedToken.Id).FirstOrDefault();
                 if (bearerTokenModel != null && bearerTokenModel.Token == token) //make sure it's the same token
                     return bearerTokenModel.UserModel;
                 else
@@ -108,7 +106,7 @@ namespace baskifyCore.Utilities
                     return null; //returns null if there's an issue or the token isn't valid
                 }
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 if (response != null)
                     deleteTokenFromCookie(response);
@@ -135,13 +133,13 @@ namespace baskifyCore.Utilities
         /// </summary>
         /// <param name="user"></param>
         /// <returns></returns>
-        public static async Task<string> buildToken(UserModel user)
+        public static async Task<string> buildToken(UserModel user, ApplicationDbContext _context)
         {
             //Check to see if the user already has a valid token...
             BearerTokenModel bearerToken;
             if ((bearerToken = _context.BearerTokenModel.Where(b => b.Username == user.Username).OrderByDescending(b => b.TimeWritten).FirstOrDefault()) != null)
             {
-                if (CheckToken(bearerToken.Token, false))
+                if (CheckToken(bearerToken.Token, _context, false))
                     return bearerToken.Token;
             }
 
@@ -213,6 +211,52 @@ namespace baskifyCore.Utilities
         {
             CookieOptions options = new CookieOptions() { Expires = DateTime.Now.AddDays(-1) };
             response.Cookies.Append("BearerToken", "", options); //removes token
+        }
+        
+        /// <summary>
+        /// Returns the Url if it's safe, otherwise returns the root url of the request.
+        /// </summary>
+        /// <param name="redirectUrl"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public static string checkRedirectLocation(string redirectUrl, HttpRequest request)
+        {
+            var uri = new Uri(request.GetDisplayUrl());
+            var rootUrl = uri.Scheme + @"://" + uri.Authority;
+            if (redirectUrl == null || !redirectUrl.StartsWith(rootUrl)) //to avoid open redirect, route them back to home...
+                return rootUrl;
+            else
+                return redirectUrl;
+        }
+
+        /// <summary>
+        /// Gets a relative URL like /account and translates it into an absolute url.
+        /// </summary>
+        /// <param name="relUrl"></param>
+        /// <param name="request"></param>
+        /// <returns></returns>
+        public static string getAbsoluteUrl(string relUrl, HttpRequest request)
+        {
+            var reqUri = new Uri(request.GetDisplayUrl());
+            var absUriBuilder = new UriBuilder();
+            relUrl = relUrl.Trim('/');
+
+            absUriBuilder.Scheme = reqUri.Scheme;
+            absUriBuilder.Host = reqUri.Host;
+            absUriBuilder.Port = reqUri.Port;
+            if (relUrl.Contains('?'))
+            {
+                absUriBuilder.Path = relUrl.Split('?')[0];
+                absUriBuilder.Query = relUrl.Split('?')[1]; //now copies query strings
+            }
+            else
+            {
+                absUriBuilder.Path = relUrl;
+            }
+            
+
+            return absUriBuilder.Uri.ToString();
+
         }
     }
     

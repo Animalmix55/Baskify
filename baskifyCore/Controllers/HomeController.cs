@@ -23,7 +23,7 @@ namespace baskifyCore.Controllers
 
         public IActionResult Index()
         {
-            UserModel userModel = LoginUtils.getUserFromToken(Request.Cookies["BearerToken"], Response);
+            UserModel userModel = LoginUtils.getUserFromToken(Request.Cookies["BearerToken"], _context, Response);
             if (userModel == null)
                 userModel = new UserModel();
             return View(userModel);

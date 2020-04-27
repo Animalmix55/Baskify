@@ -1,6 +1,6 @@
 ﻿@model baskifyCore.Models.UserModel;
 <nav class="navigationBar">
-    <a class="navigationBarBrand navBarElement" href="#">Baskify</a>
+    <a class="navigationBarBrand navBarElement" href="/">Baskify</a>
 
     <div class="navBarElement searchBarContainerParent" id="navbarColor03">
         @using (Html.BeginForm("Search", "Auctions", FormMethod.Post, new { @class = "form-inline my-2 my-lg-0 searchBarContainer" }))
@@ -31,14 +31,14 @@
         <table style="width: inherit">
             @if (Model.UserRole == baskifyCore.Models.Roles.USER)
             {
-                <tr><td>My Account</td></tr>
+                <tr><td onclick="redirect('/account')">My Account</td></tr>
                 <tr><td>Raffle Results</td></tr>
                 <tr><td>My Ticket Wallet</td></tr>
                 <tr><td onclick="redirect('/login/signout')">Sign Out</td></tr>
             }
             else if (Model.UserRole == baskifyCore.Models.Roles.COMPANY)
             {
-                <tr><td>My Account</td></tr>
+                <tr><td onclick="redirect('/account')">My Account</td></tr>
                 <tr><td>My Raffles</td></tr>
                 <tr><td onclick="redirect('/login/signout')">Sign Out</td></tr>
             }
@@ -49,17 +49,51 @@
         </table>
     </div>
 </nav>
-@await Html.PartialAsync("SignInPartialView")
+<div id="SignOnModal" class="modal"></div>
 
 <script>
     function openSignOnModal() {
-        $("#SignOnModal").modal('toggle'); 
+        $.post("/Login/loadSignOnModal/", {}, function (data) {
+            $("#SignOnModal").html(data);
+            $("#SignOnModal").modal("show");
+        });
     }
     function redirect(dest) {
         window.location = dest;
     }
-    $(function () {
-        $("#navbarColor03").css("display", "none");
-    })
+
 </script>
+
+@if (ViewData["LoginAgain"] != null && (bool)ViewData["LoginAgain"])
+{
+    <div class="alert alert-dismissible alert-warning">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <h4 class="alert-heading">Woops!</h4>
+        <p class="mb-0">There was an error, please login and resubmit.</p>
+    </div>
+    <script>openSignOnModal()</script>
+}
+
+@if (Model.UserAlerts != null)
+{
+    @foreach (UserAlertModel alert in Model.UserAlerts)//print any alerts to user
+    {
+        <div class="alert alert-dismissible alert-warning" style="margin-bottom: 0;">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            <h4 class="alert-heading">@alert.AlertHeader</h4>
+            <p class="mb-0">@alert.AlertBody</p>
+        </div>
+    }
+}
+
+@if (ViewData["Alert"] != null)//used to pass around temporary realtime alerts
+{
+    <div class="alert alert-dismissible alert-warning" style="margin-bottom: 0;">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <h4 class="alert-heading">Alert!</h4>
+        <p class="mb-0">@ViewData["Alert"]</p>
+    </div>
+}
+
+
 

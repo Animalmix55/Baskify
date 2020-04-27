@@ -122,6 +122,7 @@ body {
     transition: height 1s;
 }
 .userDropdown{
+    z-index: 10;
     position: absolute;
     background: white;
     font-weight:bold;
@@ -134,6 +135,9 @@ body {
     overflow: hidden;
     background: rgba(40, 40, 40, 0.27);
     cursor: pointer;
+}
+.alert{
+    z-index: 1;
 }
 .userDropdown:hover{
     max-height: 1000px;
@@ -224,10 +228,222 @@ body {
 
 }
 
+
+
+@keyframes loading-bar-1 {
+0%{
+    height: 64%;
+}
+
+50% {
+    height: 40%
+}
+
+100% {
+    height: 40%
+}
+
+}
+
+@keyframes loading-bar-2 {
+    0% {
+        height: 58%
+    }
+
+    50% {
+        height: 40%
+    }
+
+    100% {
+        height: 40%
+    }
+}
+
+@keyframes loading-bar-3 {
+    0% {
+        height: 52%
+    }
+
+    50% {
+        height: 40%
+    }
+
+    100% {
+        height: 40%
+    }
+}
+
+.loading-body div {
+    position: relative;
+    width: 15%;
+}
+
+.loading-body div:nth-child(1) {
+    background: #93dbe9;
+    animation: loading-bar-1 1.0416666666666665s cubic-bezier(0,0.5,0.5,1) infinite;
+    animation-delay: -0.20833333333333331s
+}
+
+.loading-body div:nth-child(2) {
+    background: #689cc5;
+    animation: loading-bar-2 1.0416666666666665s cubic-bezier(0,0.5,0.5,1) infinite;
+    animation-delay: -0.10416666666666666s
+}
+
+.loading-body div:nth-child(3) {
+    background: #5e6fa3;
+    animation: loading-bar-3 1.0416666666666665s cubic-bezier(0,0.5,0.5,1) infinite;
+    animation-delay: 0s
+}
+
+.loading-spinner {
+    display:none;
+    overflow: hidden;
+    background: none;
+    display: inline-flex;
+    visibility:hidden;
+}
+
+.loading-body {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-direction: row;
+    position: relative;
+    transform: translateZ(0) scale(1);
+    backface-visibility: hidden;
+    transform-origin: 0 0;
+}
+
+.loading-body div {
+    box-sizing: content-box;
+}
+
+#homePagePhotoWall {
+    background-image: url("/Content/homepage-bg2.jpg");
+    background-attachment: fixed;
+    background-position-y: top;
+    background-size: cover;
+    width: 100%;
+    height: 50vh;
+    display:flex;
+    align-content: center;
+    align-items: center;
+    justify-content: center;
+}
+
+#searchBarPhotoWall{
+    background-color: rgba(255, 255, 255, 0.41);
+    border-radius: 27px;
+    width: 70%;
+    max-width: 800px;
+}
+
+
+#searchQueryHome {
+    background-color: rgba(255, 255, 255, 0.00);
+    height: 100%;
+    border-bottom-left-radius: 27px;
+    border-top-left-radius: 27px;
+}
+
+#searchQueryButtonHome {
+    height: 100%;
+    border-bottom-right-radius: 27px;
+    border-top-right-radius: 27px;
+    background-color: rgba(255, 255, 255, 0.00);
+}
+#searchQueryButtonHome:hover{
+    background-color: rgba(255, 255, 255, 0.38);
+
+}
+
+
+#aboutUs{
+    display: flex;
+    flex-direction: row;
+    flex-wrap: wrap;
+    align-content: center;
+    align-items: center;
+    justify-content: center;
+}
+#aboutUs img{
+    width: 20%;
+    max-width: 400px;
+    height: auto;
+    display: inline-block;
+    transition: transform ease-in-out .2s;
+}
+#aboutUs img:hover{
+    transform: scale(1.02)
+}
+.aboutUsText{
+    width: 80%;
+    font-size: 102%;
+    flex-grow: .7;
+    display: inline-block;
+}
+h4{
+    margin-top: 5px;
+}
+
 @media (max-width: 790px) {
     .searchButton {
         display: none;
     }
 
+    #searchQueryHome {
+        border-bottom-right-radius: 27px;
+        border-top-right-radius: 27px;
+    }
+
+    #homePagePhotoWall {
+        background-attachment: scroll;
+    }
+
+    #aboutUs img {
+        width: 100%;
+        flex: 1;
+    }
+    #aboutUs img:nth-child(4), #aboutUs img:nth-child(5){
+        display: none;
+    }
+}
+/* Account settings
+-------------------------------------------------- */
+#userInfoForm{
+    display:flex;
+    align-items:center;
+    justify-content: center;
+    left:0;
+    right: 0;
+    margin: auto;
+    width: 60%;
+    min-width: 400px;
 }
 
+#userIcon{
+    width: auto;
+    height: 45px;
+    flex: 0;
+    padding-right: 5px;
+}
+
+#imgUploadContainer{
+    display: flex;
+    flex-wrap: nowrap;
+    flex-direction: row;
+    align-items: center;
+}
+
+.field-validation-error{
+    color:red;
+}
+
+#userAddressMap{
+    width: 100%;
+    height: 200px;
+    border: none;
+}
