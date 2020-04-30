@@ -3,6 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
+using System.Diagnostics.CodeAnalysis;
 using System.Linq;
 using System.Threading.Tasks;
 
@@ -15,7 +16,7 @@ namespace baskifyCore.Models
         public const int NONE = 0;
         
     }
-    public class UserModel
+    public class UserModel : IValidatableObject
     {
         public UserModel() 
         {
@@ -25,6 +26,7 @@ namespace baskifyCore.Models
              UserRole = Roles.NONE;
              iconUrl = "/Content/unknownUser.png";
         }
+
         [StringLength(30)]
         [Key]
         [Required]
@@ -33,7 +35,6 @@ namespace baskifyCore.Models
         public string Username { get; set; }
         public string PasswordHash { get; set; }
 
-        [Required]
         [Display(Name = "First Name")]
         [RegularExpression(@"^[-\.A-Za-z]+(\s[-\.A-Za-z]+)*$", ErrorMessage = "Name can only contain alphabetical letters, hyphens, and spaces")]
         public string FirstName
@@ -43,7 +44,6 @@ namespace baskifyCore.Models
         [RegularExpression(@"^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$", ErrorMessage = "Invalid email format")]
         public string Email { get; set; }
 
-        [Required]
         [Display(Name = "Last Name")]
         [RegularExpression(@"^[-\.A-Za-z]+(\s[-\.A-Za-z]+)*$", ErrorMessage = "Name can only contain alphabetical letters, hyphens, and spaces")]
         public string LastName
@@ -69,7 +69,6 @@ namespace baskifyCore.Models
         public int UserRole
         { get; set; }
 
-        [Required]
         [DataType(DataType.Date)]
         [Display(Name = "Date of Birth")]
         [DisplayFormat(DataFormatString = "{0:dd.MM.yyyy}")]
@@ -79,12 +78,42 @@ namespace baskifyCore.Models
         public string iconUrl { get; set; }
         public DateTime lastLogin { get; set; }
 
+        public bool EmailVerified { get; set; }
 
         public ICollection<UserAlertModel> UserAlerts { get; set; }
+
+        //---------------------------------------------------------ORGANIZATION-SPECIFIC PROPERTIES----------------------------------------------------------------------
+
+        [Display(Name = "Organization Name")]
+        [RegularExpression(@"^[-\.A-Za-z]+(\s[-\.A-Za-z]+)*$", ErrorMessage = "Name can only contain alphabetical letters, hyphens, and spaces")]
+        public string OrganizationName { get; set; }
+
+        public bool OrganizationVerified { get; set; }
+
+        public ICollection<AuctionModel> Auctions { get; set; }
 
         //---------------------------------------------------------UNMAPPED PROPERTIES FOR APPLICATION WORKFLOW----------------------------------------------------------
         [NotMapped]
         public string bearerToken { get; set; }
 
+        public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
+        {
+            List<ValidationResult> errormsg = new List<ValidationResult>();
+            if (UserRole != Roles.COMPANY)
+            {
+                if (String.IsNullOrWhiteSpace(FirstName))
+                    errormsg.Add(new ValidationResult("A user must have a first name.", new string[] { "FirstName" }));
+                if (String.IsNullOrWhiteSpace(LastName))
+                    errormsg.Add(new ValidationResult("A user must have a last name.", new string[] { "LastName" }));
+                if (DateOfBirth == null)
+                    errormsg.Add(new ValidationResult("A user must have a birthdate.", new String[] { "DateOfBirth" }));
+            }
+            else if (UserRole == Roles.COMPANY)
+            {
+                if (String.IsNullOrWhiteSpace(OrganizationName))
+                    errormsg.Add(new ValidationResult("Organization Name Must Not Be Empty", new string[] { "OrganizationName" }));
+            }
+            return errormsg;
+        }
     }
 }

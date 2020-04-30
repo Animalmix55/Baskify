@@ -8,6 +8,7 @@ using baskifyCore.Utilities;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Http.Features;
 using Microsoft.AspNetCore.Http.Extensions;
+using baskifyCore.ViewModels;
 
 namespace baskifyCore.Controllers
 {
@@ -18,7 +19,11 @@ namespace baskifyCore.Controllers
         {
             _context = new ApplicationDbContext();
         }
-        
+        protected override void Dispose(bool disposing)
+        {
+            _context.Dispose();
+        }
+
 
         /// <summary>
         /// This is for the login page that users can access
@@ -33,10 +38,16 @@ namespace baskifyCore.Controllers
                 if (LoginUtils.getUserFromToken(Request.Cookies["BearerToken"], _context, Response) != null)
                     return Redirect(LoginUtils.checkRedirectLocation(redirectBack, Request)); //redirects if already logged in
             }
-
-            return View((object)redirectBack);
+            var loginModel = new LoginViewModel() { redirectUrl = redirectBack };
+            return View(loginModel);
         }
 
+        /// <summary>
+        /// Returns a navbar, used by any mid-application login
+        /// </summary>
+        /// <param name="username"></param>
+        /// <param name="password"></param>
+        /// <returns></returns>
         [HttpPost]
         public IActionResult Index(string username, string password)
         {
@@ -67,23 +78,34 @@ namespace baskifyCore.Controllers
         /// <param name="redirectLocation"></param>
         /// <returns></returns>
         [HttpPost]
-        public IActionResult LoginRedirect(string username, string password, string redirectUrl)
+        public IActionResult LoginRedirect(LoginViewModel model)
         {
+            if (!ModelState.IsValid)
+            {
+                return View("Index", model);
+            }
             try
             {
-                var user = LoginUtils.getUserAsync(username, password, _context).Result;
+                var user = LoginUtils.getUserAsync(model.Username, model.Password, _context).Result;
                 //var ip = GetIp();
 
                 var cookieOptions = new CookieOptions();
                 //cookieOptions.Expires = new DateTimeOffset(DateTime.Now.AddDays(1)); //creates expiration... right now only for session
                 Response.Cookies.Append("BearerToken", user.bearerToken, cookieOptions);
 
-                return Content(LoginUtils.checkRedirectLocation(redirectUrl, Request)); //returns redirect url for browser from query string
+                return Redirect(LoginUtils.checkRedirectLocation(model.redirectUrl, Request)); //returns redirect url for browser from query string
             }
-            catch (Exception e)
+            catch (InvalidPasswordException)
             {
-                return Content("ERROR: Invalid Password");
+                ModelState.AddModelError("Password", "Invalid Password");
+                return View("Index", model);
             }
+            catch (Exception)
+            {
+                ViewData["Alert"] = "User could not be located.";
+                return View("Index", model);
+            }
+
 
         }
 

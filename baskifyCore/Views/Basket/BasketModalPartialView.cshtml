@@ -1,0 +1,30 @@
+﻿@model BasketModel
+@*The inner body of the basket modal*@
+
+
+
+<div id="BasketModalContainer" class="modal-dialog" role="document">
+    <div class="modal-content" id="basketModalContent">
+        <div class="modal-header">
+            <h5 class="modal-title">@Model.BasketTitle</h5>
+            <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        </div>
+        <div class="modal-body" id="basketModalBody">
+
+            <div class="galleria">
+                <img src="~/Content/userIcons/animalmix55-icon.png">
+                <img src="~/Content/Auctions/BannerImages/auctionBanner24.jpeg">
+                <img src="~/Content/Basket2.png">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button type="button" class="btn btn-primary">Save changes</button>
+            <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+        </div>
+    </div>
+</div>
+<script>
+    $(function () { Galleria.run('.galleria') });
+</script>

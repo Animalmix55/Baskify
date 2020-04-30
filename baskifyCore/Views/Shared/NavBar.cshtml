@@ -12,17 +12,20 @@
     <div class="navBarElement navUserContainer">
 
         <div id="userAccount">
-            <div>@Html.DisplayName(Model.FirstName + " " + Model.LastName)</div>
-            <div style="font-size:60%; color:gray">
-                @if (Model.UserRole == 1)
-                {
-                    <text>User</text>
-                }
-                else if (Model.UserRole == 2)
-                {
-                    <text>Company</text>
-                }
-            </div>
+            @if (Model.UserRole == 1)
+            {
+                <div>@Html.DisplayName(Model.FirstName + " " + Model.LastName)</div>
+                <div style="font-size:60%; color:gray">
+                    User
+                </div>
+            }
+            else if (Model.UserRole == 2)
+            {
+                <div>@Html.DisplayName(Model.OrganizationName)</div>
+                <div style="font-size:60%; color:gray">
+                    Organization
+                </div>
+            }
         </div>
         <img class="userIcon" src="@Model.iconUrl" />
 

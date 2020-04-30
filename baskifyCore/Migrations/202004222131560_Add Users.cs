@@ -12,16 +12,16 @@
                 c => new
                     {
                         Id = c.Int(nullable: false, identity: true),
-                        FirstName = c.String(),
-                        LastName = c.String(),
+                        FirstName = c.String(nullable: true),
+                        LastName = c.String(nullable: true),
                         Address = c.String(),
                         City = c.String(),
                         State = c.String(),
                         ZIP = c.String(),
                         UserRole = c.Int(nullable: false),
-                        DateOfBirth = c.DateTime(nullable: false),
+                        DateOfBirth = c.DateTime(nullable: true),
                         iconUrl = c.String(nullable: false, defaultValue: "/Content/unknownUser.png"),
-                        lastLogin = c.DateTime(nullable: false),
+                        lastLogin = c.DateTime(nullable: true),
                     })
                 .PrimaryKey(t => t.Id);
             

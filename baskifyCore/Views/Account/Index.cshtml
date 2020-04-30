@@ -11,19 +11,30 @@
         <div id="accountSettingContainer">
             @using (Html.BeginForm("updateValues", "Account", FormMethod.Post, new { @id = "userInfoForm", enctype = "multipart/form-data" }))
             {
+                @Html.ValidationSummary(true)
             <fieldset>
                 <legend>Update User Information</legend>
-                <div class="form-group">
-                    @Html.LabelFor(Model => Model.FirstName)
-                    @Html.TextBoxFor(Model => Model.FirstName, null, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(Model => Model.FirstName)
-                </div>
-                <div class="form-group">
-                    @Html.LabelFor(Model => Model.LastName)
-                    @Html.TextBoxFor(Model => Model.LastName, null, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(Model => Model.LastName)
+                @if (Model.UserRole == 1)
+                {
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.FirstName)
+                        @Html.TextBoxFor(Model => Model.FirstName, null, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(Model => Model.FirstName)
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.LastName)
+                        @Html.TextBoxFor(Model => Model.LastName, null, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(Model => Model.LastName)
 
-                </div>
+                    </div>
+                }
+                else
+                {
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.OrganizationName)
+                        @Html.TextBoxFor(Model => Model.OrganizationName, null, new { @class = "form-control", @readonly = "\"\"" })
+                    </div>
+                }
                 <div class="form-group">
                     @Html.LabelFor(Model => Model.Username)
                     @Html.TextBoxFor(Model => Model.Username, null, new { @class = "form-control", @readonly = "\"\"" })
@@ -53,7 +64,7 @@
                     @Html.TextBoxFor(Model => Model.ZIP, null, new { @class = "form-control" })
                     @Html.ValidationMessageFor(Model => Model.ZIP)
                 </div>
-                <iframe id="userAddressMap" src="@baskifyCore.Utilities.accountUtils.getMapLink(Model)"></iframe>
+                <iframe id="userAddressMap" src="@baskifyCore.Utilities.accountUtils.getMapLink(Model.Address, Model.City, Model.State, Model.ZIP)"></iframe>
                 @Html.HiddenFor(Model => Model.UserRole)
                 @Html.HiddenFor(Model => Model.iconUrl)
                 <label for="exampleInputFile">Upload New Icon</label>
@@ -65,13 +76,9 @@
                     </div>
                 </div>
                 <div style="display: flex;">
-                    <button id="loginButton" type="submit" class="btn btn-primary">Save Changes</button>
-                    <div id="updateUserLoader" class="loading-spinner" style="height: 48px; width: 48px; margin-left: 10px;">
-                        <div class="loading-body">
-                            <div></div><div></div><div></div>
-                        </div>
-                    </div>
+                    <button id="loginButton" type="submit" class="btn btn-success btn-lg btn-block">Save Changes</button>
                 </div>
+                <button type="button" class="btn btn-primary btn-lg btn-block" onclick="redirect('/account/changepassword')">Reset Password</button>
             </fieldset>
             }
 

@@ -7,6 +7,11 @@ using System.Threading.Tasks;
 
 namespace baskifyCore.Models
 {
+    public static class TokenTypes
+    {
+        public const int PASSWORDRESET = 1;
+        public const int NORMAL = 0;
+    }
     public class BearerTokenModel
     {
         /// <summary>
@@ -26,6 +31,9 @@ namespace baskifyCore.Models
         [ForeignKey("Username")]
         public UserModel UserModel { get; set; }
         public string Token { get; set; }
+
+        [Required]
+        public int Type { get; set; }
 
     }
 }

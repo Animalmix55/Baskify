@@ -1,4 +1,4 @@
-﻿@model string
+﻿@model baskifyCore.ViewModels.LoginViewModel
 @{
     Layout = null;
 }
@@ -16,12 +16,22 @@
 </head>
 <body>
     <nav class="navigationBar">
-        <a class="navigationBarBrand navBarElement" href="#">Baskify</a>
+        <a class="navigationBarBrand navBarElement" href="/">Baskify</a>
     </nav>
     <div class="alert alert-dismissible alert-warning">
         <button type="button" class="close" data-dismiss="alert">&times;</button>
         <h4 class="alert-heading">Please login here!</h4>
-        <p class="mb-0">Please sign in before accessing personal content.</p>
+        <p class="mb-0">
+        @if (ViewData["Alert"] == null)
+        {
+            <text>Please sign in before accessing personal content.</text>
+        }
+        else
+        {
+            <text>@ViewData["Alert"]</text>
+        }
+
+        </p>
     </div>
 
     <div class="modal-dialog" role="document">
@@ -30,51 +40,41 @@
                 <h5 class="modal-title">Sign In</h5>
             </div>
             <div class="modal-body">
-                <form id="SignOnForm">
-                    <label for="inputUsername">Username:</label>
-                    <input id="inputUsername" type="text" placeholder="Username" class="form-control" />
+                @using (Html.BeginForm("loginRedirect", "login", FormMethod.Post, new { @id = "LoginForm" }))
+                {
+                    @Html.AntiForgeryToken()
+                    @Html.HiddenFor(Model => Model.redirectUrl)
                     <div class="form-group has-danger">
-                        <label for="inputPassword">Password:</label>
-                        <input id="inputPassword" type="password" placeholder="Password" class="form-control">
-                        <div id="passwordFeedback" class="invalid-feedback"></div>
+                        @Html.LabelFor(Model => Model.Username)
+                        @Html.TextBoxFor(Model => Model.Username, new { @placeholder = "Username", @class="form-control" })
+                        @Html.ValidationMessageFor(Model => Model.Username)
+                    </div>
+                    <div class="form-group has-danger">
+                        @Html.LabelFor(Model => Model.Password)
+                        @Html.TextBoxFor(Model => Model.Password, new { @placeholder = "Password", @class = "form-control", @type="password" })
+                        @Html.ValidationMessageFor(Model => Model.Password)
                     </div>
                     <div style="display: flex;">
                         <button id="loginButton" type="submit" class="btn btn-primary">Sign In</button>
+                        <a style="align-self: center; margin-left: 10px;" href="/account/forgotpassword">Forgot Password?</a>
                         <div id="loginLoader" class="loading-spinner" style="height: 48px; width: 48px; margin-left: 10px;">
                             <div class="loading-body">
                                 <div></div><div></div><div></div>
                             </div>
                         </div>
                     </div>
-                </form>
+                }
             </div>
         </div>
     </div>
 
     <script>
-        $(document).ready(function () {
-            $("#SignOnForm").submit(function (e) {
-                e.preventDefault();
-                $("#loginButton").prop('disabled', true);
-                $("#loginLoader").css("visibility", "visible");
-                $.post("/Login/LoginRedirect", { username: $("#inputUsername").val(), password: $("#inputPassword").val(), redirectUrl: "@Model" },
-                    function (data) { //post will return the new, logged in header
-                        $("#loginButton").prop('disabled', false);
-                        if (!data.startsWith("ERROR:")) {
-                            window.location = data; //to get the data
-                            $("#inputPassword").removeClass("is-invalid")
-                        }
-                        else {
-                            $("#inputPassword").addClass("is-invalid")
-                            $("#passwordFeedback").html(data);
-                            $("#loginLoader").css("visibility", "hidden");
-                        }
-                    });
-                return false;
-            });
-        })
 
         $(function () { $("#SignOnModal").modal("show"); });
+        $("#LoginForm").on("submit", function () {
+            $("#loginLoader").css("visibility", "visible")
+        });
+        window.history.pushState("", "", '/login');
 
     </script>
 </body>
