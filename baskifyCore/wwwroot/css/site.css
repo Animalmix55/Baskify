@@ -389,28 +389,7 @@ h4{
     margin-top: 5px;
 }
 
-@media (max-width: 790px) {
-    .searchButton {
-        display: none;
-    }
 
-    #searchQueryHome {
-        border-bottom-right-radius: 27px;
-        border-top-right-radius: 27px;
-    }
-
-    #homePagePhotoWall {
-        background-attachment: scroll;
-    }
-
-    #aboutUs img {
-        width: 100%;
-        flex: 1;
-    }
-    #aboutUs img:nth-child(4), #aboutUs img:nth-child(5){
-        display: none;
-    }
-}
 /* Account settings
 -------------------------------------------------- */
 #userInfoForm{
@@ -446,4 +425,112 @@ h4{
     width: 100%;
     height: 200px;
     border: none;
+}
+
+/*---------------AUCTION ADD FORM------------------*/
+#auctionInfoForm{
+    width: 60%;
+    min-width: 400px;
+    left: 0;
+    right: 0;
+    margin: auto;
+    transition: width 1s;
+}
+
+.AuctionBannerImage {
+    width: 60%;
+    height: auto;
+    left: 0;
+    right: 0;
+    margin: auto;
+    display: block;
+    transition: width .6s;
+}
+
+#AuctionNavTabs {
+    width: 60%;
+    left: 0;
+    right: 0;
+    margin: auto;
+    font-size: 160%;
+    transition: width .6s;
+}
+#myTabContent #baskets {
+    width: 60%;
+    left: 0;
+    right: 0;
+    margin: auto;
+    transition: width .6s;
+    height: 800px;
+    overflow-y: auto;
+}
+.galleria {
+    width: 100%;
+    height: 400px;
+    background: #000
+}
+#BasketModalContainer{
+    width: 60%;
+    max-width: 1000px;
+    min-width:600px;
+    height: 80%;
+    min-height: 600px;
+    max-height: 1000px;
+}
+#basketModalContent{
+    height: 100%;
+}
+#basketModalBody{
+    height: 100%;
+    overflow-y: auto;
+}
+
+@media (max-width: 790px) {
+    .searchButton {
+        display: none;
+    }
+
+    #searchQueryHome {
+        border-bottom-right-radius: 27px;
+        border-top-right-radius: 27px;
+    }
+
+    #homePagePhotoWall {
+        background-attachment: scroll;
+    }
+
+    #aboutUs img {
+        width: 100%;
+        flex: 1;
+    }
+
+    #aboutUs img:nth-child(4), #aboutUs img:nth-child(5) {
+        display: none;
+    }
+
+    .AuctionBannerImage {
+        width: 98%;
+    }
+
+    #AuctionNavTabs {
+        width: 100%;
+    }
+    #auctionInfoForm, #myTabContent #baskets {
+        width: 100%;
+    }
+    #basketModalBody {
+        height: 100%;
+    }
+    #BasketModalContainer {
+        width: 100%;
+        max-width: unset;
+        min-width: unset;
+        height: 100%;
+        min-height: unset;
+        max-height: unset;
+        margin: 0;
+    }
+    #basketDataModal{
+        padding: 0 !important
+    }
 }

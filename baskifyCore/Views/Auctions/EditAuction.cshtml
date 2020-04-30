@@ -1,0 +1,233 @@
+﻿@model baskifyCore.Models.AuctionModel
+
+@{
+    ViewData["Title"] = "View";
+}
+<script src="~/galleria/galleria.min.js"></script>
+<script src="~/js/moment-with-locales.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
+<div id="basketDataModal" class="modal">
+</div>
+
+<div id="accountSettings">
+    <div id="accountSettingContainer">
+        @if (!String.IsNullOrWhiteSpace(Model.BannerImageUrl))
+        {
+            <img class="AuctionBannerImage" src="@Model.BannerImageUrl" />
+        }
+
+        <ul class="nav nav-tabs" id="AuctionNavTabs">
+            <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#auctionInfo">Auction Info</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#baskets">Baskets</a>
+            </li>
+        </ul>
+        <div id="myTabContent" class="tab-content">
+            <div class="tab-pane fade active show" id="auctionInfo">
+                @using (Html.BeginForm("editAuction", "auctions", FormMethod.Post, new { @id = "auctionInfoForm", enctype = "multipart/form-data" }))
+                {
+                    @Html.ValidationSummary(true)
+
+                    <fieldset>
+                        <legend>Auction Information</legend>
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.Title)
+                            @Html.TextBoxFor(Model => Model.Title, null, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(Model => Model.Title)
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.Description)
+                            @Html.TextAreaFor(Model => Model.Description, 5, 50, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(Model => Model.Description)
+                        </div>
+
+                        @if (Model.StartTime < DateTime.Now)
+                        {
+                            <div class="form-group">
+                                @Html.Label("Auction Date Range")
+                                <input type="text" id="dateRangePicker" name="datetimes" class="form-control" />
+                                @Html.HiddenFor(Model => Model.StartTime)
+                                @Html.HiddenFor(Model => Model.EndTime)
+                                @Html.ValidationMessageFor(Model => Model.StartTime)
+                                @Html.ValidationMessageFor(Model => Model.EndTime)
+                            </div>
+                            <legend>Change Starting Address</legend>
+                            <div class="form-group">
+                                @Html.LabelFor(Model => Model.Address)
+                                @Html.TextBoxFor(Model => Model.Address, null, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(Model => Model.Address)
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(Model => Model.City)
+                                @Html.TextBoxFor(Model => Model.City, null, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(Model => Model.City)
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(Model => Model.State)
+                                @Html.TextBoxFor(Model => Model.State, null, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(Model => Model.State)
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(Model => Model.ZIP)
+                                @Html.TextBoxFor(Model => Model.ZIP, null, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(Model => Model.ZIP)
+                            </div>
+                            <label style="color:red;" id="addressValidationResult"></label>
+                            <iframe id="userAddressMap" src="@baskifyCore.Utilities.accountUtils.getMapLink(Model.Address, Model.City, Model.State, Model.ZIP)"></iframe>
+                        }
+                        else //this auction has begun!
+                        {
+                            <div class="form-group">
+                                @Html.Label("Auction Start Date")
+                                @Html.TextBoxFor(Model => Model.StartTime, new { @disabled = "\"\"", @class = "form-control" })
+                                @Html.Label("Auction End Date")
+                                @Html.TextBoxFor(Model => Model.EndTime, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(Model => Model.EndTime)
+                            </div>
+                            @Html.HiddenFor(Model => Model.Address)
+                            @Html.HiddenFor(Model => Model.City)
+                            @Html.HiddenFor(Model => Model.State)
+                            @Html.HiddenFor(Model => Model.ZIP)
+
+                            <script>
+                            $(function () {
+                                $('input[name="EndTime"]').daterangepicker({
+                                    singleDatePicker: true,
+                                    showDropdowns: true,
+                                    locale: {
+                                        format: 'MM/DD/YYYY hh:mm:ss A'
+                                    },
+                                    minYear: @DateTime.Today.Year,
+                                    maxYear: @DateTime.Today.Year,
+                                    timePicker: true,
+                                    maxDate: "@Model.StartTime.AddDays(31)",
+                                    drops: "up",
+                                    startDate: "@Model.EndTime"
+                                });
+                            });
+
+                            </script>
+
+                        }
+
+
+
+                        @Html.HiddenFor(Model => Model.HostUsername)
+
+                        <label for="exampleInputFile">Update Your Banner!</label>
+                        <div class="form-group">
+                            @Html.TextBoxFor(Model => Model.BannerImage, new { @type = "file", @class = "form-control-file", @id = "inputBannerFile" })
+                            <small id="fileHelp" class="form-text text-muted">Upload an image that encapsulates your goal! Recommended: 500px x 1000px</small>
+                        </div>
+                        <div style="display: flex;">
+                            <button id="updateButton" type="submit" class="btn btn-success btn-lg btn-block">Update Auction</button>
+                        </div>
+                    </fieldset>
+                }
+            </div>
+            <div class="tab-pane fade" id="baskets">
+
+                @if (Model.Baskets != null && Model.Baskets.Count > 0)
+                {
+                    <table class="table table-hover">
+                        <thead>
+                            <tr>
+                                <th scope="col">Basket Name</th>
+                                <th scope="col">Submitting User</th>
+                                <th scope="col">Submission Date</th>
+                                <th scope="col"></th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var basket in Model.Baskets)
+                            {
+                                @if (basket.AcceptedByOrg)
+                                {
+                                    <tr class="table-success" id="basketRow-@basket.BasketId">
+                                        <td scope="row" onclick="viewBasket(@basket.BasketId)">@basket.BasketTitle</td>
+                                        <td onclick="viewBasket(@basket.BasketId)">@basket.SubmittingUsername</td>
+                                        <td onclick="viewBasket(@basket.BasketId)">@basket.SubmissionDate.ToShortDateString()</td>
+                                        <td>
+                                            <button type="button" class="close" onclick="deleteBasket(@basket.BasketId)" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                            <span class="rowError"></span>
+                                        </td>
+                                    </tr>
+                                }
+                                else
+                                {
+                                    <tr class="table-danger" id="basketRow-@basket.BasketId">
+                                        <td scope="row" onclick="viewBasket(@basket.BasketId)">@basket.BasketTitle <span class="badge badge-pill badge-primary">Unverified</span></td>
+                                        <td onclick="viewBasket(@basket.BasketId)">@basket.SubmittingUsername</td>
+                                        <td onclick="viewBasket(@basket.BasketId)">@basket.SubmissionDate.ToShortDateString()</td>
+                                        <td>
+                                            <button type="button" class="close" onclick="delete(@basket.BasketId)" aria-label="Close">
+                                                <span aria-hidden="true">&times;</span>
+                                            </button>
+                                            <span class="rowError"></span>
+                                        </td>
+                                    </tr>
+                                }
+                            }
+                        </tbody>
+                    </table>
+                }
+
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    function viewBasket(id) {//loads in the basket modal
+        $.post("/basket/viewModal", { basketID: id, auctionID: @Model.AuctionId },
+            function (data) {
+                if (data != "ERROR: INVALID LOGIN") {
+                    $("#basketDataModal").html(data);
+                    $("#basketDataModal").modal("show");
+                }
+                else if(data == "ERROR: INVALID LOGIN"){
+                    openSignOnModal(); //get signin
+                }
+                else
+                    $("#basketRow-"+id+" .rowError").html("ERROR");
+            }
+        );
+    }
+    function deleteBasket(id) {//deletes the given basket
+        $.post("/basket/delete", { basketID: id, auctionID: @Model.AuctionId },
+            function (data) {
+                if (!data.startsWith("ERROR"))
+                    $("#basketRow-" + id).remove(); //empty row
+                else {
+                    $("#basketRow-"+id+" .rowError").html("ERROR");
+                }
+            }
+        )
+    }
+
+    $(document).ready(function () {
+        $('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
+            localStorage.setItem('activeTab', $(e.target).attr('href'));
+        });
+        var activeTab = localStorage.getItem('activeTab');
+        if (activeTab) {
+            $('#myTabContent').children().removeClass('active show')
+            $(activeTab).addClass('active show');
+        }
+    });
+
+    $(function () {
+        Galleria.loadTheme('/galleria/themes/classic/galleria.classic.js');
+        Galleria.configure({
+            imageCrop: false,
+            transition: 'fade'
+        });
+    }());
+</script>
+
