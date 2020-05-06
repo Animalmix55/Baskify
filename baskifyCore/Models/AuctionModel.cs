@@ -1,4 +1,5 @@
-﻿using Microsoft.AspNetCore.Http;
+﻿using baskifyCore.Utilities;
+using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
@@ -74,6 +75,19 @@ namespace baskifyCore.Models
             if((EndTime - StartTime).TotalDays > 31)
             {
                 yield return new ValidationResult("The auction cannot last longer than a month!", new[] { "EndTime" });
+            }
+            if ((EndTime - StartTime).TotalHours < 1)
+                yield return new ValidationResult("The auction must be at least an hour long!", new[] { "EndTime" });
+
+            var addressDict = accountUtils.validateAddress(Address, City, State, ZIP);
+            if (addressDict["resultStatus"] == "ADDRESS NOT FOUND") //now, addresses are validated in the model
+                yield return new ValidationResult("Address not found", new[] { "Address" });
+            else
+            {
+                Address = addressDict["addressLine1"];
+                City = addressDict["city"];
+                State = addressDict["state"];
+                ZIP = addressDict["zip"];
             }
         }
     }

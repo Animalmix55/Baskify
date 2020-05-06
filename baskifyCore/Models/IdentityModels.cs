@@ -17,6 +17,7 @@ namespace baskifyCore.Models
         public DbSet<BasketPhotoModel> BasketPhotoModel { get; set; }
         public DbSet<TicketModel> TicketModel { get; set; }
         public DbSet<UserAuctionWalletModel> UserAuctionWallet { get; set; }
+        public DbSet<PendingImageModel> PendingImageModel { get; set; }
 
     }
 }

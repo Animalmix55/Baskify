@@ -21,9 +21,13 @@ namespace baskifyCore.Utilities
                 {
                     bitmap = new Bitmap(inputStream);
 
-
                     var origHeight = bitmap.Height;
                     var origWidth = bitmap.Width;
+
+                    if (height == -1)
+                        height = origHeight;
+                    if (width == -1)
+                        width = origWidth;
 
                     var targetRatio = (double)height / width; //1:3 for example (.333)
                     if ((double)origHeight / origWidth > targetRatio)
@@ -115,6 +119,18 @@ namespace baskifyCore.Utilities
                 l = (bmp.Width - bmp.Height) / 2;
             g.DrawImage(bmp, new Rectangle(0, 0, width, length), new Rectangle(l, t, bmp.Width - l * 2, bmp.Height - t * 2), GraphicsUnit.Pixel);
             return res;
+        }
+
+        public static bool deleteFile(string relativePath, string webroot)
+        {
+            var absolutePath = webroot + "/" + relativePath.Trim('/');
+            if (File.Exists(absolutePath))
+            {
+                File.Delete(absolutePath);
+                return true;
+            }
+            else
+                return false;
         }
     }
 }

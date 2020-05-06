@@ -12,19 +12,181 @@
             </button>
         </div>
         <div class="modal-body" id="basketModalBody">
-
+            <button id="deleteCurrentImage" class="btn btn-primary btn-sm" style="position:absolute; right:16px; z-index:10">Delete Current Image</button>
             <div class="galleria">
-                <img src="~/Content/userIcons/animalmix55-icon.png">
-                <img src="~/Content/Auctions/BannerImages/auctionBanner24.jpeg">
-                <img src="~/Content/Basket2.png">
+                @foreach (var image in Model.photos)
+                {
+                    <img src="@image.Url" data="@image.PhotoId" />
+                }
             </div>
+            @if (!Model.AcceptedByOrg)
+            {
+                <div id="verifyWarning" class="alert alert-dismissible alert-warning">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <h4 class="alert-heading">Warning!</h4>
+                    <p class="mb-0" style="display:flex">This basket has not been verified and added to your auction! <button id="verifyBasket" style="margin-left:auto" class="btn btn-outline-danger" onclick="verifyBasket(@Model.BasketId)">Verify</button></p>
+                </div>
+            }
+            <form id="imageUploadForm">
+                <div class="form-group">
+                    <div class="input-group mb-3">
+                        <div class="custom-file">
+                            <input type="file" class="custom-file-input" name="files" id="uploadImages" multiple>
+                            @Html.HiddenFor(Model => Model.BasketId, new { @id = "imageBasketId"})
+                            <label class="custom-file-label" for="inputGroupFile02">Add image(s)</label>
+                        </div>
+                        <span id="imageUploadError"></span>
+                        <div class="input-group-append">
+                            <input type="submit" class="input-group-text" id="" value="Upload" style="height:45px">
+                            <div id="loginLoader" class="loading-spinner" style="height: 48px; width: 48px; margin-left: 10px;">
+                                <div class="loading-body">
+                                    <div></div><div></div><div></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </form>
+            <form id="basketUpdateForm" method="post" action="/basket/updateBasket">
+                <fieldset>
+                    <legend>Basket Attributes</legend>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.BasketTitle)
+                        @Html.TextBoxFor(Model => Model.BasketTitle, null, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(Model => Model.BasketTitle)
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.BasketDescription)
+                        @Html.TextAreaFor(Model => Model.BasketDescription, 5, 30, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(Model => Model.BasketDescription)
+                    </div>
+                    <div class="form-group">
+                        <ul class="list-group" id="basketComponentList">
+                            <li class="list-group-item list-group-item-action active">
+                                Basket Contents
+                            </li>
+                            @if (Model.BasketContents != null)
+                            {
+                                for (int i = 0; i<Model.BasketContents.Count; i++)
+                                {
+                                    if (!string.IsNullOrWhiteSpace(Model.BasketContents[i]))
+                                    {
+                                    <li class="list-group-item d-flex justify-content-between align-items-center">
+                                        <input class="basketContents form-control" type="text" value="@Model.BasketContents[i]" placeholder="Add a new item" />
+                                    </li>
+                                    }
+                                }
+                            }
+                            <li class="list-group-item d-flex justify-content-between align-items-center">
+                                <input class="basketContents form-control" data="new" type="text"  placeholder="Add a new item" />
+                            </li>
+                        </ul>
+                        @Html.ValidationMessageFor(Model => Model.BasketContentString)
+                        @Html.HiddenFor(Model => Model.AuctionId)
+                        @Html.HiddenFor(Model => Model.BasketId)
+                    </div>
+                </fieldset>
+
+            </form>
         </div>
         <div class="modal-footer">
-            <button type="button" class="btn btn-primary">Save changes</button>
+            <button type="button" onclick="$('#basketUpdateForm').submit()" class="btn btn-primary">Save changes</button>
             <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
         </div>
     </div>
 </div>
 <script>
-    $(function () { Galleria.run('.galleria') });
+    var imagesToRemove = []; //this has relative urls
+    var imagesToAdd = []; //this has relative urls
+    $(function () {
+        Galleria.run('.galleria', {
+            extend: function () {
+                var gallery = this;
+                $('#deleteCurrentImage').click(function () {
+                    var current = gallery.getActiveImage(); //adds element to list of IDs to remove...
+                    imagesToRemove.push($(current).attr("src"));
+                    var gallerySize = gallery.getDataLength();
+                    if (gallerySize > 1) {
+                        var currentIndex = gallery.getIndex();
+                        gallery.splice(currentIndex, 1); //removes element
+                        if (currentIndex == gallerySize - 1)//current selected last index...
+                            currentIndex--;
+                        gallery.show(currentIndex - 1); //because it doesn't like to update
+                        gallery.show(currentIndex);
+                    }
+                    if (gallerySize == 2) {
+                        $("#deleteCurrentImage").prop('disabled', true); //disable button
+                    }
+                });
+            }
+        })
+    });
+
+    $("#imageUploadForm").submit(function (e) {
+        e.stopPropagation();
+        e.preventDefault();
+        var formData = new FormData();
+        var files = $("#uploadImages").prop("files");
+        $.each(files, function (i, file) {
+            formData.append('files', file);
+        });
+        formData.append('basketId', $('#imageBasketId').val());
+
+        $.ajax({
+            url: "/basket/uploadBasketImages",
+            type: 'POST',
+            processData: false,
+            contentType: false,
+            data: formData,
+            dataType: 'text',
+            success: function (data) {
+                if (data.startsWith("ERROR"))
+                    $("#imageUploadError").html(data);
+                else {
+                    //data is an array of new image URLs
+                    var response = JSON.parse(data);
+                    response.forEach(element => { $('.galleria').data('galleria').push({ image: element }); imagesToAdd.push(element); }); //add to galleria
+                    
+                }
+            }
+        });
+        return false;
+
+    });
+
+    $("#basketUpdateForm").submit(function (e) {//put remove and add arrays in request
+
+        for (i = 0; i < imagesToRemove.length; i++) {
+            $(e.target).append("<input type='hidden' value='" + imagesToRemove[i] + "' name='removeImages[" + i + "]' />")
+        }
+
+        for (i = 0; i < imagesToAdd.length; i++) {
+            $(e.target).append("<input type='hidden' value='" + imagesToAdd[i] + "' name='addImages[" + i + "]' />")
+        }
+
+        $(".basketContents").each(function (index) {
+            if ($(this).val() != "")
+                $(this).attr("name", "BasketContents[" + index + "]"); //add the name to each content for submission
+        });
+    });
+
+    $("#basketDataModal").on('hide.bs.modal', function () {
+        imagesToAdd = []; //empty pending adds...
+        imagesToRemove = []; //empty penidng removes...
+    });
+
+    $(document).on("input", ".basketContents", function () {
+        if ($(this).val() == "" & $(this).attr("data") != "new") { //remove old empty rows
+            $(this).parent().remove();
+        }
+        else if ($(this).val() != "" && $(this).attr("data") == "new") {
+            $(".basketContents").removeAttr("data");
+            $("#basketComponentList")
+                .append('<li class="list-group-item d-flex justify-content-between align-items-center">' +
+                    '<input class="basketContents form-control" data="new" type="text" placeholder="Add a new item" /></li>');
+
+        }
+    });
+
+
 </script>
