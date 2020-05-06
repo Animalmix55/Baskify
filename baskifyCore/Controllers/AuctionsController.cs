@@ -58,9 +58,11 @@ namespace baskifyCore.Controllers
             }
 
             //Validate address
+            /*
             Dictionary<string, string> addressValidation;
             if ((addressValidation = accountUtils.validateAddress(auction.Address, auction.City, auction.State, auction.ZIP))["resultStatus"] == "ADDRESS NOT FOUND")
                 ModelState.AddModelError("Address", "Address not valid");
+            */
 
             if (auction.StartTime < DateTime.Now)
                 ModelState.AddModelError("StartTime", "Auction cannot have already started!");
@@ -73,11 +75,13 @@ namespace baskifyCore.Controllers
             }
 
             try {
+                /* addresses are now validated in model
                 //update address with validated version
                 auction.Address = addressValidation["addressLine1"];
                 auction.City = addressValidation["city"];
                 auction.State = addressValidation["state"];
                 auction.ZIP = addressValidation["zip"];
+                */
 
                 auction.HostUsername = user.Username;
                 auction.Description = auction.Description.Replace(">", String.Empty)
@@ -87,7 +91,7 @@ namespace baskifyCore.Controllers
                     .Replace("&", "and"); //avoid injection
                 var auctionId = AuctionUtilities.addAuction(auction, user, _context);
                 if (auction.BannerImage != null)
-                    auction.BannerImageUrl = imageUtilities.uploadFile(auction.BannerImage, _env.WebRootPath, "/Content/Auctions/BannerImages/", 500, 1000, "auctionBanner" + auctionId.ToString()); //save image
+                    auction.BannerImageUrl = imageUtilities.uploadFile(auction.BannerImage, _env.WebRootPath, "/Content/Auctions/BannerImages/", 300, 1000, "auctionBanner" + auctionId.ToString()); //save image
                 _context.SaveChanges();
                 ViewData["Alert"] = "Auction added successfully!";
                 ViewData["NavBarOverride"] = user;
@@ -131,6 +135,110 @@ namespace baskifyCore.Controllers
             {
                 return Redirect("/"); //send them home!
             }
+        }
+
+        [HttpPost]
+        public IActionResult editAuction(AuctionModel auction)
+        {
+            var user = LoginUtils.getUserFromToken(Request.Cookies["BearerToken"], _context, Response);
+            if(user == null)//if the user isn't logged in, give them a chance...
+            {
+                return Redirect("/login?redirectBack=" + LoginUtils.getAbsoluteUrl("/auctions/editAuction/" + auction.AuctionId, Request));
+            }
+
+            ViewData["NavBarOverride"] = user;
+            var dbAuction = _context.AuctionModel.Find(auction.AuctionId);
+
+            if(dbAuction == null)
+            {
+                ViewData["Alert"] = "Auction not found... try again.";
+                return View("~/Views/Home/Index.cshtml", user);
+            }
+
+            if(dbAuction.HostUsername != user.Username) //not their auction
+            {
+                ViewData["Alert"] = "You do not have access to this auction.";
+                return View("~/Views/Home/Index.cshtml", user);
+            }
+            if(dbAuction.EndTime < DateTime.UtcNow)
+            {
+                ViewData["Alert"] = "You cannot edit an ended auction.";
+                return View("~/Views/Home/Index.cshtml", user);
+            }
+
+            //at this point, it's their auction, they can edit
+            //isLive limits what they can edit...
+            var isLive = dbAuction.StartTime < DateTime.UtcNow;
+
+            if (isLive && dbAuction.StartTime != auction.StartTime)
+            {//make sure they are not trying to change any times...
+                auction.StartTime = dbAuction.StartTime; //reset times to avoid weird window behavior
+                auction.EndTime = dbAuction.EndTime;
+                ModelState.AddModelError("StartTime", "You cannot change the start time of an in-progress auction");
+            }
+            else if (!isLive && (auction.StartTime - DateTime.UtcNow).TotalHours < 1)
+            {
+                auction.StartTime = dbAuction.StartTime;
+                auction.EndTime = dbAuction.EndTime;
+                ModelState.AddModelError("StartTime", "The start time must be at least an hour in the future (UTC)");
+            }
+            else if (!isLive && (auction.EndTime - DateTime.UtcNow).TotalHours < 1)
+            {
+                auction.StartTime = dbAuction.StartTime;
+                auction.EndTime = dbAuction.EndTime;
+                ModelState.AddModelError("EndTime", "The end time must be at least an hour in the future (UTC)");
+            }
+            _context.Entry(dbAuction).Collection(a => a.Baskets).Load(); //get baskets...
+            auction.Baskets = dbAuction.Baskets; //give auction baskets
+            auction.BannerImageUrl = dbAuction.BannerImageUrl; //so banner appears on error
+            if (!ModelState.IsValid)
+            {
+                ViewData["Alert"] = "Invalid input, please update and try again!";
+                return View(auction);
+            }
+
+            if (auction.BannerImage != null)
+            { //update banner
+                string BannerUrl;
+                BannerUrl = imageUtilities.uploadFile(auction.BannerImage, _env.WebRootPath, "/Content/Auctions/BannerImages/", 300, 1000, "auctionBanner" + dbAuction.AuctionId.ToString() + Guid.NewGuid().ToString().Substring(0,2)); //save image
+                if (BannerUrl == null)
+                {
+                    ViewData["Alert"] = "Banner update failed, reupload and try again...";
+                    return View(auction);
+                }
+                else
+                {
+                    if (!String.IsNullOrWhiteSpace(dbAuction.BannerImageUrl))
+                        imageUtilities.deleteFile(dbAuction.BannerImageUrl, _env.WebRootPath); //delete old banner to save space!
+                    dbAuction.BannerImageUrl = BannerUrl;
+                }
+            }
+
+            dbAuction.Description = auction.Description.Replace(">", String.Empty)
+                    .Replace("<", String.Empty)
+                    .Replace("\'", String.Empty)
+                    .Replace("\"", String.Empty)
+                    .Replace("&", "and"); //avoid injection
+
+            dbAuction.Title = auction.Title;
+            if (isLive)
+            {
+                dbAuction.EndTime = auction.EndTime; //at this point since start must match the server version, this will be within 31 days
+            }
+            else //no restrictions on what can be changed
+            {
+                dbAuction.Address = auction.Address;
+                dbAuction.City = auction.City;
+                dbAuction.State = auction.State;
+                dbAuction.ZIP = auction.ZIP;
+                dbAuction.StartTime = auction.StartTime;
+                dbAuction.EndTime = auction.EndTime;
+            }
+            _context.SaveChanges();
+
+            ViewData["Alert"] = "Auction successsfully updated!";
+            ModelState.Clear();
+            return View(dbAuction); //navbar is already overridden
         }
     }
 }

@@ -10,6 +10,11 @@
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 
 <div id="basketDataModal" class="modal">
+    @if (ViewData["basket"] != null)//if given a basket, load the modal with it
+    {
+        await Html.RenderPartialAsync("BasketModalPartialView", ViewData["basket"]);
+        <script>$("#basketDataModal").modal("toggle")</script>
+    }
 </div>
 
 <div id="accountSettings">
@@ -46,7 +51,7 @@
                             @Html.ValidationMessageFor(Model => Model.Description)
                         </div>
 
-                        @if (Model.StartTime < DateTime.Now)
+                        @if (Model.StartTime > DateTime.UtcNow)
                         {
                             <div class="form-group">
                                 @Html.Label("Auction Date Range")
@@ -79,12 +84,63 @@
                             </div>
                             <label style="color:red;" id="addressValidationResult"></label>
                             <iframe id="userAddressMap" src="@baskifyCore.Utilities.accountUtils.getMapLink(Model.Address, Model.City, Model.State, Model.ZIP)"></iframe>
+                            <script>
+                                $(function () {
+                                    $('input[name="datetimes"]').daterangepicker({
+                                        timePicker: true,
+                                        startDate: "@Model.StartTime",
+                                        endDate: "@Model.EndTime",
+                                        locale: {
+                                            format: 'MM/DD/YYYY hh:mm:ss A'
+                                        },
+                                        dateLimit: {
+                                            'months': 1,
+                                            'days': -1
+                                        }
+                                    });
+
+                                    $("#dateRangePicker").on("change", function () {
+                                        $("#StartTime").val($("#dateRangePicker").val().split(" - ")[0]);
+                                        $("#EndTime").val($("#dateRangePicker").val().split(" - ")[1]);
+                                    });
+
+                                    $("#Address,#City,#State,#ZIP").on("blur", function () {//update address
+                                        if ($("#Address").val() == "" || $("#City").val() == "" || $("#State").val() == "" || $("#ZIP").val() == "") {
+                                            return
+                                        }
+
+                                        $.post("/account/validateAddress",
+                                            {
+                                                Address: $("#Address").val(),
+                                                City: $("#City").val(),
+                                                State: $("#State").val(),
+                                                ZIP: $("#ZIP").val()
+                                            },
+                                            function (data) {
+                                                var dataObject = JSON.parse(data);
+                                                if (dataObject["resultStatus"] != "ADDRESS NOT FOUND") {
+                                                    $("#Address").val(dataObject["addressLine1"]);
+                                                    $("#City").val(dataObject["city"]);
+                                                    $("#State").val(dataObject["state"]);
+                                                    $("#ZIP").val(dataObject["zip"]);
+                                                    $("#userAddressMap").prop("src", dataObject["GoogleMapUrl"]);
+                                                    $("#addressValidationResult").html("");
+                                                }
+                                                else {
+                                                    $("#addressValidationResult").html("Address Not Found!");
+                                                }
+                                            });
+                                    });
+                                });
+
+                            </script>
                         }
                         else //this auction has begun!
                         {
                             <div class="form-group">
                                 @Html.Label("Auction Start Date")
-                                @Html.TextBoxFor(Model => Model.StartTime, new { @disabled = "\"\"", @class = "form-control" })
+                                @Html.TextBoxFor(Model => Model.StartTime, new { @readonly = "readonly", @class = "form-control" })
+                                @Html.ValidationMessageFor(Model => Model.StartTime)
                                 @Html.Label("Auction End Date")
                                 @Html.TextBoxFor(Model => Model.EndTime, new { @class = "form-control" })
                                 @Html.ValidationMessageFor(Model => Model.EndTime)
@@ -105,6 +161,7 @@
                                     minYear: @DateTime.Today.Year,
                                     maxYear: @DateTime.Today.Year,
                                     timePicker: true,
+                                    minDate: "@DateTime.UtcNow.AddHours(1)",
                                     maxDate: "@Model.StartTime.AddDays(31)",
                                     drops: "up",
                                     startDate: "@Model.EndTime"
@@ -116,13 +173,13 @@
                         }
 
 
-
+                        @Html.HiddenFor(Model => Model.AuctionId) 
                         @Html.HiddenFor(Model => Model.HostUsername)
 
                         <label for="exampleInputFile">Update Your Banner!</label>
                         <div class="form-group">
                             @Html.TextBoxFor(Model => Model.BannerImage, new { @type = "file", @class = "form-control-file", @id = "inputBannerFile" })
-                            <small id="fileHelp" class="form-text text-muted">Upload an image that encapsulates your goal! Recommended: 500px x 1000px</small>
+                            <small id="fileHelp" class="form-text text-muted">Upload an image that encapsulates your goal! Recommended: 300px x 1000px</small>
                         </div>
                         <div style="display: flex;">
                             <button id="updateButton" type="submit" class="btn btn-success btn-lg btn-block">Update Auction</button>
@@ -210,6 +267,19 @@
             }
         )
     }
+    function verifyBasket(id) {
+        $.post("/Basket/verifyBasket", { basketId: id },
+            function (data) {
+                if (!data.startsWith("ERROR")) {
+                    $("#basketRow-" + id).removeClass("table-danger").addClass("table-success"); //make it green
+                    $("#basketRow-" + id + " .badge").remove(); //remove pill badge
+                    $("#verifyWarning").remove();
+                }
+                else {
+                    $("#verifyWarning .mb-0").html("Verification failed!");
+                }
+            });
+    }
 
     $(document).ready(function () {
         $('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
@@ -217,6 +287,8 @@
         });
         var activeTab = localStorage.getItem('activeTab');
         if (activeTab) {
+            $("#AuctionNavTabs a").removeClass("active");
+            $('a[href="' + activeTab + '"]').addClass("active");
             $('#myTabContent').children().removeClass('active show')
             $(activeTab).addClass('active show');
         }
@@ -226,6 +298,8 @@
         Galleria.loadTheme('/galleria/themes/classic/galleria.classic.js');
         Galleria.configure({
             imageCrop: false,
+            _toggleInfo: false,
+            lightbox: true,
             transition: 'fade'
         });
     }());
