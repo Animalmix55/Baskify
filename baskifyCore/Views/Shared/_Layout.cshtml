@@ -15,7 +15,10 @@
        <partial name="NavBar" model='ViewData["NavBarOverride"] ?? Model'/>
     </header>
     <main role="main" class="pb-3">
-        @RenderBody()
+        <asp:UpdatePanel ID="UpdatePanel1"
+                         runat="server">
+            @RenderBody()
+        </asp:UpdatePanel>
     </main>
 
 

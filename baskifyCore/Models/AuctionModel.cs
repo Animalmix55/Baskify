@@ -11,10 +11,14 @@ namespace baskifyCore.Models
 {
     public class AuctionModel : IValidatableObject
     {
+        public const int MaxDistance = 2001;
+        public const int MinDistance = 5;
         public AuctionModel()
         {
-            StartTime = DateTime.Now.AddDays(1);
-            EndTime = DateTime.Now.AddDays(5);
+            StartTime = DateTime.UtcNow.AddDays(1);
+            EndTime = DateTime.UtcNow.AddDays(5);
+            MaxRange = 30;
+            TicketCost = 0.4F; //each ticket, by default, costs $.40
         }
 
         [Key]
@@ -54,6 +58,10 @@ namespace baskifyCore.Models
         [RegularExpression(@"^([0-9]{5}\-[0-9]{4})|([0-9]{5})$", ErrorMessage = "ZIPs should be in the format ##### or #####-####)")]
         public string ZIP { get; set; }
 
+        public float Latitude { get; set; }
+
+        public float Longitude { get; set; }
+
         [Required]
         [RegularExpression(@"^[-A-Za-z0-9]+(\s[-A-Za-z0-9]+)*$", ErrorMessage = "Title can only contain alphabetical letters, hyphens, and spaces")]
         public string Title { get; set; }
@@ -63,8 +71,23 @@ namespace baskifyCore.Models
 
         public string BannerImageUrl { get; set; }
 
+        [Display(Name = "Maximum Auction Range (miles)")]
+        public int MaxRange { get; set; }
+
+        [Display(Name = "Cost Per Ticket (USD)")]
+        [Required]
+        public float TicketCost { get; set; }
+
+        public virtual AuctionLinkModel Link { get; set; } //lazy loads without inclusion
+
         [NotMapped]
         public IFormFile BannerImage { get; set; }
+
+        [NotMapped]
+        public bool isLive 
+        { 
+            get { return DateTime.UtcNow < EndTime && DateTime.UtcNow >= StartTime; } 
+        }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
@@ -79,16 +102,9 @@ namespace baskifyCore.Models
             if ((EndTime - StartTime).TotalHours < 1)
                 yield return new ValidationResult("The auction must be at least an hour long!", new[] { "EndTime" });
 
-            var addressDict = accountUtils.validateAddress(Address, City, State, ZIP);
-            if (addressDict["resultStatus"] == "ADDRESS NOT FOUND") //now, addresses are validated in the model
-                yield return new ValidationResult("Address not found", new[] { "Address" });
-            else
-            {
-                Address = addressDict["addressLine1"];
-                City = addressDict["city"];
-                State = addressDict["state"];
-                ZIP = addressDict["zip"];
-            }
+            if (MaxRange < MinDistance && MaxRange != -1)
+                yield return new ValidationResult("Range is too small", new[] { "MaxRange" });
+
         }
     }
 }

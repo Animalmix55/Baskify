@@ -1,0 +1,163 @@
+﻿@model baskifyCore.ViewModels.userAddBasketViewModel
+
+@{
+    ViewData["Title"] = "Donate a Basket";
+}
+
+<style>
+    #verifyWarning{
+        display: none !important;
+    }
+</style>
+
+<script src="~/galleria/galleria.min.js"></script>
+
+@if (Model.Auction.StartTime < DateTime.UtcNow)
+{
+    <div class="alert alert-dismissible alert-warning">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <h4 class="alert-heading">Warning, Auction in progress!</h4>
+        <p class="mb-0">This auction is already in progress and ends on @Model.Auction.EndTime.ToShortDateString() at @Model.Auction.EndTime.ToShortTimeString() (UTC)!</p>
+    </div>
+}
+
+<div id="basketDataModal" class="modal">
+    @if (ViewData["basket"] != null)//if given a basket, load the modal with it
+    {
+        await Html.RenderPartialAsync("BasketModalPartialView", ViewData["basket"]);
+        <script>$("#basketDataModal").modal("toggle")</script>
+    }
+</div>
+
+<h2 style="text-align: center;" class="display-4">Your Submitted Baskets</h2>
+<p style="text-align:center;">Baskets can be edited until they are verified by the organization.</p>
+
+@if (!String.IsNullOrWhiteSpace(Model.Auction.BannerImageUrl))
+{
+    <img class="AuctionBannerImage" src="@Model.Auction.BannerImageUrl" />
+}
+<div id="AuctionInfoBlock">
+    <div class="list-group">
+        <a class="list-group-item list-group-item-action flex-column align-items-start">
+            <div class="d-flex w-100 justify-content-between">
+                <h5 class="mb-1">@Model.Auction.Title</h5>
+                <small class="text-muted">Starts on @Model.Auction.StartTime.ToShortDateString()</small>
+            </div>
+            <small class="text-muted">Hosted By: @Model.Auction.HostUser.OrganizationName</small>
+            <p class="mb-1">@Model.Auction.Description</p>
+        </a>
+    </div>
+</div>
+
+<div id="myTabContent" class="tab-content">
+    <div id="baskets">
+        <table class="table table-hover">
+            <thead>
+                <tr>
+                    <th scope="col">Basket Name</th>
+                    <th scope="col">Submission Date</th>
+                    <th scope="col">
+                        <button type="button" class="btn btn-primary btn-sm" onclick="newBasket()">Add New Basket</button>
+                    </th>
+                </tr>
+            </thead>
+            @if (Model.Baskets != null && Model.Baskets.Count > 0)
+            {
+            <tbody id="basketListBody">
+                @foreach (var basket in Model.Baskets)
+                {
+                    @if (basket.Draft)
+                        continue;//don't worry about draft baskets
+                    @if (basket.AcceptedByOrg)
+                    {
+                        <tr class="table-success" id="basketRow-@basket.BasketId">
+                            <td scope="row">@basket.BasketTitle <span class="badge badge-pill badge-primary">Accepted</span></td>
+                            <td>@basket.SubmissionDate.ToShortDateString()</td>
+                            <td></td>
+                        </tr>
+                    }
+                    else
+                    {
+                        <tr class="table-danger" id="basketRow-@basket.BasketId" style="cursor: pointer">
+                            <td scope="row" onclick="viewBasket(@basket.BasketId)">@basket.BasketTitle <span class="badge badge-pill badge-primary">Pending</span></td>
+                            <td onclick="viewBasket(@basket.BasketId)">@basket.SubmissionDate.ToShortDateString()</td>
+                            <td>
+                                <button type="button" class="close" onclick="deleteBasket(@basket.BasketId)" aria-label="Close">
+                                    <span aria-hidden="true">&times;</span>
+                                </button>
+                                <span class="rowError"></span>
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+            }
+        </table>
+        @if (Model.Baskets == null || Model.Baskets.Count == 0)
+        {
+            <text>You have no baskets in this auction</text>
+        }
+    </div>
+</div>
+<script>
+    var basketEditUrl = "/basket/userUpdateAuctionBasket"; //important basket edit POST url
+
+    function viewBasket(basketId) {//loads in the basket modal
+        $.post("/basket/viewModal", { basketID: basketId, auctionID: @Model.Auction.AuctionId },
+            function (data) {
+                if (!data.startsWith("ERROR")) {
+                    $("#basketDataModal").html(data);
+                    $("#basketDataModal").modal("show");
+                }
+                else if (data == "ERROR: INVALID LOGIN") {
+                    openSignOnModal(); //get signin
+                }
+                else if (id != -1)
+                    $("#basketRow-" + basketId + " .rowError").html("ERROR");
+            }
+        );
+    }
+    function deleteBasket(basketId) {//deletes the given basket
+        $.post("/basket/delete", { basketID: basketId, auctionID: @Model.Auction.AuctionId },
+            function (data) {
+                if (!data.startsWith("ERROR")) {
+                    $("#basketRow-" + basketId).remove(); //empty row
+                }
+                else {
+                    $("#basketRow-" + basketId + " .rowError").html("ERROR");
+                }
+            }
+        );
+    }
+
+    function newBasket() {
+        $("#PageLoadingModal").css("display", "flex"); //show loading modal
+        $.post("/basket/userCreate", {Link: '@Model.AuctionAddLink'},
+            function (data) {
+                if (!data.startsWith("ERROR")) {
+                    $("#basketDataModal").html(data);
+                    $("#basketDataModal").modal("show");
+                }
+                else if (data == "ERROR: INVALID LOGIN")
+                    openSignOnModal(); //get signin
+                $("#PageLoadingModal").css("display", "none");
+            }
+        );
+    }
+
+    $(function () {
+        Galleria.loadTheme('/galleria/themes/classic/galleria.classic.js');
+        Galleria.configure({
+            imageCrop: false,
+            _toggleInfo: false,
+            lightbox: true,
+            transition: 'fade'
+        });
+    }()); //loads galleria
+
+    $("#auctionInfoForm").on("submit", function () { $("#PageLoadingModal").css("display", "flex"); }); //queue loading
+    window.history.pushState("", "", '/auctions/addBasket/@Model.AuctionAddLink'); //always keeps URL functioning
+
+</script>
+
+

@@ -69,7 +69,9 @@ namespace baskifyCore.Utilities
         ///                            addressLine1: address,
         ///                            city: city,
         ///                            state: state,
-        ///                            zip: zip
+        ///                            zip: zip,
+        ///                            lat: latitude,
+        ///                            lng: longitude
         ///                            }        
         /// </returns>
         public static Dictionary<string, string> validateAddress(string Address, string City, string State, string ZIP)
@@ -100,12 +102,20 @@ namespace baskifyCore.Utilities
                     JArray addressValues = (JArray)parent["addressList"];
                     var addressObject = addressValues[0].Value<JObject>();
 
+                    string lat, lng;
+                    AuctionUtilities.getCoordinates(addressObject.Value<string>("addressLine1"), 
+                        addressObject.Value<string>("city"), addressObject.Value<string>("state"),
+                        addressObject.Value<string>("zip5") + "-" + addressObject.Value<string>("zip4"),
+                        out lat, out lng); //if USPS validates, Google can geolocate
+
                     returnDict = new Dictionary<string, string>() {
                         { "resultStatus", resultStatus },
                         {"addressLine1", addressObject.Value<string>("addressLine1") },
                         {"city", addressObject.Value<string>("city") },
                         {"state", addressObject.Value<string>("state") },
-                        {"zip", addressObject.Value<string>("zip5") + "-" + addressObject.Value<string>("zip4") }
+                        {"zip", addressObject.Value<string>("zip5") + "-" + addressObject.Value<string>("zip4") },
+                        {"lat", lat },
+                        {"lng", lng }
                     };
                     return returnDict;
                 }
@@ -114,7 +124,13 @@ namespace baskifyCore.Utilities
             }
             catch (Exception)
             {
-                return new Dictionary<string, string>() { { "resultStatus", "DEFAULTED" }, { "addressLine1", Address },{ "city", City },{ "state", State },{ "zip", ZIP } };
+                string lat, lng;
+                AuctionUtilities.getCoordinates(Address, City, State, ZIP, out lat, out lng); //if USPS fails for some reason, we can still try google...
+
+                if(lat == null || lng == null)
+                    return new Dictionary<string, string>() { { "resultStatus", "ADDRESS NOT FOUND" } }; //
+
+                return new Dictionary<string, string>() { { "resultStatus", "DEFAULTED" }, { "addressLine1", Address },{ "city", City },{ "state", State },{ "zip", ZIP }, { "lat", lat }, { "lng", lng } };
             }
 
         }
@@ -140,6 +156,8 @@ namespace baskifyCore.Utilities
                 newUser.City = addressDict["city"];
                 newUser.State = addressDict["state"];
                 newUser.ZIP = addressDict["zip"];
+                newUser.Latitude = float.Parse(addressDict["lat"]);
+                newUser.Longitude = float.Parse(addressDict["lng"]);
             }
 
             if (oldUser.Email != newUser.Email)
@@ -147,21 +165,18 @@ namespace baskifyCore.Utilities
                 Guid commitId = Guid.NewGuid();
                 Guid revokeId = Guid.NewGuid();
 
-                var emailsSent = EmailUtils.sendVerificationEmail(oldUser.Email, revokeId, newUser.Email, commitId, req);
-
-                if (!emailsSent)
-                    throw new Exception("Verification Emails Failed to Send");
-
-                var emailChange = new EmailChangeModel() //this is the email change sent to server
-                { ChangeTime = DateTime.Now,
+                var emailChange = new EmailVerificationModel() //this is the email change sent to server
+                { ChangeTime = DateTime.UtcNow,
+                    ChangeType = ChangeTypes.EMAIL, //signals it's an email change
                     CommitId = commitId,
                     Committed = false,
-                    NewEmail = newUser.Email,
-                    OriginalEmail = oldUser.Email,
+                    Payload = newUser.Email,
                     RevertId = revokeId,
-                    Reverted = false,
-                    Username = oldUser.Username
+                    Username = oldUser.Username,
+                    CanRevert = true
                 };
+
+                _context.UserAlert.RemoveRange(_context.UserAlert.Where(a => a.AlertType == "EmailAlert")); //REMOVE ALL OTHER EMAIL ALERTS FIRST
 
                 var EmailAlert = new UserAlertModel()//Add email change alert
                 {
@@ -171,11 +186,24 @@ namespace baskifyCore.Utilities
                     Username = oldUser.Username
                 };
 
-                _context.EmailChange.Add(emailChange);
-                _context.UserAlert.AddOrUpdate(EmailAlert);
-                _context.SaveChanges();
-                _context.Entry(oldUser).Reload();
+                _context.UserAlert.Add(EmailAlert);
+                _context.SaveChanges(); //get alert id
+                emailChange.AlertId = EmailAlert.Id; //add alert to email change model
+                _context.EmailVerification.Add(emailChange);
+                _context.SaveChanges(); //get email verification id
 
+                var emailsSent = EmailUtils.sendVerificationEmail(oldUser.Email, emailChange, req);
+
+                if (!emailsSent)
+                {
+                    //rollback email change
+                    _context.EmailVerification.Remove(emailChange);
+                    _context.UserAlert.Remove(EmailAlert);
+                    _context.SaveChanges();
+                    throw new Exception("Verification Emails Failed to Send");
+                }
+
+                _context.Entry(oldUser).Reload();
             }
             
             //To get here, address must be valid and emails must have sent
@@ -183,6 +211,8 @@ namespace baskifyCore.Utilities
             oldUser.City = newUser.City;
             oldUser.State = newUser.State;
             oldUser.ZIP = newUser.ZIP;
+            oldUser.Latitude = newUser.Latitude;
+            oldUser.Longitude = newUser.Longitude;
             oldUser.iconUrl = newUser.iconUrl;
 
             oldUser.FirstName = newUser.FirstName;
@@ -207,9 +237,9 @@ namespace baskifyCore.Utilities
         }
 
 
-        public static EmailChangeModel getEmailChangeModel(UserModel user, ApplicationDbContext _context)
+        public static EmailVerificationModel getEmailChangeModel(UserModel user, ApplicationDbContext _context)
         {
-            return _context.EmailChange.Find(user.Username);
+            return _context.EmailVerification.Find(user.Username);
         }
 
 

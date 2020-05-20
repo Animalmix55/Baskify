@@ -1,0 +1,126 @@
+﻿@model UserModel
+
+@{
+    ViewData["Title"] = "View Submitted Baskets";
+}
+<script src="~/galleria/galleria.min.js"></script>
+
+<div id="basketDataModal" class="modal">
+    @if (ViewData["basket"] != null)//if given a basket, load the modal with it
+    {
+        await Html.RenderPartialAsync("BasketModalPartialView", ViewData["basket"]);
+        <script>$("#basketDataModal").modal("toggle")</script>
+    }
+</div>
+
+<div id="myTabContent" class="tab-content">
+    <div id="baskets">
+        <h2 style="text-align:center;" class="display-4">Your Submitted Baskets</h2>
+        <p style="text-align:center;">Baskets can be edited until they are verified by the organization.</p>
+        @if (Model.Baskets != null && Model.Baskets.Count > 0)
+        {
+            <table class="table table-hover">
+                <thead>
+                    <tr>
+                        <th scope="col">Basket Name</th>
+                        <th scope="col">Auction Name</th>
+                        <th scope="col">Organization</th>
+                        <th scope="col">Submission Date</th>
+                    </tr>
+                </thead>
+                <tbody id="basketListBody">
+                    @foreach (var basket in Model.Baskets)
+                    {
+                        @if (basket.Draft)
+                            continue;//don't worry about draft baskets
+                        @if (basket.AcceptedByOrg)
+                        {
+                            <tr class="table-success" id="basketRow-@basket.BasketId">
+                                <td scope="row">@basket.BasketTitle <span class="badge badge-pill badge-primary">Accepted</span></td>
+                                <td>@basket.AuctionModel.Title</td>
+                                <td>@basket.AuctionModel.HostUser.OrganizationName</td>
+                                <td>@basket.SubmissionDate.ToShortDateString()</td>
+                                <td></td>
+                            </tr>
+                        }
+                        else
+                        {
+                            @if (basket.AuctionModel.EndTime > DateTime.UtcNow)//auction is not yet ended
+                            {
+                                <tr class="table-danger" id="basketRow-@basket.BasketId" style="cursor: pointer">
+                                    <td scope="row" onclick="viewBasket(@basket.BasketId, @basket.AuctionId)">@basket.BasketTitle <span class="badge badge-pill badge-primary">Pending</span></td>
+                                    <td onclick="viewBasket(@basket.BasketId, @basket.AuctionId)">@basket.AuctionModel.Title</td>
+                                    <td onclick="viewBasket(@basket.BasketId, @basket.AuctionId)">@basket.AuctionModel.HostUser.OrganizationName</td>
+                                    <td onclick="viewBasket(@basket.BasketId, @basket.AuctionId)">@basket.SubmissionDate.ToShortDateString()</td>
+                                    <td>
+                                        <button type="button" class="close" onclick="deleteBasket(@basket.BasketId, @basket.AuctionId)" aria-label="Close">
+                                            <span aria-hidden="true">&times;</span>
+                                        </button>
+                                        <span class="rowError"></span>
+                                    </td>
+                                </tr>
+                            }
+                            else //auction has ended, never verified
+                            {
+                                <tr class="table-success" id="basketRow-@basket.BasketId">
+                                    <td scope="row">@basket.BasketTitle <span class="badge badge-pill badge-primary">Never Accepted</span></td>
+                                    <td>@basket.AuctionModel.Title</td>
+                                    <td>@basket.AuctionModel.HostUser.OrganizationName</td>
+                                    <td>@basket.SubmissionDate.ToShortDateString()</td>
+                                    <td></td>
+                                </tr>
+                            }
+                        }
+                    }
+                </tbody>
+            </table>
+        }
+
+    </div>
+</div>
+<script>
+    var basketEditUrl = "/basket/userUpdateBasket"; //important basket edit POST url
+
+    function viewBasket(basketId, auctionId) {//loads in the basket modal
+        $.post("/basket/viewModal", { basketID: basketId, auctionID: auctionId },
+            function (data) {
+                if (!data.startsWith("ERROR")) {
+                    $("#basketDataModal").html(data);
+                    $("#basketDataModal").modal("show");
+                }
+                else if(data == "ERROR: INVALID LOGIN"){
+                    openSignOnModal(); //get signin
+                }
+                else if(id != -1)
+                    $("#basketRow-"+ basketId+" .rowError").html("ERROR");
+            }
+        );
+    }
+    function deleteBasket(basketId, auctionId) {//deletes the given basket
+        $.post("/basket/delete", { basketID: basketId, auctionID: auctionId },
+            function (data) {
+                if (!data.startsWith("ERROR")) {
+                    $("#basketRow-" + basketId).remove(); //empty row
+                }
+                else {
+                    $("#basketRow-" + basketId + " .rowError").html("ERROR");
+                }
+            }
+        );
+    }
+
+    $(function () {
+        Galleria.loadTheme('/galleria/themes/classic/galleria.classic.js');
+        Galleria.configure({
+            imageCrop: false,
+            _toggleInfo: false,
+            lightbox: true,
+            transition: 'fade'
+        });
+    }()); //loads galleria
+
+    $("#auctionInfoForm").on("submit", function () { $("#PageLoadingModal").css("display", "flex"); }); //queue loading
+</script>
+
+
+

@@ -7,9 +7,11 @@
 <script src="~/js/moment-with-locales.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=@baskifyCore.Utilities.AuctionUtilities.getGoogleAPI()&callback=initMap" async defer></script>
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 
 <div id="accountSettings">
+    <div class="goBack">Back to <a href="/auctions">Auctions</a></div>
     <div id="accountSettingContainer">
         @using (Html.BeginForm("createAuction", "auctions", FormMethod.Post, new { @id = "auctionInfoForm", enctype = "multipart/form-data" }))
         {
@@ -55,12 +57,20 @@
                 @Html.TextBoxFor(Model => Model.ZIP, null, new { @class = "form-control" })
                 @Html.ValidationMessageFor(Model => Model.ZIP)
             </div>
-            @Html.HiddenFor(Model => Model.HostUsername)
             <label style="color:red;" id="addressValidationResult"></label>
-            <iframe id="userAddressMap" src="@baskifyCore.Utilities.accountUtils.getMapLink(Model.Address, Model.City, Model.State, Model.ZIP)"></iframe>
+            <div class="form-group">
+                @Html.LabelFor(Model => Model.MaxRange)
+                <div style="display: flex">
+                    @Html.TextBoxFor(Model => Model.MaxRange, null, new { @type = "range", @class = "custom-range", min = AuctionModel.MinDistance, max = AuctionModel.MaxDistance, flex = .9 })
+                    <div id="SelectedRange" style="font-weight: bold; flex: .1; white-space: nowrap; margin-left: 6px; min-width: 80px;"><span>30</span> miles</div>
+                </div>
+                @Html.ValidationMessageFor(Model => Model.MaxRange)
+            </div>
+            <div id="userAddressMap"></div>
+            @Html.HiddenFor(Model => Model.HostUsername)
             <label for="exampleInputFile">Upload a Banner Picture</label>
             <div class="form-group">
-                @Html.TextBoxFor(Model => Model.BannerImage, new { @type = "file", @class="form-control-file", @id="inputBannerFile"})
+                @Html.TextBoxFor(Model => Model.BannerImage, new { @type = "file", @class = "form-control-file", @id = "inputBannerFile" })
                 <small id="fileHelp" class="form-text text-muted">Upload an image that encapsulates your goal! Recommended: 300px x 1000px</small>
             </div>
             <div style="display: flex;">
@@ -72,7 +82,49 @@
     </div>
 </div>
 <script>
+    var ServiceRadius;
+    var map;
+    var marker;
+    function initMap() {
+        // Create the map.
+        var initCoords = { lat: @Model.Latitude, lng: @Model.Longitude };
+
+        map = new google.maps.Map(document.getElementById('userAddressMap'), {
+            zoom: 10,
+            center: initCoords,
+            mapTypeId: 'terrain'
+        });
+
+        marker = new google.maps.Marker({
+            position: initCoords,
+            map: map,
+            title: 'Your Organization'
+        });
+
+        ServiceRadius = new google.maps.Circle({
+            strokeColor: '#FF0000',
+            strokeOpacity: 0.8,
+            strokeWeight: 2,
+            fillColor: '#FF0000',
+            fillOpacity: 0.35,
+            map: map,
+            center: initCoords,
+            radius: @Model.MaxRange * 1609.34 //mile to meter conversion
+        });
+    }
+
+$("#MaxRange").on("change", function (e) {
+    if ($("#MaxRange").val() == @AuctionModel.MaxDistance) //unbind the radius if we hit max
+        ServiceRadius.setMap(null);
+    else
+        ServiceRadius.setMap(map);
+
+    $("#SelectedRange span").html($("#MaxRange").val() == @AuctionModel.MaxDistance? "&infin;" : $("#MaxRange").val());
+        ServiceRadius.setRadius($("#MaxRange").val() * 1609.34)
+    });
+
     $(function () {
+        initMap()
         $('input[name="datetimes"]').daterangepicker({
             timePicker: true,
             startDate: "@Model.StartTime",
@@ -106,7 +158,13 @@
                         $("#City").val(dataObject["city"]);
                         $("#State").val(dataObject["state"]);
                         $("#ZIP").val(dataObject["zip"]);
-                        $("#userAddressMap").prop("src", dataObject["GoogleMapUrl"]);
+
+                        var newLocation = { lat: parseFloat(dataObject["lat"]), lng: parseFloat(dataObject["lng"]) }
+                        marker.setPosition(newLocation);
+                        ServiceRadius.setCenter(newLocation);
+                        ServiceRadius.setRadius($("#MaxRange").val() * 1609.34);
+                        map.setCenter(newLocation);
+
                         $("#addressValidationResult").html("");
                     }
                     else {
@@ -120,6 +178,10 @@
     $("#dateRangePicker").on("change", function (e) {
         $("#StartTime").val($("#dateRangePicker").val().split(" - ")[0]);
         $("#EndTime").val($("#dateRangePicker").val().split(" - ")[1]);
+    });
+
+    $("#MaxRange").on("change", function (e) {
+        $("#SelectedRange span").html($("#MaxRange").val() == @AuctionModel.MaxDistance? "&infin;" : $("#MaxRange").val());
     });
     window.history.pushState("", "", '/auctions/createauction');
 </script>

@@ -57,7 +57,7 @@ namespace baskifyCore.Controllers
                 //var ip = GetIp();
 
                 var cookieOptions = new CookieOptions();
-                //cookieOptions.Expires = new DateTimeOffset(DateTime.Now.AddDays(1)); //creates expiration... right now only for session
+                //cookieOptions.Expires = new DateTimeOffset(DateTime.UtcNow.AddDays(1)); //creates expiration... right now only for session
                 Response.Cookies.Append("BearerToken", user.bearerToken, cookieOptions);
 
                 return PartialView("NavBar", user);
@@ -90,7 +90,7 @@ namespace baskifyCore.Controllers
                 //var ip = GetIp();
 
                 var cookieOptions = new CookieOptions();
-                //cookieOptions.Expires = new DateTimeOffset(DateTime.Now.AddDays(1)); //creates expiration... right now only for session
+                //cookieOptions.Expires = new DateTimeOffset(DateTime.UtcNow.AddDays(1)); //creates expiration... right now only for session
                 Response.Cookies.Append("BearerToken", user.bearerToken, cookieOptions);
 
                 return Redirect(LoginUtils.checkRedirectLocation(model.redirectUrl, Request)); //returns redirect url for browser from query string

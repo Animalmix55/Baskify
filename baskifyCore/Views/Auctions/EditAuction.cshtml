@@ -5,6 +5,10 @@
 }
 <script src="~/galleria/galleria.min.js"></script>
 <script src="~/js/moment-with-locales.js"></script>
+@if (Model.StartTime > DateTime.UtcNow)
+{
+<script src="https://maps.googleapis.com/maps/api/js?key=@baskifyCore.Utilities.AuctionUtilities.getGoogleAPI()&callback=initMap" async defer></script>
+}
 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
@@ -19,6 +23,19 @@
 
 <div id="accountSettings">
     <div id="accountSettingContainer">
+        <div id="auctionAddLink" class="alert alert-dismissible alert-info">
+            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            @if (Model.Link == null)
+            {
+                <span>Your auction does not yet have a sharable link for donors to upload baskets, click <a style="color:white; font-weight: bold; cursor: pointer;" onclick="getAuctionLink()">HERE</a> to get one!</span>
+            }
+            else
+            {
+                <span>Your sharable basket upload link is: <a href="/auctions/addBasket/@Model.Link.Link">@baskifyCore.Utilities.LoginUtils.getAbsoluteUrl("/auctions/addBasket/" + Model.Link.Link.ToString(), Context.Request)</a></span>
+            }
+        </div>
+        <div class="goBack">Back to <a href="/auctions">Auctions</a></div>
+
         @if (!String.IsNullOrWhiteSpace(Model.BannerImageUrl))
         {
             <img class="AuctionBannerImage" src="@Model.BannerImageUrl" />
@@ -83,9 +100,59 @@
                                 @Html.ValidationMessageFor(Model => Model.ZIP)
                             </div>
                             <label style="color:red;" id="addressValidationResult"></label>
-                            <iframe id="userAddressMap" src="@baskifyCore.Utilities.accountUtils.getMapLink(Model.Address, Model.City, Model.State, Model.ZIP)"></iframe>
+                            <div class="form-group">
+                                @Html.LabelFor(Model => Model.MaxRange)
+                                <div style="display: flex">
+                                    @Html.TextBoxFor(Model => Model.MaxRange, null, new { @type = "range", @class = "custom-range", min = AuctionModel.MinDistance, max = AuctionModel.MaxDistance, flex = .9 })
+                                    <div id="SelectedRange" style="font-weight: bold; flex: .1; white-space: nowrap; margin-left: 6px; min-width: 80px;"><span>@Model.MaxRange</span> miles</div>
+                                </div>
+                                @Html.ValidationMessageFor(Model => Model.MaxRange)
+                            </div>
+                            <div id="userAddressMap"></div>
                             <script>
+                                var ServiceRadius;
+                                var map;
+                                var marker;
+                                function initMap() {
+                                    // Create the map.
+                                    var initCoords = { lat: @Model.Latitude, lng: @Model.Longitude };
+
+                                    map = new google.maps.Map(document.getElementById('userAddressMap'), {
+                                        zoom: 10,
+                                        center: initCoords,
+                                        mapTypeId: 'terrain'
+                                    });
+
+                                    marker = new google.maps.Marker({
+                                        position: initCoords,
+                                        map: map,
+                                        title: 'Your Organization'
+                                    });
+
+                                    ServiceRadius = new google.maps.Circle({
+                                        strokeColor: '#FF0000',
+                                        strokeOpacity: 0.8,
+                                        strokeWeight: 2,
+                                        fillColor: '#FF0000',
+                                        fillOpacity: 0.35,
+                                        map: map,
+                                        center: initCoords,
+                                        radius: @Model.MaxRange * 1609.34 //mile to meter conversion
+                                    });
+                                }
+
+                            $("#MaxRange").on("change", function (e) {
+                                if ($("#MaxRange").val() == @AuctionModel.MaxDistance) //unbind the radius if we hit max
+                                    ServiceRadius.setMap(null);
+                                else
+                                    ServiceRadius.setMap(map);
+
+                                $("#SelectedRange span").html($("#MaxRange").val() == @AuctionModel.MaxDistance? "&infin;" : $("#MaxRange").val());
+                                    ServiceRadius.setRadius($("#MaxRange").val() * 1609.34)
+                                });
+
                                 $(function () {
+                                    initMap();
                                     $('input[name="datetimes"]').daterangepicker({
                                         timePicker: true,
                                         startDate: "@Model.StartTime",
@@ -123,7 +190,12 @@
                                                     $("#City").val(dataObject["city"]);
                                                     $("#State").val(dataObject["state"]);
                                                     $("#ZIP").val(dataObject["zip"]);
-                                                    $("#userAddressMap").prop("src", dataObject["GoogleMapUrl"]);
+                                                    var newLocation = { lat: parseFloat(dataObject["lat"]), lng: parseFloat(dataObject["lng"]) }
+                                                    marker.setPosition(newLocation);
+                                                    ServiceRadius.setCenter(newLocation);
+                                                    ServiceRadius.setRadius($("#MaxRange").val() * 1609.34);
+                                                    map.setCenter(newLocation);
+
                                                     $("#addressValidationResult").html("");
                                                 }
                                                 else {
@@ -173,7 +245,7 @@
                         }
 
 
-                        @Html.HiddenFor(Model => Model.AuctionId) 
+                        @Html.HiddenFor(Model => Model.AuctionId)
                         @Html.HiddenFor(Model => Model.HostUsername)
 
                         <label for="exampleInputFile">Update Your Banner!</label>
@@ -186,56 +258,80 @@
                         </div>
                     </fieldset>
                 }
+                @if (Model.StartTime > DateTime.UtcNow)
+                {
+                using (Html.BeginForm("deleteAuction", "Auctions", FormMethod.Post, new { @id = "deleteAuctionForm" }))
+                {
+                    @Html.HiddenFor(Model => Model.AuctionId, new { @id = "deleteAuctionId" });
+                    <div style="display: flex;">
+                        <button id="deleteButton" type="submit" class="btn btn-danger btn-lg btn-block">Delete Auction</button>
+                    </div>
+                }
+                }
             </div>
             <div class="tab-pane fade" id="baskets">
-
-                @if (Model.Baskets != null && Model.Baskets.Count > 0)
-                {
-                    <table class="table table-hover">
-                        <thead>
-                            <tr>
-                                <th scope="col">Basket Name</th>
-                                <th scope="col">Submitting User</th>
-                                <th scope="col">Submission Date</th>
-                                <th scope="col"></th>
-                            </tr>
-                        </thead>
-                        <tbody>
+                <table class="table table-hover">
+                    <thead>
+                        <tr>
+                            <th scope="col">Basket Name</th>
+                            <th scope="col">Submitting User</th>
+                            <th scope="col">Submission Date</th>
+                            <th scope="col">
+                                <button type="button" class="btn btn-primary btn-sm" onclick="viewBasket(-1)">Add New Basket</button>
+                            </th>
+                        </tr>
+                    </thead>
+                    <tbody id="basketListBody">
+                        @if (Model.Baskets != null)
+                        {
+                            Model.Baskets = Model.Baskets.OrderBy(b => b.AcceptedByOrg).ToList();//order them
                             @foreach (var basket in Model.Baskets)
                             {
+                                @if (basket.Draft)
+                                    continue;//don't worry about draft baskets
                                 @if (basket.AcceptedByOrg)
                                 {
-                                    <tr class="table-success" id="basketRow-@basket.BasketId">
+                                    <tr class="table-success" id="basketRow-@basket.BasketId" style="cursor: pointer">
                                         <td scope="row" onclick="viewBasket(@basket.BasketId)">@basket.BasketTitle</td>
                                         <td onclick="viewBasket(@basket.BasketId)">@basket.SubmittingUsername</td>
                                         <td onclick="viewBasket(@basket.BasketId)">@basket.SubmissionDate.ToShortDateString()</td>
                                         <td>
-                                            <button type="button" class="close" onclick="deleteBasket(@basket.BasketId)" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                            <span class="rowError"></span>
+                                            @if (Model.StartTime > DateTime.UtcNow || !basket.AcceptedByOrg) //if the auction hasn't started yet OR basket hasn't been approved
+                                            {
+                                                <button type="button" class="close" onclick="deleteBasket(@basket.BasketId)" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                                <span class="rowError"></span>
+                                            }
                                         </td>
                                     </tr>
                                 }
                                 else
                                 {
-                                    <tr class="table-danger" id="basketRow-@basket.BasketId">
+                                    <tr class="table-danger" id="basketRow-@basket.BasketId" style="cursor: pointer">
                                         <td scope="row" onclick="viewBasket(@basket.BasketId)">@basket.BasketTitle <span class="badge badge-pill badge-primary">Unverified</span></td>
                                         <td onclick="viewBasket(@basket.BasketId)">@basket.SubmittingUsername</td>
                                         <td onclick="viewBasket(@basket.BasketId)">@basket.SubmissionDate.ToShortDateString()</td>
-                                        <td>
-                                            <button type="button" class="close" onclick="delete(@basket.BasketId)" aria-label="Close">
-                                                <span aria-hidden="true">&times;</span>
-                                            </button>
-                                            <span class="rowError"></span>
-                                        </td>
+                                        @if (Model.StartTime > DateTime.UtcNow || !basket.AcceptedByOrg) //if the auction hasn't started yet OR basket not yet approved
+                                        {
+                                            <td>
+                                                <button type="button" class="close" onclick="deleteBasket(@basket.BasketId)" aria-label="Close">
+                                                    <span aria-hidden="true">&times;</span>
+                                                </button>
+                                                <span class="rowError"></span>
+                                            </td>
+                                        }
                                     </tr>
                                 }
                             }
-                        </tbody>
-                    </table>
-                }
 
+                        }
+                    </tbody>
+                </table>
+                @if (Model.Baskets == null || Model.Baskets.All(b => b.Draft))
+                {
+                    <h4>This auction currently has no baskets</h4>
+                }
             </div>
         </div>
     </div>
@@ -244,14 +340,14 @@
     function viewBasket(id) {//loads in the basket modal
         $.post("/basket/viewModal", { basketID: id, auctionID: @Model.AuctionId },
             function (data) {
-                if (data != "ERROR: INVALID LOGIN") {
+                if (!data.startsWith("ERROR")) {
                     $("#basketDataModal").html(data);
                     $("#basketDataModal").modal("show");
                 }
                 else if(data == "ERROR: INVALID LOGIN"){
                     openSignOnModal(); //get signin
                 }
-                else
+                else if(id != -1)
                     $("#basketRow-"+id+" .rowError").html("ERROR");
             }
         );
@@ -259,26 +355,42 @@
     function deleteBasket(id) {//deletes the given basket
         $.post("/basket/delete", { basketID: id, auctionID: @Model.AuctionId },
             function (data) {
-                if (!data.startsWith("ERROR"))
+                if (!data.startsWith("ERROR")) {
                     $("#basketRow-" + id).remove(); //empty row
+                }
                 else {
-                    $("#basketRow-"+id+" .rowError").html("ERROR");
+                    $("#basketRow-" + id + " .rowError").html("ERROR");
                 }
             }
-        )
+        );
     }
     function verifyBasket(id) {
-        $.post("/Basket/verifyBasket", { basketId: id },
-            function (data) {
-                if (!data.startsWith("ERROR")) {
-                    $("#basketRow-" + id).removeClass("table-danger").addClass("table-success"); //make it green
-                    $("#basketRow-" + id + " .badge").remove(); //remove pill badge
-                    $("#verifyWarning").remove();
-                }
-                else {
-                    $("#verifyWarning .mb-0").html("Verification failed!");
-                }
-            });
+    $.post("/Basket/verifyBasket", { basketId: id },
+        function (data) {
+            if (!data.startsWith("ERROR")) {
+                $("#basketRow-" + id).removeClass("table-danger").addClass("table-success"); //make it green
+                $("#basketRow-" + id + " .badge").remove(); //remove pill badge
+                $("#verifyWarning").remove();
+            }
+            else {
+                $("#verifyWarning .mb-0").html("Verification failed!");
+            }
+        });
+    }
+    function addBasketRow(basketId, SubmittingUser, SubmissionDate)
+    {
+        var html = '<tr class="table-danger" id="basketRow-'+basketId+'">\
+                <td scope="row" onclick="viewBasket('+ basketId + ')">Provide a title <span class="badge badge-pill badge-primary">Unverified</span></td>\
+                <td onclick="viewBasket('+ basketId + ')">'+ SubmittingUser +'</td>\
+                <td onclick="viewBasket('+ basketId + ')">' + SubmissionDate + '</td>\
+                <td>\
+                    <button type="button" class="close" onclick="deleteBasket(' + basketId + ')" aria-label="Close">\
+                        <span aria-hidden="true">&times;</span>\
+                    </button>\
+                    <span class="rowError"></span>\
+                </td>\
+            </tr>'
+        $("#basketListBody").append(html);
     }
 
     $(document).ready(function () {
@@ -292,7 +404,9 @@
             $('#myTabContent').children().removeClass('active show')
             $(activeTab).addClass('active show');
         }
-    });
+    }); //sets the appropriate open tab
+
+    var basketEditUrl = "/basket/orgUpdateBasket"; //important basket edit POST url
 
     $(function () {
         Galleria.loadTheme('/galleria/themes/classic/galleria.classic.js');
@@ -302,6 +416,19 @@
             lightbox: true,
             transition: 'fade'
         });
-    }());
+    }()); //loads galleria
+
+    function getAuctionLink() {
+        $.post("/auctions/getBasketShareLink", { auctionID: @Model.AuctionId},
+            function (data) {
+                if (data.startsWith("ERROR"))
+                    $("#auctionAddLink span").html(data);
+                else if (data.startsWith("http"))
+                    $("#auctionAddLink span").html("Your sharable basket upload link is: <a href='" + data + "'>"+ data +"</a>");
+        });
+    }
+
+    $("#auctionInfoForm").on("submit", function () { $("#PageLoadingModal").css("display", "flex"); }); //queue loading
+    window.history.pushState("", "", '/auctions/editAuction/@Model.AuctionId'); //always keeps URL functioning
 </script>
 

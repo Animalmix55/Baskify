@@ -44,6 +44,15 @@ namespace baskifyCore.Controllers
         {
         var oldUser = LoginUtils.getUserFromToken(Request.Cookies["BearerToken"], _context, Response);
             if (oldUser != null) {
+
+                if (oldUser.Email != user.Email)//dont allow the email to be changed more than once in a ten-day range
+                {
+                    var lastEmailChange = _context.EmailVerification.Where(ev => ev.Username == oldUser.Username).Where(ev => ev.ChangeType == ChangeTypes.EMAIL).OrderByDescending(ev => ev.ChangeTime).FirstOrDefault();
+
+                    if (lastEmailChange != null && lastEmailChange.ChangeTime > DateTime.UtcNow.AddDays(-10)) 
+                        ModelState.AddModelError("Email", "Email cannot be changed more than once in 10 days!");
+                }
+
                 if (!ModelState.IsValid)
                 {
                     ViewData["NavBarOverride"] = oldUser; //this allows the navbar to render correctly
@@ -64,6 +73,7 @@ namespace baskifyCore.Controllers
                     return View("Index", user);
                 }
                 _context.SaveChanges(); //save olduser changes
+                ViewData["Alert"] = "Account updated!";
                 return View("Index", oldUser);
             }
             else
@@ -168,7 +178,7 @@ namespace baskifyCore.Controllers
                 if (user != null)//token issued by server
                 {
                     passwordChange.reset = true; //this is a reset
-                    Response.Cookies.Append("BearerToken", bearerToken, new CookieOptions() { Expires = new DateTimeOffset(DateTime.Now.AddMinutes(10)) }); //add cookie for ten minutes
+                    Response.Cookies.Append("BearerToken", bearerToken, new CookieOptions() { Expires = new DateTimeOffset(DateTime.UtcNow.AddMinutes(10)) }); //add cookie for ten minutes
                 }
             }
             else //retrieve token from user cookies
@@ -190,60 +200,6 @@ namespace baskifyCore.Controllers
             return View("ChangePassword", passwordChange);
         }
 
-        [HttpGet]
-        public IActionResult verifyEmailChange(Guid emailVerifyId)
-        {
-            if (emailVerifyId == null)//if accidentally navigated here, go home
-                return Redirect("/");
-
-            var user = LoginUtils.getUserFromToken(Request.Cookies["BearerToken"], _context, Response);
-            if (user == null)//invalid login state, redirect to login
-                return Redirect("/login?redirectBack=" + Request.GetDisplayUrl());
-
-            //now for the magic
-            var emailChange = _context.EmailChange.Where(ec => ec.Username == user.Username).OrderByDescending(ec => ec.ChangeTime).FirstOrDefault(); //gets the most recent change object
-
-            if (emailChange == null | (emailVerifyId != emailChange.RevertId && emailVerifyId != emailChange.CommitId))
-            { //some odd issue occured?
-                ViewData["Alert"] = "The requested email change could not be found for your user";
-            }
-            else if (emailChange.Committed)
-            {
-                ViewData["Alert"] = "The requested email change was already executed";
-            }
-            else if (emailChange.Reverted)
-            {
-                ViewData["Alert"] = "The requested email change was already rolled back";
-            }
-            //the email change is legit
-
-            else if (emailVerifyId == emailChange.CommitId)
-            { //commit change
-                user.Email = emailChange.NewEmail;
-                emailChange.Committed = true;
-                var emailAlert = _context.UserAlert.Find(user.Username, "EmailAlert");
-                //remove email alert, should already be attached
-                _context.UserAlert.Remove(emailAlert);
-                ViewData["Alert"] = "The requested email change was executed";
-            }
-            else if(emailVerifyId == emailChange.RevertId)
-            {
-                emailChange.Reverted = true; //yes, this is strange, but committed just means it was somehow verified/canceled
-                var emailAlert = _context.UserAlert.Find(user.Username, "EmailAlert");
-                //remove email alert
-                _context.UserAlert.Remove(emailAlert);
-                ViewData["Alert"] = "The requested email change was rolled back";
-            }
-            else //the change exists, hasn't been executed, but our GUID doesn't match for some reason...
-                ViewData["Alert"] = "An unknown error occurred";
-
-            _context.SaveChanges();
-            _context.Entry(user).Reload(); //update everything
-
-            return View("Index", user); //redirect to account
-
-        }
-
         /// <summary>
         /// Returns the address in a JSON format if is valid, or just a dictionary of resultStatus: "ADDRESS NOT FOUND" otherwise...
         /// </summary>
@@ -255,7 +211,11 @@ namespace baskifyCore.Controllers
         [HttpPost]
         public IActionResult validateAddress(string Address, string City, string State, string ZIP)
         {
-            var response = accountUtils.validateAddress(Address, City, State, ZIP);
+            var user = LoginUtils.getUserFromToken(Request.Cookies["BearerToken"], _context, Response);
+            if (user == null)
+                return Content("ERROR: INVALID LOGIN"); //require people be logged in to avoid abuse...
+
+            var response = accountUtils.validateAddress(Address, City, State, ZIP); //this response will already contain lat and lng
             if (response.ContainsKey("addressLine1"))
             {
                 response.Add("GoogleMapUrl", accountUtils.getMapLink(response["addressLine1"], response["city"], response["state"], response["zip"]));

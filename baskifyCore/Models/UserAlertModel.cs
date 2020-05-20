@@ -12,10 +12,12 @@ namespace baskifyCore.Models
     /// </summary>
     public class UserAlertModel
     {
+        [DatabaseGenerated(DatabaseGeneratedOption.Identity)]
+        [Key]
+        public Guid Id { get; set; }
+
         [Required]
         [MaxLength(20)]
-        [Key]
-        [Column(Order = 1)]
         public string AlertType { get; set; }
 
         [MaxLength(20)]
@@ -27,13 +29,13 @@ namespace baskifyCore.Models
 
         [MaxLength(30)]
         [ForeignKey("UserModel")]
-        [Column(Order = 0)]
         [Required]
-        [Key]
         public string Username { get; set; }
 
         [ForeignKey("Username")]
         public UserModel UserModel { get; set; }
+
+        public bool Dismissable { get; set; } //indicates if the alert can be silenced by x-ing it out.
 
     }
 }
