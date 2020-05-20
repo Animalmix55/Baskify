@@ -248,7 +248,7 @@ namespace baskifyCore.Utilities
             ClaimsIdentity claimsIdentity = new ClaimsIdentity();
             //Create a unique JTI by hashing username with time
             StringBuilder Sb = new StringBuilder();
-            var hashBytes = SHA256.Create().ComputeHash(Encoding.UTF8.GetBytes(user.Username + DateTime.Now));
+            var hashBytes = SHA256.Create().ComputeHash(Encoding.UTF8.GetBytes(user.Username + DateTime.UtcNow));
             foreach (var b in hashBytes)
             {
                 Sb.Append(b.ToString("x2"));
@@ -282,7 +282,7 @@ namespace baskifyCore.Utilities
 
         public static void deleteTokenFromCookie(HttpResponse response)
         {
-            CookieOptions options = new CookieOptions() { Expires = DateTime.Now.AddDays(-1) };
+            CookieOptions options = new CookieOptions() { Expires = DateTime.UtcNow.AddDays(-1) };
             response.Cookies.Append("BearerToken", "", options); //removes token
         }
         

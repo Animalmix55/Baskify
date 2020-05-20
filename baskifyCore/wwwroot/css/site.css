@@ -77,7 +77,6 @@ body {
     align-content: center;
     flex-wrap: wrap;
     width: 100%;
-    height: 96px;
     background-color: white;
     border-bottom: 1px solid gray;
     align-content: center;
@@ -98,6 +97,7 @@ body {
     margin-right: auto;
     margin-left: 10px;
     font-size: 30pt;
+    align-self:center;
 }
 .navigationBarBrand:hover{
     text-decoration-line: none;
@@ -105,6 +105,7 @@ body {
 .navUserContainer{
     position: relative;
     display: flex;
+    height: 96px;
     margin-left: auto;
     align-items: center;
     margin-right: 10px;
@@ -173,6 +174,18 @@ body {
     flex-grow: 0;
 }
 
+#PageLoadingModal{
+    position: fixed;
+    height: 100vh;
+    width: 100%;
+    display:flex;
+    align-items: center;
+    justify-content: center;
+    background-color: rgba(0, 0, 0, 0.50);
+    z-index: 20;
+    top:0;
+}
+
 @media (max-width: 624px) {
     .searchBarContainerParent{
         order: 5;
@@ -189,17 +202,12 @@ body {
     }
 
     .navigationBar {
-        height: 240px;
         transition: height .5s;
     }
 
     .navUserContainer {
         order: 3;
-        height: 50%
-    }
-
-    .navigationBarBrand {
-        height: 50%;
+        height: 130px;
     }
 
     .userDropdown{
@@ -485,6 +493,19 @@ h4{
     overflow-y: auto;
 }
 
+/*-------------User Basket Submission-------------*/
+#AuctionInfoBlock {
+    margin-top: 20px;
+    background-color: #c2c2c2;
+    margin-bottom: 20px;
+    width: 60%;
+    display: block;
+    position: relative;
+    left:0;
+    right:0;
+    margin: auto;
+}
+
 @media (max-width: 790px) {
     .searchButton {
         display: none;
@@ -533,4 +554,41 @@ h4{
     #basketDataModal{
         padding: 0 !important
     }
+    #AuctionInfoBlock {
+        width: 100%;
+    }
+}
+
+/*----------AUCTION LIST-------------*/
+#AuctionListContainer, #deleteAuctionForm, .maxWidthContainer {
+    width: 60%;
+    left: 0;
+    right: 0;
+    margin: auto;
+}
+.goBack {
+    width: 60%;
+    left: 0;
+    right: 0;
+    margin: auto;
+}
+.basketCard{
+    width:300px;
+    overflow:hidden;
+}
+
+@media (max-width: 790px) {
+    #AuctionListContainer, #deleteAuctionForm, .maxWidthContainer {
+        width: 100%;
+    }
+    #AuctionListHeader img{
+        display: none;
+    }
+    .goBack{
+        width: 100%;
+    }
+    .basketCard{
+        width: 80vw;
+    }
+
 }

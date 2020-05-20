@@ -11,13 +11,14 @@ namespace baskifyCore.Models
         public DbSet<UserModel> UserModel { get; set; }
         public DbSet<BearerTokenModel> BearerTokenModel { get; set; }
         public DbSet<UserAlertModel> UserAlert { get; set; }
-        public DbSet<EmailChangeModel> EmailChange { get; set; }
+        public DbSet<EmailVerificationModel> EmailVerification { get; set; }
         public DbSet<AuctionModel> AuctionModel { get; set; }
         public DbSet<BasketModel> BasketModel { get; set; }
         public DbSet<BasketPhotoModel> BasketPhotoModel { get; set; }
         public DbSet<TicketModel> TicketModel { get; set; }
         public DbSet<UserAuctionWalletModel> UserAuctionWallet { get; set; }
         public DbSet<PendingImageModel> PendingImageModel { get; set; }
-
+        public DbSet<PaymentModel> PaymentModel { get; set; }
+        public DbSet<AuctionLinkModel> AuctionLinkModel { get; set; }
     }
 }

@@ -19,7 +19,7 @@
                     <img src="@image.Url" data="@image.PhotoId" />
                 }
             </div>
-            @if (!Model.AcceptedByOrg)
+            @if (!Model.AcceptedByOrg && !Model.Draft && !(bool)(ViewData["HideVerification"] ?? false))//dont show for new baskets
             {
                 <div id="verifyWarning" class="alert alert-dismissible alert-warning">
                     <button type="button" class="close" data-dismiss="alert">&times;</button>
@@ -32,7 +32,7 @@
                     <div class="input-group mb-3">
                         <div class="custom-file">
                             <input type="file" class="custom-file-input" name="files" id="uploadImages" multiple>
-                            @Html.HiddenFor(Model => Model.BasketId, new { @id = "imageBasketId"})
+                            @Html.HiddenFor(Model => Model.BasketId, new { @id = "imageBasketId" })
                             <label class="custom-file-label" for="inputGroupFile02">Add image(s)</label>
                         </div>
                         <span id="imageUploadError"></span>
@@ -47,7 +47,8 @@
                     </div>
                 </div>
             </form>
-            <form id="basketUpdateForm" method="post" action="/basket/updateBasket">
+            <form id="basketUpdateForm" method="post">
+                @Html.ValidationSummary(true)
                 <fieldset>
                     <legend>Basket Attributes</legend>
                     <div class="form-group">
@@ -67,23 +68,38 @@
                             </li>
                             @if (Model.BasketContents != null)
                             {
-                                for (int i = 0; i<Model.BasketContents.Count; i++)
+                                for (int i = 0; i < Model.BasketContents.Count; i++)
                                 {
                                     if (!string.IsNullOrWhiteSpace(Model.BasketContents[i]))
                                     {
-                                    <li class="list-group-item d-flex justify-content-between align-items-center">
-                                        <input class="basketContents form-control" type="text" value="@Model.BasketContents[i]" placeholder="Add a new item" />
-                                    </li>
+                                        <li class="list-group-item d-flex justify-content-between align-items-center">
+                                            <input class="basketContents form-control" type="text" value="@Model.BasketContents[i]" placeholder="Add a new item" />
+                                        </li>
                                     }
                                 }
                             }
                             <li class="list-group-item d-flex justify-content-between align-items-center">
-                                <input class="basketContents form-control" data="new" type="text"  placeholder="Add a new item" />
+                                <input class="basketContents form-control" data="new" type="text" placeholder="Add a new item" />
                             </li>
                         </ul>
                         @Html.ValidationMessageFor(Model => Model.BasketContentString)
                         @Html.HiddenFor(Model => Model.AuctionId)
                         @Html.HiddenFor(Model => Model.BasketId)
+                        @Html.HiddenFor(Model => Model.Draft)
+                        @if (Model.addImages != null)
+                        {
+                            foreach (var photoUrl in Model.addImages)
+                            {
+                                <input type="hidden" value="@photoUrl" name="addImages[]" />
+                            }
+                        }
+                        @if (Model.removeImages != null)
+                        {
+                            foreach (var photoUrl in Model.removeImages)
+                            {
+                                <input type="hidden" value="@photoUrl" name="removeImages[]" />
+                            }
+                        }
                     </div>
                 </fieldset>
 
@@ -104,9 +120,9 @@
                 var gallery = this;
                 $('#deleteCurrentImage').click(function () {
                     var current = gallery.getActiveImage(); //adds element to list of IDs to remove...
-                    imagesToRemove.push($(current).attr("src"));
                     var gallerySize = gallery.getDataLength();
                     if (gallerySize > 1) {
+                        imagesToRemove.push($(current).attr("src"));
                         var currentIndex = gallery.getIndex();
                         gallery.splice(currentIndex, 1); //removes element
                         if (currentIndex == gallerySize - 1)//current selected last index...
@@ -114,41 +130,54 @@
                         gallery.show(currentIndex - 1); //because it doesn't like to update
                         gallery.show(currentIndex);
                     }
-                    if (gallerySize == 2) {
+                    if (gallerySize <= 2) {
                         $("#deleteCurrentImage").prop('disabled', true); //disable button
                     }
                 });
             }
-        })
+        });
+        $("#basketUpdateForm").attr("action", basketEditUrl); //set the edit url to be page specific
     });
 
     $("#imageUploadForm").submit(function (e) {
-        e.stopPropagation();
-        e.preventDefault();
-        var formData = new FormData();
-        var files = $("#uploadImages").prop("files");
+                            e.stopPropagation();
+                            e.preventDefault();
+                            var formData = new FormData();
+                            var files = $("#uploadImages").prop("files");
         $.each(files, function (i, file) {
-            formData.append('files', file);
-        });
-        formData.append('basketId', $('#imageBasketId').val());
+                                formData.append('files', file);
+                            });
+                            formData.append('basketId', $('#imageBasketId').val());
 
         $.ajax({
-            url: "/basket/uploadBasketImages",
+                            url: "/basket/uploadBasketImages",
             type: 'POST',
             processData: false,
             contentType: false,
             data: formData,
             dataType: 'text',
             success: function (data) {
-                if (data.startsWith("ERROR"))
+                                    if (data.startsWith("ERROR"))
                     $("#imageUploadError").html(data);
                 else {
-                    //data is an array of new image URLs
-                    var response = JSON.parse(data);
-                    response.forEach(element => { $('.galleria').data('galleria').push({ image: element }); imagesToAdd.push(element); }); //add to galleria
-                    
-                }
-            }
+                                        //data is an array of new image URLs
+                                        var response = JSON.parse(data);
+                                        if ($('.galleria').data('galleria').getDataLength() == 0 && response.length > 0) //if empty gallery
+                    {
+                                            var imageList = [];
+                                            response.forEach(element => {
+                                            imageList.push({ image: element });
+                                            imagesToAdd.push(element);
+                                        });
+                        $('.galleria').data('galleria').load(imageList);
+                                    }
+                    else
+                                        response.forEach(element => { $('.galleria').data('galleria').push({ image: element }); imagesToAdd.push(element); }); //add to galleria
+
+                                if ($('.galleria').data('galleria').getDataLength > 1)
+                        $("#deleteCurrentImage").prop('disabled', false);
+                            }
+                        }
         });
         return false;
 
@@ -157,11 +186,11 @@
     $("#basketUpdateForm").submit(function (e) {//put remove and add arrays in request
 
         for (i = 0; i < imagesToRemove.length; i++) {
-            $(e.target).append("<input type='hidden' value='" + imagesToRemove[i] + "' name='removeImages[" + i + "]' />")
+            $(e.target).append("<input type='hidden' value='" + imagesToRemove[i] + "' name='removeImages[]' />")
         }
 
         for (i = 0; i < imagesToAdd.length; i++) {
-            $(e.target).append("<input type='hidden' value='" + imagesToAdd[i] + "' name='addImages[" + i + "]' />")
+            $(e.target).append("<input type='hidden' value='" + imagesToAdd[i] + "' name='addImages[]' />")
         }
 
         $(".basketContents").each(function (index) {
@@ -187,6 +216,4 @@
 
         }
     });
-
-
 </script>

@@ -1,0 +1,355 @@
+﻿@model baskifyCore.ViewModels.UserAuctionViewModel
+@{
+    ViewData["Title"] = Model.AuctionModel.Title;
+}
+
+    
+    <style>
+        .basketCardImages .galleria-bar{
+            display: none;
+        }
+    </style>
+    <script src="https://js.stripe.com/v3/"></script>
+    <script src="~/galleria/galleria.min.js"></script>
+    <div id="paymentSucceedAlert2" class="alert alert-dismissible alert-success" style="display:none;">
+        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        Payment succeeded! You may now use your tickets!
+    </div>
+    <div id="AuctionBody" style="display:flex; flex-wrap:wrap; justify-content:center" class="maxWidthContainer">
+        <button id="purchaseTicketsButton" type="button" style="right:0; margin-left:auto;" class="btn btn-success" onclick="purchaseTickets()">
+            @if (Model.Wallet.WalletBalance == 0)
+            {
+                <text>Purchase Tickets</text>
+            }
+            else
+            {
+                <text><span>@Model.Wallet.WalletBalance</span> Tickets</text>
+            }
+        </button>
+        <img src="@Model.AuctionModel.BannerImageUrl" style="width: 100%; height: auto;" />
+        <div style="margin-top: 10px; margin-bottom: 10px; width: 100%">
+            <h2>@Model.AuctionModel.Title</h2>
+            <div class="text-muted" style="display:flex; width:100%; justify-content:inherit">
+                <span>@Model.AuctionModel.StartTime - @Model.AuctionModel.EndTime</span>
+            </div>
+            <div style="max-width: 100%;">
+                @Model.AuctionModel.Description
+            </div>
+            <hr class="my-4">
+        </div>
+        <div id="basketContainer" style="display:flex; flex-wrap:wrap; justify-content:space-evenly">
+            @foreach (var basket in Model.AuctionModel.Baskets)
+            {
+                if (basket.Draft)//dont try with drafts
+                {
+                    continue;
+                }
+                <div class="card mb-3 basketCard" data-id="@basket.BasketId" data-loaded="false">
+                    <h3 class="card-header" style="font-size:114%">@basket.BasketTitle (<span class="text-muted">@(basket.UserTickets==null? 0 : basket.UserTickets.NumTickets)</span>)</h3>
+                    <div id="gallery-@basket.BasketId" class="galleria basketCardImages" style="background-color:rgba(0, 0, 0, 0.00); height:300px; width:inherit">
+                        <img src="@basket.photos[0].Url" />
+                    </div>
+                    <div class="card-body" style="margin-top:-40px">
+                        <p class="card-text">@basket.BasketDescription.Substring(0, basket.BasketDescription.Length < 120 ? basket.BasketDescription.Length : 120)</p>
+                    </div>
+                    <div style="display:flex">
+                        <button class="addTicket btn btn-outline-secondary" onclick="addTicket(@basket.BasketId)" style="width:50%;">Add Ticket</button>
+                        <button class="btn btn-outline-secondary" style="width: 50%;" onclick="viewBasket(@basket.BasketId)">View Basket</button>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="modal" id="basketDataModal">
+        <div class="modal-dialog" id="BasketModalContainer" role="document">
+            <div class="modal-content" id="basketModalContent">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalHeader"></h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" id="basketModalBody">
+                    <div class="galleria" style="height:400px" id="currentBasketGallery"></div>
+                    <h2 id="currentBasketTitle" style="margin-top:10px;"></h2>
+                    <div id="currentBasketDescription" style="margin-bottom:10px;"></div>
+                    <table class="table table-hover" id="currentBasketContents">
+                        <thead>
+                            <tr style="padding: 4px 0px 4px 0px">
+                                <th scope="col" style="padding: unset; font-weight:bold;">Basket Contents</th>
+                            </tr>
+                        </thead>
+                        <tbody style="display:flex; flex-wrap:wrap">
+                        </tbody>
+                    </table>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-success" id="currentBasketAddTicket" style="flex: 1;">Add Ticket (<span>0</span>)</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="modal" id="purchaseTicketsModal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title" id="modalHeader">Purchase Tickets</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <form id="payment-form">
+                    <div class="modal-body" id="ticketModalBody">
+                        <div id="paymentFailedAlert" class="alert alert-dismissible alert-danger" style="display:none;">
+                            <span>Woops! There's been an error! Try again!</span>
+                        </div>
+                        <div id="paymentSucceedAlert" class="alert alert-dismissible alert-success" style="display:none;">
+                            Payment succeeded! The page will refresh momentarily!
+                        </div>
+
+
+                        <label for="numTickets">Number of Tickets</label>
+                        <div style="display:flex;">
+                            <input type="range" class="custom-range" id="numTickets" value="@Math.Ceiling(0.5/Model.AuctionModel.TicketCost)" min="@Math.Ceiling(0.5/Model.AuctionModel.TicketCost)" max="1000" step="1">
+                            <div style="flex: .1;min-width: 40px;text-align: end;" id="numTicketLabel"><span>@Math.Ceiling(0.5 / Model.AuctionModel.TicketCost)</span></div>
+                        </div>
+                        <div id="card-element">
+                            <!-- Elements will create input elements here -->
+                        </div>
+
+                        <!-- We'll put the error messages in this element -->
+                        <div id="card-errors" role="alert"></div>
+
+                    </div>
+                    <div class="modal-footer" style="flex-wrap:nowrap;">
+                        <button style="font-size:150%; width: 100%;" class="btn btn-success" id="buyTickets">
+                            Pay $<span>@decimal.Round((decimal)(Math.Ceiling(0.5 / Model.AuctionModel.TicketCost) * Model.AuctionModel.TicketCost), 2)</span>
+                        </button>
+                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+    var currentSelectedBasketId = -1;
+    var errorMessage = null;
+    var clientSecret = null;
+
+    $(function () {
+        Galleria.loadTheme('/galleria/themes/twelve/galleria.twelve.js');
+        Galleria.configure({
+            imageCrop: true,
+            lightbox: true,
+            transition: 'fade',
+            idleMode: false
+        });
+    }()); //loads galleria
+
+    $(".basketCard").on("mouseenter", loadGallery);
+
+    function loadGallery(e) {
+        var card = $(e.currentTarget);
+        if (card.attr("data-loaded") == "false") {
+            var basketId = card.attr("data-id");
+            $.ajax({
+                url: "/api/baskets/" + basketId + "/images",
+                success: function (result) {
+                    var galleria = card.find(".galleria").data('galleria');
+                    result.forEach(function (element, i) {
+                        if (i != 0) //don't worry about the first element, it's already there
+                            galleria.push({ image: element });
+                    });
+                    card.attr("data-loaded", "true");
+                    card.off("mouseenter", loadGallery); //remove handler
+                }
+            });
+        }
+    }
+
+        var elements;
+    $(function () {
+        Galleria.run('.galleria', {
+            extend: function () {
+                var gallery = this;
+                //TODO: implement the lazy loading images
+            }
+        });
+        var stripe = Stripe('@ViewData["StripePublicKey"]');
+        elements = stripe.elements();
+
+        // Set up Stripe.js and Elements to use in checkout form
+        var style = {
+            base: {
+                color: "#32325d"
+            }
+        };
+
+        var card = elements.create("card", { style: style });
+        card.mount("#card-element");
+
+        $("#card-element").on('change', function (event) {
+            var displayError = document.getElementById('card-errors');
+            if (event.error) {
+                displayError.textContent = event.error.message;
+            } else {
+                displayError.textContent = '';
+            }
+        });
+
+        var form = document.getElementById('payment-form'); //swipe form
+
+        $(form).on('submit', function (ev) {
+            ev.preventDefault();
+            $("#PageLoadingModal").css("display", "flex");
+            $("#buyTickets").attr("disabled", "");
+            $.ajax({
+                url: "/api/wallets/@Model.AuctionModel.AuctionId/getsecret",
+                method: "POST",
+                data: {
+                    tickets: $("#numTickets").val()
+                },
+                beforeSend: function (xhr) {
+                    xhr.setRequestHeader("Authorization", "Bearer " + getCookie("BearerToken"));
+                },
+                success: function (data) {
+                    stripe.confirmCardPayment(data, {
+                        payment_method: {
+                            card: card,
+                            billing_details: {
+                                name: '@Model.UserModel.FirstName @Model.UserModel.LastName'
+                            }
+                        }
+                    }).then(function (result) {
+                        if (result.error) {
+                            $("#purchaseTicketsModal .alert, #paymentSuccessAlert2").css("display", "none"); //hide other messages
+                            $("#paymentFailedAlert span").html(result.error.message);
+                            $("#paymentFailedAlert").css("display", "block");
+                            $("#buyTickets").removeAttr("disabled");
+                            $("#PageLoadingModal").css("display", "none");
+                        }
+                        else { //check until we get a verdict
+                            var intervalId = setInterval(function () {
+                                $.ajax({
+                                    url: "/api/wallets/checkpayment/" + encodeURI(result.paymentIntent.id),
+                                    method: "GET",
+                                    beforeSend: function (xhr) {
+                                        xhr.setRequestHeader("Authorization", "Bearer " + getCookie("BearerToken"));
+                                    },
+                                    success: function (data) {
+                                        if (data == "Failure") {
+                                            $("#purchaseTicketsModal .alert, #paymentSuccessAlert2").css("display", "none"); //hide other messages
+                                            $("#paymentFailedAlert span").html(result.error.message);
+                                            $("#paymentFailedAlert").css("display", "block");
+                                            clearInterval(intervalId); //stop checking
+                                            $("#buyTickets").removeAttr("disabled");
+                                            $("#PageLoadingModal").css("display", "none");
+                                        }
+                                        else if (data == "Success") {
+                                            // The payment has been processed!
+                                            if (result.paymentIntent.status === 'succeeded') {
+                                                $("#purchaseTicketsModal .alert").css("display", "none"); //hide other messages
+                                                $("#paymentSucceedAlert, #paymentSuccessAlert2").css("display", "block");
+                                                elements.getElement("card").clear();
+                                                clearInterval(intervalId);
+                                                $("#buyTickets").removeAttr("disabled");
+                                                $("#PageLoadingModal").css("display", "none");
+                                                setTimeout(function () {
+                                                    location.reload(true);
+                                                }, 5000);
+                                            }
+                                        }
+                                    }
+                                });
+                            }, 2000); //every 2 seconds, see if transaction succeeded
+                        }
+                    });
+                },
+                error: function (XMLHttpRequest, textStatus, errorThrown) {
+                    $("#purchaseTicketsModal .alert, #paymentSuccessAlert2").css("display", "none"); //hide other messages
+                    $("#paymentFailedAlert span").html(XMLHttpRequest.responseText);
+                    $("#paymentFailedAlert").css("display", "block");
+                    $("#buyTickets").removeAttr("disabled");
+                }
+            });
+
+        });
+
+
+
+    });
+
+    $("#numTickets").on('input', function () { //update ticket cost/number with slider
+        $("#buyTickets span").html((@Model.AuctionModel.TicketCost * $("#numTickets").val()).toFixed(2));
+        $("#numTicketLabel span").html($("#numTickets").val());
+    });
+
+    function purchaseTickets() {
+        $("#purchaseTicketsModal").modal("show");
+    }
+
+    function viewBasket(id) {
+        if (currentSelectedBasketId == id) { //no ajax if it's already loaded
+            $("#basketDataModal").modal("toggle");
+            return;
+        }
+
+        $("#currentBasketAddTicket").data("id", id); //add id to button data
+        $("#currentBasketAddTicket").click(function () { addTicket($(this).data("id")); })
+        $.ajax({
+            url: "/api/baskets/" + id,
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("Authorization", "Bearer " + getCookie("BearerToken"));
+            },
+            success: function (data) {
+                var galleriaData = [];
+                data["photos"].forEach(function (element) {
+                    galleriaData.push({ image: element["url"] });
+                });
+                $("#currentBasketGallery").data("galleria")._options.imageCrop = false; //the main gallery shouldn't crop
+                $("#currentBasketGallery").data("galleria").load(galleriaData); //load in images
+                $("#currentBasketDescription").html(data["basketDescription"]);
+                $("#currentBasketTitle, #modalHeader").html(data["basketTitle"]);
+                $("#currentBasketAddTicket span").html(data["numTickets"]);
+                var contentHtml = "";
+                data["basketContents"].forEach(function (element) {
+                    contentHtml += "<tr style='flex-basis: 50%' class='table-light'>"; //build list
+                    contentHtml += "<td style='padding: unset;'>" + element + "</td>";
+                    contentHtml += "</tr>";
+                });
+                $("#currentBasketContents tbody").html(contentHtml);
+                $("#basketDataModal").modal("toggle");
+                currentSelectedBasketId = id;
+            }
+        });
+    }
+
+    function addTicket(basketId) {
+        $.ajax({
+            url: "/api/baskets/" + basketId + "/ticket/add",
+            method: "POST",
+            beforeSend: function (xhr) {
+                xhr.setRequestHeader("Authorization", "Bearer " + getCookie("BearerToken"));
+            },
+            success: function (data) {
+                $("#currentBasketAddTicket span").html(data); //update modal ticket counter
+                $(".basketCard[data-id=" + basketId + "]").find("h3 span").html(data); //update ticket count on basket card
+                var numTickets = parseInt($("#purchaseTicketsButton span").html());
+                if (numTickets - 1 > 0)
+                    $("#purchaseTicketsButton span").html(numTickets - 1); //add to purchase button
+                else
+                    $("#purchaseTicketsButton").html("Purchase Tickets");
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                $("#currentBasketAddTicket").html("Error: " + XMLHttpRequest.responseText).removeClass("btn-success").addClass("btn-danger");
+                $(".basketCard[data-id=" + basketId + "] .addTicket").html(XMLHttpRequest.responseText).removeClass("btn-outline-secondary").addClass("btn-danger"); //update ticket count on basket card
+            }
+        });
+    }
+
+    </script>

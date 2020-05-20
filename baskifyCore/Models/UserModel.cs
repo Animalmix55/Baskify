@@ -65,6 +65,10 @@ namespace baskifyCore.Models
         [RegularExpression(@"^([0-9]{5}\-[0-9]{4})|([0-9]{5})$", ErrorMessage = "ZIPs should be in the format ##### or #####-####)")]
         public string ZIP { get; set; }
 
+        public float Latitude { get; set; }
+
+        public float Longitude { get; set; }
+
         [Required]
         public int UserRole
         { get; set; }
@@ -78,9 +82,12 @@ namespace baskifyCore.Models
         public string iconUrl { get; set; }
         public DateTime lastLogin { get; set; }
 
-        public bool EmailVerified { get; set; }
-
         public ICollection<UserAlertModel> UserAlerts { get; set; }
+
+        [ForeignKey("SubmittingUsername")]
+        public List<BasketModel> Baskets { get; set; }
+
+        public string StripeCustomerId { get; set; }
 
         //---------------------------------------------------------ORGANIZATION-SPECIFIC PROPERTIES----------------------------------------------------------------------
 
