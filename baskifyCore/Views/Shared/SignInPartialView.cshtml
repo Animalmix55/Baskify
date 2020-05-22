@@ -1,4 +1,4 @@
-﻿@model string;
+﻿@model UserModel;
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -8,9 +8,22 @@
                 </button>
             </div>
             <div class="modal-body">
+                @if (!string.IsNullOrWhiteSpace(Model.Username))
+                {
+                    <div class="alert alert-dismissible alert-danger">
+                        Your login expired, please sign in again!
+                    </div>
+                }
                 <form id="SignOnForm">
                     <label for="inputUsername">Username:</label>
-                    <input id="inputUsername" type="text" placeholder="Username" class="form-control" />
+                    @if (!string.IsNullOrWhiteSpace(Model.Username))
+                    {
+                        <input id="inputUsername" readonly type="text" value="@Model.Username" placeholder="Username" class="form-control" />
+                    }
+                    else
+                    {
+                        <input id="inputUsername" type="text" placeholder="Username" class="form-control" />
+                    }
                     <div class="form-group has-danger">
                         <label for="inputPassword">Password:</label>
                         <input id="inputPassword" type="password" placeholder="Password" class="form-control">
@@ -43,20 +56,12 @@
                 function (data) { //post will return the new, logged in header
                     $("#loginButton").prop('disabled', false);
                     if (!data.startsWith("ERROR:")) {
-                        $("#SignOnModal").modal('toggle'); //close modal
-                        $("header").html(data); //reload the nav bar
-
-                        @if(Model == "reloadPage")//this case means the whole page should reload
+                        @if ((bool)(ViewData["RefreshAfterLogin"] ?? false))
                         {
                             <text>window.location.reload();</text>
                         }
-                        else if (Model != null)
-                        {
-                            <text>$.post(@ViewData["actionUrl"], @ViewData["jsonParams"], function (data) {
-                                $("#@Model").html(data);
-                            });</text> //reload the given data if told to.
-                        }
-
+                        $("#SignOnModal").modal('toggle'); //close modal
+                        $("header").html(data); //reload the nav bar
                         $("#inputPassword").removeClass("is-invalid")
                     }
                     else {

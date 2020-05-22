@@ -43,5 +43,7 @@ namespace baskifyCore.Models
 
         [Required]
         public float Amount { get; set; } //USD IN CENTS
+
+        public bool Locked { get; set; } //INDICATES THAT THE FIELD CANNOT BE EDITED, NOT ENFORECED BY DB
     }
 }

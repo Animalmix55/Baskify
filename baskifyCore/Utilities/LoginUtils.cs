@@ -18,6 +18,12 @@ using Microsoft.AspNetCore.Http.Extensions;
 
 namespace baskifyCore.Utilities
 {
+    public static class TokenTypes
+    {
+        public const int PASSWORDRESET = 1;
+        public const int NORMAL = 0;
+    }
+
     public static class LoginUtils
     {
         /// <summary>
@@ -96,9 +102,16 @@ namespace baskifyCore.Utilities
             if(Response != null)
                 deleteTokenFromCookie(Response);
             var decodedToken = new JwtSecurityToken(token);
-            var tokenEntry = _context.BearerTokenModel.Find(decodedToken.Id); //should already be in context from user loading
-            _context.BearerTokenModel.Remove(tokenEntry);
-            _context.SaveChanges();
+            var userNameClaim = decodedToken.Claims.Where(c => c.Type == "nameid").FirstOrDefault();
+            if (userNameClaim != null) {
+                var userName = userNameClaim.Value;
+                var user = _context.UserModel.Find(userName); //should already be in context from user loading
+                if (user != null && user.BearerHash == HashToken(token))
+                {
+                    user.BearerHash = null; //remove hash from server
+                    _context.SaveChanges();
+                }
+            }
         }
 
         /// <summary>
@@ -114,13 +127,17 @@ namespace baskifyCore.Utilities
 
             try
             {
+                var decodedToken = new JwtSecurityToken(token);
                 SecurityToken validatedToken;
                 IPrincipal principal = tokenHandler.ValidateToken(token, validationParameters, out validatedToken);
                 //now check to see if token is in database
                 if (!validateAgainstDB)
                     return true;
-                var bearerTokenModel = _context.BearerTokenModel.Find(validatedToken.Id);
-                if (bearerTokenModel != null && bearerTokenModel.Token == token) //make sure it's the same token
+                var tokenHash = _context.UserModel.Find(validatedToken.Id);
+                var userName = decodedToken.Claims.Where(c => c.Type == "nameid").FirstOrDefault().Value;
+
+                var user = _context.UserModel.Find(userName);
+                if (user != null && user.BearerHash == HashToken(token)) //make sure it's the same token
                     return true;
                 else
                     return false;
@@ -132,6 +149,22 @@ namespace baskifyCore.Utilities
 
         }
 
+        /// <summary>
+        /// Hashes the bearer token with a special salt
+        /// </summary>
+        /// <param name="bearerToken"></param>
+        /// <returns></returns>
+        private static string HashToken(string bearerToken)
+        {
+            var Salt = "2961065D2512D914A337185A16DEA806D7CC616F829169D9E85D853765886D72"; //just for added security
+            var hash = SHA256.Create().ComputeHash(Encoding.UTF8.GetBytes(bearerToken + Salt));
+            StringBuilder Sb = new StringBuilder();
+            foreach (var b in hash)
+            {
+                Sb.Append(b.ToString("x2"));
+            }
+            return Sb.ToString();
+        }
 
         /// <summary>
         /// Gets the UserModel for a user from a given token. Returns null if there's an issue.
@@ -146,12 +179,15 @@ namespace baskifyCore.Utilities
 
             try
             {
+                var decodedToken = new JwtSecurityToken(token);
                 SecurityToken validatedToken;
                 IPrincipal principal = tokenHandler.ValidateToken(token, validationParameters, out validatedToken);
                 //now get the token from the DB
-                var bearerTokenModel = _context.BearerTokenModel.Include("UserModel.UserAlerts").Where(b => b.TokenIdentifier == validatedToken.Id).FirstOrDefault();
-                if (bearerTokenModel != null && bearerTokenModel.Token == token) //make sure it's the same token
-                    return bearerTokenModel.UserModel;
+                var userName = decodedToken.Claims.Where(c => c.Type == "nameid").FirstOrDefault().Value;
+
+                var user = _context.UserModel.Find(userName);
+                if (user != null && user.BearerHash == HashToken(token)) //make sure it's the same token
+                    return user;
                 else
                 {
                     if (response != null)
@@ -189,22 +225,6 @@ namespace baskifyCore.Utilities
         /// <returns></returns>
         public static async Task<string> buildToken(UserModel user, ApplicationDbContext _context, int tokenType=TokenTypes.NORMAL)
         {
-            //Check to see if the user already has a valid token...
-            BearerTokenModel bearerToken;
-            if (tokenType == TokenTypes.NORMAL && (bearerToken = _context.BearerTokenModel
-                .Where(b => b.Username == user.Username)
-                .Where(b => b.Type != TokenTypes.PASSWORDRESET) //make sure a user doesn't load in a reset token
-                .OrderByDescending(b => b.TimeWritten)
-                .FirstOrDefault()) != null)
-            {
-                if (CheckToken(bearerToken.Token, _context, false))
-                    return bearerToken.Token;
-            }
-
-            if(tokenType == TokenTypes.PASSWORDRESET)
-                _context.BearerTokenModel.RemoveRange(_context.BearerTokenModel
-                    .Where(b => b.Username == user.Username)); //removes ALL TOKENS from the user, kicks off other sessions and keeps things tidy
-
             var currentTime = DateTime.UtcNow;
             DateTime expiry;
             switch (tokenType)
@@ -237,8 +257,9 @@ namespace baskifyCore.Utilities
             var id = token.Id;
             //send the token to the server for safekeeping
             var returnToken = tokenHandler.WriteToken(token);
-            bearerToken = new BearerTokenModel { Type = tokenType, TokenIdentifier = id, TimeExpire = expiry, TimeWritten = currentTime, UserModel = user, Username = user.Username, Token = returnToken  };
-            _context.BearerTokenModel.Add(bearerToken);
+
+            user.BearerHash = HashToken(returnToken); //add token hash to user
+
             _context.SaveChanges();
             return returnToken;
         }

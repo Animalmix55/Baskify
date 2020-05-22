@@ -40,8 +40,13 @@ namespace baskifyCore.Controllers.api
                     if (paymentModel == null)
                         return BadRequest("Invalid Payment Model Id");
 
-                    if (paymentModel.Complete == true)
+                    _context.Entry(paymentModel).Reload(); //make sure locked flag is up to date
+
+                    if (paymentModel.Locked)
                         return Ok("Payment Already Updated"); //tells server to stop trying
+
+                    paymentModel.Locked = true; //lock payment PERMANENTLY
+                    _context.SaveChanges(); //make sure locked is set
 
                     paymentModel.Success = true;
                     paymentModel.Complete = true;
@@ -56,7 +61,7 @@ namespace baskifyCore.Controllers.api
                         _context.UserAuctionWallet.Add(wallet);
                     }
 
-                    var numTickets = (int)Math.Floor((paymentIntent.AmountReceived/100) / paymentModel.AuctionModel.TicketCost);
+                    var numTickets = (int)((paymentIntent.AmountReceived/100) / paymentModel.AuctionModel.TicketCost);
 
                     wallet.WalletBalance += numTickets; //add tickets to wallet
 
@@ -74,9 +79,10 @@ namespace baskifyCore.Controllers.api
                     if (paymentModel.Complete == true)
                         return Ok("Payment Already Updated"); //tells server to stop trying
 
-                    _context.Entry(paymentModel).Reference(pm => pm.AuctionModel).Load();
+
 
                     /* HIDE ALERTS FOR NOW, A BIT OVERWHELMING
+                    _context.Entry(paymentModel).Reference(pm => pm.AuctionModel).Load();
                     var newAlert = new UserAlertModel()
                     {
                         AlertBody = String.Format("Your payment of ${0} on {1} failed! Dismiss this error and try again!", decimal.Round((decimal)paymentModel.Amount/100, 2), paymentModel.AuctionModel.Title),

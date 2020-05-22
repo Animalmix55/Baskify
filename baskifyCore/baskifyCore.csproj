@@ -9,6 +9,7 @@
     <PackageReference Include="Bootstrap.v3.Datetimepicker.CSS" Version="4.17.45" />
     <PackageReference Include="EntityFramework" Version="6.4.0" />
     <PackageReference Include="GeoCoordinate.NetStandard1" Version="1.0.1" />
+    <PackageReference Include="jwt-decode" Version="2.2.0" />
     <PackageReference Include="Microsoft.AspNet.Identity.EntityFramework" Version="2.2.3" />
     <PackageReference Include="Microsoft.AspNet.WebPages" Version="3.2.7" />
     <PackageReference Include="Microsoft.AspNetCore.Authentication.JwtBearer" Version="3.1.4" />

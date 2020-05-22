@@ -24,9 +24,12 @@ namespace baskifyCore.Controllers.api
         [HttpDelete]
         public ActionResult Delete([FromHeader] string authorization, [FromForm] Guid id) 
         {
+            if(authorization == null)
+                return Unauthorized("No Authorization");
+
             var user = LoginUtils.getUserFromToken(authorization.Replace("Bearer ", string.Empty), _context);
             if (user == null)
-                return BadRequest("Invalid Credentials");
+                return Unauthorized("Invalid Authorization");
 
             var alert = _context.UserAlert.Find(id);
             if (alert == null)

@@ -190,11 +190,7 @@ namespace baskifyCore.Controllers
 
 
             if(user == null)
-            {
-                ViewData["NavBarOverride"] = new UserModel();
-                ViewData["Alert"] = "Your login expired";
-                return View("~/Views/Login/Index.cshtml", LoginUtils.getAbsoluteUrl("/account/changepassword", Request));
-            }
+                return Redirect("/login?redirectBack="+ LoginUtils.getAbsoluteUrl("/account/changepassword", Request));
             
             ViewData["NavBarOverride"] = user; //this allows the navbar to render correctly
             return View("ChangePassword", passwordChange);
