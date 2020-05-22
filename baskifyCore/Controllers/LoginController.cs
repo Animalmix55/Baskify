@@ -115,20 +115,5 @@ namespace baskifyCore.Controllers
 
             return Redirect("/");
         }
-
-        /// <summary>
-        /// Will load the signon modal designed (a) specifically to reload an iFrame that has failed to load
-        /// or (b) to silently renew the token to redo an update/add/delete action.
-        /// </summary>
-        /// <param name="targetIframe"></param>
-        /// <returns></returns>
-        [HttpPost]
-        public IActionResult loadSignOnModal(string targetElement, string actionUrl, string jsonParams)
-        {
-            //if target element is "reloadPage", then reloads the entire page...
-            ViewData["jsonParams"] = jsonParams;
-            ViewData["actionUrl"] = actionUrl; //this is the url of the action we want the signon to complete into the element.
-            return PartialView("SignInPartialView", targetElement);
-        }
     }
 }

@@ -431,12 +431,15 @@ namespace baskifyCore.Controllers
                 }
             }
             else
+            {
                 ViewData["NavBarOverride"] = new UserModel();
+                ViewData["RefreshAfterLogin"] = true; //to reload buttons
+            }
 
 
             ViewData["StripePublicKey"] = StripeConsts.publicKey;
 
-            var userViewAuctionModel = new UserAuctionViewModel() { UserModel = user, AuctionModel = auction, Wallet = wallet };
+            var userViewAuctionModel = new UserAuctionViewModel() { UserModel = user ?? new UserModel(), AuctionModel = auction, Wallet = wallet ?? new UserAuctionWalletModel() };
             
             return View("ViewAuction", userViewAuctionModel);
         }

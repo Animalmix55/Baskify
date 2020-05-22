@@ -25,19 +25,18 @@ namespace baskifyCore.Controllers.api
             _context = new ApplicationDbContext();
         }
 
-        [HttpPost]
-        [Route("{auctionId}/purchase")]
-        public ActionResult GetSecret([FromHeader] string authorization, [FromForm] int tickets, [FromForm] PaymentMethodCard card, int auctionId)
-        {
-            return Ok();
-        }
-
         // /api/wallets/{id}/purchase
         [HttpPost]
         [Route("{auctionId}/getsecret")]
         public ActionResult GetSecret([FromHeader] string authorization, [FromForm] int tickets, int auctionId)
         {
+            if (authorization == null)
+                return Unauthorized("No Authorization");
+
             var user = LoginUtils.getUserFromToken(authorization.Replace("Bearer ", string.Empty), _context);
+            if (user == null)
+                return Unauthorized("Invalid Authorization");
+
             if (tickets == 0)
                 return BadRequest("Must purchase at least 1 ticket");
             if (user == null)
@@ -105,9 +104,12 @@ namespace baskifyCore.Controllers.api
         [Route("CheckPayment/{paymentId}")]
         public ActionResult CheckPayment([FromHeader] string authorization, string paymentId)
         {
+            if (authorization == null)
+                return Unauthorized("No Authorization");
+
             var user = LoginUtils.getUserFromToken(authorization.Replace("Bearer ", string.Empty), _context);
             if (user == null)
-                return BadRequest("Invalid credentials");
+                return Unauthorized("Invalid Authorization");
 
             var payment = _context.PaymentModel.Find(paymentId);
             if (payment.Username != user.Username)
@@ -115,13 +117,15 @@ namespace baskifyCore.Controllers.api
 
             if (payment.Complete)
             {
-                if (payment.Success)
-                    return Ok("Success");
+                if (payment.Success) {
+                    var wallet = _context.UserAuctionWallet.Find(payment.Username, payment.AuctionId);
+                    return Ok( new { Result = "Success", NumTickets = wallet.WalletBalance });
+                }
                 else
-                    return Ok("Failure");
+                    return Ok(new { Result = "Failure" });
             }
             else
-                return Ok("Pending");
+                return Ok(new { Result = "Pending" });
 
         }
 

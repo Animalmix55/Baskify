@@ -37,6 +37,12 @@ namespace baskifyCore.Controllers
 
         }
 
+        /// <summary>
+        /// Loads the uneditable basket view window - DOES NOT REQUIRE AUTHENTIFICATION
+        /// </summary>
+        /// <param name="authorization"></param>
+        /// <param name="id"></param>
+        /// <returns></returns>
         [HttpGet]
         [Route("{id}")]
         public ActionResult GetBasket([FromHeader] string authorization, int id)
@@ -51,8 +57,7 @@ namespace baskifyCore.Controllers
             {
                 user = LoginUtils.getUserFromToken(authorization.Replace("Bearer ", String.Empty), _context);
                 if (user == null)
-                    return BadRequest("Invalid Authorization");
-
+                    return Unauthorized("Invalid Authorization");
                 tickets = _context.TicketModel.Find(user.Username, basket.BasketId);
             }
 
@@ -70,12 +75,15 @@ namespace baskifyCore.Controllers
         public ActionResult AddTicket(int id, [FromHeader] string authorization)
         {
             if (authorization == null)
-                return BadRequest("No Authorization");
+                return Unauthorized("No Authorization");
 
             var user = LoginUtils.getUserFromToken(authorization.Replace("Bearer ", String.Empty), _context);
 
             if (user == null)
-                return BadRequest("Invalid Authorization");
+                return Unauthorized("Invalid Authorization");
+
+            if (user.UserRole != Roles.USER)
+                return BadRequest("Only users can purchase tickets");
 
             var basket = _context.BasketModel.Find(id);
             if (basket == null)

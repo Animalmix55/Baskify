@@ -89,6 +89,11 @@ namespace baskifyCore.Models
 
         public string StripeCustomerId { get; set; }
 
+        /// <summary>
+        /// Holds the hash of the current serialized bearer token, this way we can verify the token was issued by the server
+        /// </summary>
+        public string BearerHash { get; set; }
+
         //---------------------------------------------------------ORGANIZATION-SPECIFIC PROPERTIES----------------------------------------------------------------------
 
         [Display(Name = "Organization Name")]

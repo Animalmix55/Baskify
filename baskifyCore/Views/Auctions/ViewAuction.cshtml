@@ -1,6 +1,7 @@
 ﻿@model baskifyCore.ViewModels.UserAuctionViewModel
 @{
     ViewData["Title"] = Model.AuctionModel.Title;
+    var disablePurchase = Model.UserModel.UserRole != Roles.USER; //stops non-logged/companies
 }
 
     
@@ -16,20 +17,28 @@
         Payment succeeded! You may now use your tickets!
     </div>
     <div id="AuctionBody" style="display:flex; flex-wrap:wrap; justify-content:center" class="maxWidthContainer">
-        <button id="purchaseTicketsButton" type="button" style="right:0; margin-left:auto;" class="btn btn-success" onclick="purchaseTickets()">
-            @if (Model.Wallet.WalletBalance == 0)
-            {
-                <text>Purchase Tickets</text>
-            }
-            else
-            {
-                <text><span>@Model.Wallet.WalletBalance</span> Tickets</text>
-            }
-        </button>
+        @if (!disablePurchase)
+        {
+        <div id="purchaseTicketsButton" style="cursor:pointer; position:fixed; right:10px; bottom:10px; z-index: 999999">
+            <img src="~/Content/ticketIcon.png" style="height:94px" />
+            <div style="font-size:150%; font-weight: bold; position: absolute; text-align:center; top: 50%;left: 50%;transform: translate(-50%, -50%);">
+                @if (Model.Wallet.WalletBalance == 0)
+                {
+                    <text>Purchase Tickets</text>
+                }
+                else
+                {
+                    <text><span>@Model.Wallet.WalletBalance</span> Tickets</text>
+                }
+            </div>
+            <div class="arrow" style="font-size: 450%;font-weight: bold;position: absolute;text-align:center;top: 50%;left: 13px;transform: translateY(-50%); opacity: 0">&larr;</div>
+        </div>
+        }
+
         <img src="@Model.AuctionModel.BannerImageUrl" style="width: 100%; height: auto;" />
-        <div style="margin-top: 10px; margin-bottom: 10px; width: 100%">
+        <div style="padding-left:10px;margin-top: 10px; margin-bottom: 10px; width: 100%">
             <h2>@Model.AuctionModel.Title</h2>
-            <div class="text-muted" style="display:flex; width:100%; justify-content:inherit">
+            <div class="text-muted" style="display: flex; width: 100%; justify-content: inherit">
                 <span>@Model.AuctionModel.StartTime - @Model.AuctionModel.EndTime</span>
             </div>
             <div style="max-width: 100%;">
@@ -38,26 +47,7 @@
             <hr class="my-4">
         </div>
         <div id="basketContainer" style="display:flex; flex-wrap:wrap; justify-content:space-evenly">
-            @foreach (var basket in Model.AuctionModel.Baskets)
-            {
-                if (basket.Draft)//dont try with drafts
-                {
-                    continue;
-                }
-                <div class="card mb-3 basketCard" data-id="@basket.BasketId" data-loaded="false">
-                    <h3 class="card-header" style="font-size:114%">@basket.BasketTitle (<span class="text-muted">@(basket.UserTickets==null? 0 : basket.UserTickets.NumTickets)</span>)</h3>
-                    <div id="gallery-@basket.BasketId" class="galleria basketCardImages" style="background-color:rgba(0, 0, 0, 0.00); height:300px; width:inherit">
-                        <img src="@basket.photos[0].Url" />
-                    </div>
-                    <div class="card-body" style="margin-top:-40px">
-                        <p class="card-text">@basket.BasketDescription.Substring(0, basket.BasketDescription.Length < 120 ? basket.BasketDescription.Length : 120)</p>
-                    </div>
-                    <div style="display:flex">
-                        <button class="addTicket btn btn-outline-secondary" onclick="addTicket(@basket.BasketId)" style="width:50%;">Add Ticket</button>
-                        <button class="btn btn-outline-secondary" style="width: 50%;" onclick="viewBasket(@basket.BasketId)">View Basket</button>
-                    </div>
-                </div>
-            }
+
         </div>
     </div>
 
@@ -73,19 +63,19 @@
                 <div class="modal-body" id="basketModalBody">
                     <div class="galleria" style="height:400px" id="currentBasketGallery"></div>
                     <h2 id="currentBasketTitle" style="margin-top:10px;"></h2>
+                    <div class="modalHeader">Description</div>
                     <div id="currentBasketDescription" style="margin-bottom:10px;"></div>
+                    <div class="modalHeader">Basket Contents</div>
                     <table class="table table-hover" id="currentBasketContents">
-                        <thead>
-                            <tr style="padding: 4px 0px 4px 0px">
-                                <th scope="col" style="padding: unset; font-weight:bold;">Basket Contents</th>
-                            </tr>
-                        </thead>
-                        <tbody style="display:flex; flex-wrap:wrap">
+                        <tbody style="display:flex; flex-wrap:wrap; justify-content:center">
                         </tbody>
                     </table>
                 </div>
                 <div class="modal-footer">
+                    @if (!disablePurchase)
+                    {
                     <button class="btn btn-success" id="currentBasketAddTicket" style="flex: 1;">Add Ticket (<span>0</span>)</button>
+                    }
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 </div>
             </div>
@@ -107,16 +97,13 @@
                             <span>Woops! There's been an error! Try again!</span>
                         </div>
                         <div id="paymentSucceedAlert" class="alert alert-dismissible alert-success" style="display:none;">
-                            Payment succeeded! The page will refresh momentarily!
+                            Payment succeeded!
                         </div>
 
 
                         <label for="numTickets">Number of Tickets</label>
-                        <div style="display:flex;">
-                            <input type="range" class="custom-range" id="numTickets" value="@Math.Ceiling(0.5/Model.AuctionModel.TicketCost)" min="@Math.Ceiling(0.5/Model.AuctionModel.TicketCost)" max="1000" step="1">
-                            <div style="flex: .1;min-width: 40px;text-align: end;" id="numTicketLabel"><span>@Math.Ceiling(0.5 / Model.AuctionModel.TicketCost)</span></div>
-                        </div>
-                        <div id="card-element">
+                        <input type="number" class="form-control" id="numTickets" min="@Math.Ceiling(0.5/Model.AuctionModel.TicketCost)" max="1000" value="@Math.Ceiling(0.5/Model.AuctionModel.TicketCost)"/>
+                        <div id="card-element" style="padding: 10px 0px 0px 10px;">
                             <!-- Elements will create input elements here -->
                         </div>
 
@@ -137,9 +124,17 @@
 
 
     <script>
+    var ticketOut = true;
     var currentSelectedBasketId = -1;
     var errorMessage = null;
     var clientSecret = null;
+
+
+        $(document).ajaxError(function (event, jqxhr, settings, thrownError) {
+            if (jqxhr.status == 401) { //unauthorized due to bad login
+                openSignOnModal();
+            }
+        });
 
     $(function () {
         Galleria.loadTheme('/galleria/themes/twelve/galleria.twelve.js');
@@ -151,7 +146,34 @@
         });
     }()); //loads galleria
 
-    $(".basketCard").on("mouseenter", loadGallery);
+        $(document).on("mouseenter", ".galleria-stage", loadGallery);
+
+    function toggleTicket(){
+        if (ticketOut) {
+            $("#purchaseTicketsButton").animate({ right: "-143px" }, 500, function () {
+                $("#purchaseTicketsButton .arrow").animate({ opacity: "1" }, 200);
+            });
+            ticketOut = false;
+        }
+        else { //entend out
+            $("#purchaseTicketsButton .arrow").animate({ opacity: "0" }, 200, function () {
+                $("#purchaseTicketsButton").animate({ right: "10px" }, 500);
+            });
+            ticketOut = true;
+        }
+    }
+
+        $("#purchaseTicketsButton").click(function () { //what happens when you click purchase ticket button
+            if (!ticketOut) //if hidden, pop out
+                toggleTicket();
+            else
+                $("#purchaseTicketsModal").modal("show");
+        });
+
+        $(document).scroll(function () {
+            if (ticketOut)
+                toggleTicket();
+        });
 
     function loadGallery(e) {
         var card = $(e.currentTarget);
@@ -173,20 +195,52 @@
     }
 
         var elements;
-    $(function () {
-        Galleria.run('.galleria', {
-            extend: function () {
-                var gallery = this;
-                //TODO: implement the lazy loading images
-            }
-        });
+        var baskets = []; //contains all baskets
+        $(function () {
+            $.ajax( //load in all of the baskets
+                {
+                    url: "/api/auctions/@Model.AuctionModel.AuctionId/baskets",
+                    method: "GET",
+                    beforeSend: function (xhr) { //add token
+                        var token = getCookie("BearerToken");
+                        if (token != "")
+                            xhr.setRequestHeader("Authorization", "Bearer " + token);
+                    },
+                    success: function (result) {
+                        var container = $("#basketContainer");
+                        container.html(""); //clear
+                        baskets = result;
+                        result.forEach(function (basket) {
+                            var html =
+                            `<div class="card mb-3 basketCard" style="border-radius: 30px" data-id="` + basket["basketId"] + `" data-loaded="false">\
+                                <h3 class="card-header" style="font-size:114%">`+ basket["basketTitle"] + `(<span class="text-muted">` + basket["numTickets"] + `</span>)</h3>\
+                                <div id="gallery-`+ basket["basketId"] + `" class="galleria basketCardImages" style="z-index:1;background-color:rgba(0, 0, 0, 0.00); height:300px; width:inherit">\
+                                    <img src="`+ basket["photos"][0]["url"] + `" />\
+                                </div>\
+                                <div style="display:flex; margin-top:-30px; z-index:2">`;
+                            @if (!disablePurchase)
+                            {
+                                <text>
+                                html += `<button class="addTicket btn btn-primary" onclick="addTicket(` + basket["basketId"] + `)" style="flex:1;">Add Ticket</button>`;
+                                </text>
+                            }
+                            html += `<button class="btn btn-primary" style="flex:1;" onclick="viewBasket(` + basket["basketId"] + `)">View Basket</button>\
+                                </div>\
+                            </div>`
+                            container.append(html);
+                        });
+
+                        Galleria.run('.galleria');
+
+                    }
+                }
+            );
         var stripe = Stripe('@ViewData["StripePublicKey"]');
         elements = stripe.elements();
-
         // Set up Stripe.js and Elements to use in checkout form
         var style = {
             base: {
-                color: "#32325d"
+                color: "#32325d",
             }
         };
 
@@ -215,7 +269,9 @@
                     tickets: $("#numTickets").val()
                 },
                 beforeSend: function (xhr) {
-                    xhr.setRequestHeader("Authorization", "Bearer " + getCookie("BearerToken"));
+                    var token = getCookie("BearerToken");
+                    if (token != "")
+                        xhr.setRequestHeader("Authorization", "Bearer " + token);
                 },
                 success: function (data) {
                     stripe.confirmCardPayment(data, {
@@ -239,10 +295,12 @@
                                     url: "/api/wallets/checkpayment/" + encodeURI(result.paymentIntent.id),
                                     method: "GET",
                                     beforeSend: function (xhr) {
-                                        xhr.setRequestHeader("Authorization", "Bearer " + getCookie("BearerToken"));
+                                        var token = getCookie("BearerToken");
+                                        if(token != "")
+                                            xhr.setRequestHeader("Authorization", "Bearer " + token);
                                     },
                                     success: function (data) {
-                                        if (data == "Failure") {
+                                        if (data.result == "Failure") {
                                             $("#purchaseTicketsModal .alert, #paymentSuccessAlert2").css("display", "none"); //hide other messages
                                             $("#paymentFailedAlert span").html(result.error.message);
                                             $("#paymentFailedAlert").css("display", "block");
@@ -250,7 +308,7 @@
                                             $("#buyTickets").removeAttr("disabled");
                                             $("#PageLoadingModal").css("display", "none");
                                         }
-                                        else if (data == "Success") {
+                                        else if (data.result == "Success") {
                                             // The payment has been processed!
                                             if (result.paymentIntent.status === 'succeeded') {
                                                 $("#purchaseTicketsModal .alert").css("display", "none"); //hide other messages
@@ -259,9 +317,7 @@
                                                 clearInterval(intervalId);
                                                 $("#buyTickets").removeAttr("disabled");
                                                 $("#PageLoadingModal").css("display", "none");
-                                                setTimeout(function () {
-                                                    location.reload(true);
-                                                }, 5000);
+                                                $("#purchaseTicketsButton div").html("<span>"+data.numTickets+"</span> Tickets")
                                             }
                                         }
                                     }
@@ -275,6 +331,7 @@
                     $("#paymentFailedAlert span").html(XMLHttpRequest.responseText);
                     $("#paymentFailedAlert").css("display", "block");
                     $("#buyTickets").removeAttr("disabled");
+                    $("#PageLoadingModal").css("display", "none");
                 }
             });
 
@@ -289,10 +346,6 @@
         $("#numTicketLabel span").html($("#numTickets").val());
     });
 
-    function purchaseTickets() {
-        $("#purchaseTicketsModal").modal("show");
-    }
-
     function viewBasket(id) {
         if (currentSelectedBasketId == id) { //no ajax if it's already loaded
             $("#basketDataModal").modal("toggle");
@@ -301,32 +354,37 @@
 
         $("#currentBasketAddTicket").data("id", id); //add id to button data
         $("#currentBasketAddTicket").click(function () { addTicket($(this).data("id")); })
-        $.ajax({
-            url: "/api/baskets/" + id,
-            beforeSend: function (xhr) {
-                xhr.setRequestHeader("Authorization", "Bearer " + getCookie("BearerToken"));
-            },
-            success: function (data) {
-                var galleriaData = [];
-                data["photos"].forEach(function (element) {
-                    galleriaData.push({ image: element["url"] });
-                });
-                $("#currentBasketGallery").data("galleria")._options.imageCrop = false; //the main gallery shouldn't crop
-                $("#currentBasketGallery").data("galleria").load(galleriaData); //load in images
-                $("#currentBasketDescription").html(data["basketDescription"]);
-                $("#currentBasketTitle, #modalHeader").html(data["basketTitle"]);
-                $("#currentBasketAddTicket span").html(data["numTickets"]);
-                var contentHtml = "";
-                data["basketContents"].forEach(function (element) {
-                    contentHtml += "<tr style='flex-basis: 50%' class='table-light'>"; //build list
-                    contentHtml += "<td style='padding: unset;'>" + element + "</td>";
-                    contentHtml += "</tr>";
-                });
-                $("#currentBasketContents tbody").html(contentHtml);
-                $("#basketDataModal").modal("toggle");
-                currentSelectedBasketId = id;
-            }
+
+        var data = null;
+        baskets.forEach(function (basket) { //get target basket from internal data store;
+            if (basket["basketId"] == id)
+                data = basket;
         });
+
+        if (data == null)
+            return;
+
+        $("#currentBasketGallery").html();
+        Galleria.run('#currentBasketGallery');
+
+        var galleriaData = [];
+        data["photos"].forEach(function (element) {
+            galleriaData.push({ image: element["url"] });
+        });
+        $("#currentBasketGallery").data("galleria")._options.imageCrop = false; //the main gallery shouldn't crop
+        $("#currentBasketGallery").data("galleria").load(galleriaData); //load in images
+        $("#currentBasketDescription").html(data["basketDescription"]);
+        $("#currentBasketTitle, #modalHeader").html(data["basketTitle"]);
+        $("#currentBasketAddTicket span").html(data["numTickets"]);
+        var contentHtml = "";
+        data["basketContents"].forEach(function (element) {
+            contentHtml += "<tr style='flex-basis: 50%; display:flex; justify-content:center' class='table-light'>"; //build list
+            contentHtml += "<td style='padding: unset;'>" + element + "</td>";
+            contentHtml += "</tr>";
+        });
+        $("#currentBasketContents tbody").html(contentHtml);
+        $("#basketDataModal").modal("toggle");
+        currentSelectedBasketId = id;
     }
 
     function addTicket(basketId) {
@@ -334,7 +392,9 @@
             url: "/api/baskets/" + basketId + "/ticket/add",
             method: "POST",
             beforeSend: function (xhr) {
-                xhr.setRequestHeader("Authorization", "Bearer " + getCookie("BearerToken"));
+                var token = getCookie("BearerToken");
+                if (token != "")
+                    xhr.setRequestHeader("Authorization", "Bearer " + token);
             },
             success: function (data) {
                 $("#currentBasketAddTicket span").html(data); //update modal ticket counter
@@ -343,7 +403,7 @@
                 if (numTickets - 1 > 0)
                     $("#purchaseTicketsButton span").html(numTickets - 1); //add to purchase button
                 else
-                    $("#purchaseTicketsButton").html("Purchase Tickets");
+                    $("#purchaseTicketsButton div").html("Purchase Tickets");
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
                 $("#currentBasketAddTicket").html("Error: " + XMLHttpRequest.responseText).removeClass("btn-success").addClass("btn-danger");

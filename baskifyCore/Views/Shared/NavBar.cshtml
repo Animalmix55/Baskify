@@ -53,7 +53,9 @@
         </table>
     </div>
 </nav>
-<div id="SignOnModal" class="modal"></div>
+<div id="SignOnModal" class="modal">
+    @await Html.PartialAsync("SignInPartialView")
+</div>
 <div id="PageLoadingModal" style="z-index:1052">
     <div class="loading-spinner" style="height: 100px; width: 100px; display: block; visibility: visible;">
         <div class="loading-body">
@@ -64,11 +66,9 @@
 
 <script>
     function openSignOnModal() {
-        $.post("/Login/loadSignOnModal/", {}, function (data) {
-            $("#SignOnModal").html(data);
-            $("#SignOnModal").modal("show");
-        });
+        $("#SignOnModal").modal("show");
     }
+
     function redirect(dest) {
         window.location = dest;
     }
@@ -88,6 +88,14 @@
     }
 
     $(function () {
+        $("body").on("submit", "form[method=post]", function () { //keeps POST forms from submitting with invalid cookies
+            if (tokenNearExpiry()) {
+                openSignOnModal();
+                return false;
+            }
+            return true;
+        });
+
         $(".alert").on('click', ".close", function (e) {
             if ($(this).closest(".alert").attr("data-dismissable") == "True") //is dismissable
             {
@@ -117,6 +125,19 @@
             }
         }
         return "";
+    }
+
+    function tokenNearExpiry() {
+        var cookieString = getCookie("BearerToken");
+        if (cookieString == "")
+            return true; //no token
+        var decodedToken = jwt_decode(cookieString);
+        var expirationTime = decodedToken.exp;
+        var minutesLeft = Math.floor(((Date.now() - Date.parse(expirationTime)) / 1000) / 60);
+        if (minutesLeft < 2)
+            return true; //soon to expire token
+        else
+            return false; //good token
     }
 </script>
 

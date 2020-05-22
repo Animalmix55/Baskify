@@ -487,6 +487,7 @@ h4{
 }
 #basketModalContent{
     height: 100%;
+    border-radius:15px;
 }
 #basketModalBody{
     height: 100%;
@@ -575,6 +576,29 @@ h4{
 .basketCard{
     width:300px;
     overflow:hidden;
+}
+.roundButton {
+    font-size: 200%;
+    font-weight: bold;
+    height: 26px;
+    width: 26px;
+    border-radius: 12.5px;
+    border: solid gray 1px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #4BBF73;
+    color: white;
+    cursor: pointer;
+}
+
+.modalHeader {
+    font-weight: bold;
+    font-size: 145%;
+    text-transform: uppercase;
+    text-align: center;
+    border-bottom: solid rgba(1,1,1,0.1) 1px;
+    border-top: solid rgba(1,1,1,0.1) 1px;
 }
 
 @media (max-width: 790px) {
