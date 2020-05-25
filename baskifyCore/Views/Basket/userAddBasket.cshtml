@@ -15,7 +15,7 @@
 @if (Model.Auction.StartTime < DateTime.UtcNow)
 {
     <div class="alert alert-dismissible alert-warning">
-        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <button type="button" class="close" data-hide="alert">&times;</button>
         <h4 class="alert-heading">Warning, Auction in progress!</h4>
         <p class="mb-0">This auction is already in progress and ends on @Model.Auction.EndTime.ToShortDateString() at @Model.Auction.EndTime.ToShortTimeString() (UTC)!</p>
     </div>

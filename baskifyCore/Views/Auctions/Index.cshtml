@@ -2,7 +2,7 @@
 
 @{
     ViewData["Title"] = "Your Auctions";
-    int itemsPerPage = (int)(ViewData["itemsPerPage"] ?? 10);
+    int itemsPerPage = (int)(ViewData["itemsPerPage"] ?? 9);
     int page = (int)(ViewData["page"] ?? 1);
     int numPages = (int)Math.Ceiling(Model.Auctions.Count / (double)itemsPerPage);
     int firstPage = page - 2 < 1 ? 1 : page - 2;
@@ -24,7 +24,7 @@
             @for (int i = 0; i <= 4; i++)
             {
                 <li class="page-item @((page == firstPage + i) ? "active" : null)">
-                    <a class="page-link" href="/auctions?page=@(firstPage + i)">@(firstPage + i)</a>
+                    <a class="page-link" data-page="@(firstPage + i)">@(firstPage + i)</a>
                 </li>
 
                 if (numPages < firstPage + i + 1)//this means that we reached the max page

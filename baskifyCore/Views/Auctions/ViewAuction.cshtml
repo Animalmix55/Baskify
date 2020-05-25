@@ -4,24 +4,38 @@
     var disablePurchase = Model.UserModel.UserRole != Roles.USER; //stops non-logged/companies
 }
 
-    
-    <style>
-        .basketCardImages .galleria-bar{
-            display: none;
-        }
-    </style>
-    <script src="https://js.stripe.com/v3/"></script>
-    <script src="~/galleria/galleria.min.js"></script>
-    <div id="paymentSucceedAlert2" class="alert alert-dismissible alert-success" style="display:none;">
-        <button type="button" class="close" data-dismiss="alert">&times;</button>
-        Payment succeeded! You may now use your tickets!
-    </div>
-    <div id="AuctionBody" style="display:flex; flex-wrap:wrap; justify-content:center" class="maxWidthContainer">
-        @if (!disablePurchase)
-        {
-        <div id="purchaseTicketsButton" style="cursor:pointer; position:fixed; right:10px; bottom:10px; z-index: 999999">
+
+<style>
+    .basketCardImages .galleria-bar {
+        display: none;
+    }
+</style>
+<script src="https://js.stripe.com/v3/"></script>
+<script src="~/galleria/galleria.min.js"></script>
+<div id="paymentSucceedAlert2" class="alert alert-dismissible alert-success" style="display:none;">
+    <button type="button" class="close" data-hide="alert">&times;</button>
+    Payment succeeded! You may now use your tickets!
+</div>
+<div id="ticketAddFailed" class="alert alert-dismissible alert-danger" style="display:none;">
+    <button type="button" class="close" data-hide="alert">&times;</button>
+    <strong>Error!</strong> <span>We were unable to add your ticket to the basket selected!</span>
+</div>
+
+@if (disablePurchase)//warn the user
+{
+<div class="alert alert-dismissible alert-warning" style="margin-bottom: 0;">
+    <button type="button" class="close" data-hide="alert">&times;</button>
+    <h4 class="alert-heading">You cannot currently contribute!</h4>
+    <p class="mb-0">Create a user account to contribute to this auction!</p>
+</div>
+}
+
+<div id="AuctionBody" style="display:flex; flex-wrap:wrap; justify-content:center" class="maxWidthContainer">
+    @if (!disablePurchase)
+    {
+        <div id="purchaseTicketsButton" style="cursor:pointer; position:fixed; right:10px; bottom:10px; z-index: 9999">
             <img src="~/Content/ticketIcon.png" style="height:94px" />
-            <div style="font-size:150%; font-weight: bold; position: absolute; text-align:center; top: 50%;left: 50%;transform: translate(-50%, -50%);">
+            <div id="walletBalance" style="font-size:150%; font-weight: bold; position: absolute; text-align:center; top: 50%;left: 50%;transform: translate(-50%, -50%);">
                 @if (Model.Wallet.WalletBalance == 0)
                 {
                     <text>Purchase Tickets</text>
@@ -33,102 +47,85 @@
             </div>
             <div class="arrow" style="font-size: 450%;font-weight: bold;position: absolute;text-align:center;top: 50%;left: 13px;transform: translateY(-50%); opacity: 0">&larr;</div>
         </div>
-        }
+    }
 
-        <img src="@Model.AuctionModel.BannerImageUrl" style="width: 100%; height: auto;" />
-        <div style="padding-left:10px;margin-top: 10px; margin-bottom: 10px; width: 100%">
-            <h2>@Model.AuctionModel.Title</h2>
-            <div class="text-muted" style="display: flex; width: 100%; justify-content: inherit">
-                <span>@Model.AuctionModel.StartTime - @Model.AuctionModel.EndTime</span>
-            </div>
-            <div style="max-width: 100%;">
-                @Model.AuctionModel.Description
-            </div>
-            <hr class="my-4">
+    <img src="@Model.AuctionModel.BannerImageUrl" style="width: 100%; height: auto;" />
+    <div style="padding-left:10px;margin-top: 10px; margin-bottom: 10px; width: 100%">
+        <h2>@Model.AuctionModel.Title</h2>
+        <div class="text-muted" style="display: flex; width: 100%; justify-content: inherit">
+            <span>@Model.AuctionModel.StartTime - @Model.AuctionModel.EndTime</span>
         </div>
-        <div id="basketContainer" style="display:flex; flex-wrap:wrap; justify-content:space-evenly">
-
+        <div style="max-width: 100%;">
+            @Model.AuctionModel.Description
         </div>
+        <hr class="my-4">
     </div>
 
-    <div class="modal" id="basketDataModal">
-        <div class="modal-dialog" id="BasketModalContainer" role="document">
-            <div class="modal-content" id="basketModalContent">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalHeader"></h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
+    <div id="navigation" style="display:flex; width:100%">
+        <div id="pages" style="margin-right:auto;"></div>
+        <form id="numPerPageForm" style="margin-left:auto; display:flex; height:35px; align-items:center;">
+            <label for="numPerPage" style="margin-bottom:unset;">Per Page:</label>
+            <input name="numPerPage" class="form-control" style="height:100%; width:50px; padding: unset; margin-left:5px;" type="number" min="3" max="100" />
+            <input type="submit" class="btn btn-info" style="padding:unset; height:100%;padding: 0px 6px 0px 6px;" value="Apply" />
+        </form>
+    </div>
+
+    <div id="basketContainer" style="display:flex; flex-wrap:wrap; justify-content:space-evenly; width:100%;">
+
+    </div>
+</div>
+
+<div class="modal" id="purchaseTicketsModal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5 class="modal-title" id="modalHeader">Purchase Tickets</h5>
+                <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">&times;</span>
+                </button>
+            </div>
+            <form id="payment-form">
+                <div class="modal-body" id="ticketModalBody">
+                    <div id="paymentFailedAlert" class="alert alert-dismissible alert-danger" style="display:none;">
+                        <span>Woops! There's been an error! Try again!</span>
+                    </div>
+                    <div id="paymentSucceedAlert" class="alert alert-dismissible alert-success" style="display:none;">
+                        Payment succeeded!
+                    </div>
+
+
+                    <label for="numTickets">Number of Tickets</label>
+                    <input type="number" class="form-control" id="numTickets" min="@Math.Ceiling(0.5 / Model.AuctionModel.TicketCost)" max="1000" value="@Math.Ceiling(0.5 / Model.AuctionModel.TicketCost)" />
+                    <div id="card-element" style="padding: 10px 0px 0px 10px;">
+                        <!-- Elements will create input elements here -->
+                    </div>
+
+                    <!-- We'll put the error messages in this element -->
+                    <div id="card-errors" role="alert"></div>
+
+                </div>
+                <div class="modal-footer" style="flex-wrap:nowrap;">
+                    <button style="font-size:150%; width: 100%;" class="btn btn-success" id="buyTickets">
+                        Pay $<span>@decimal.Round((decimal)(Math.Ceiling(0.5 / Model.AuctionModel.TicketCost) * Model.AuctionModel.TicketCost), 2)</span>
                     </button>
-                </div>
-                <div class="modal-body" id="basketModalBody">
-                    <div class="galleria" style="height:400px" id="currentBasketGallery"></div>
-                    <h2 id="currentBasketTitle" style="margin-top:10px;"></h2>
-                    <div class="modalHeader">Description</div>
-                    <div id="currentBasketDescription" style="margin-bottom:10px;"></div>
-                    <div class="modalHeader">Basket Contents</div>
-                    <table class="table table-hover" id="currentBasketContents">
-                        <tbody style="display:flex; flex-wrap:wrap; justify-content:center">
-                        </tbody>
-                    </table>
-                </div>
-                <div class="modal-footer">
-                    @if (!disablePurchase)
-                    {
-                    <button class="btn btn-success" id="currentBasketAddTicket" style="flex: 1;">Add Ticket (<span>0</span>)</button>
-                    }
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 </div>
-            </div>
+            </form>
         </div>
     </div>
-
-    <div class="modal" id="purchaseTicketsModal">
-        <div class="modal-dialog" role="document">
-            <div class="modal-content">
-                <div class="modal-header">
-                    <h5 class="modal-title" id="modalHeader">Purchase Tickets</h5>
-                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                        <span aria-hidden="true">&times;</span>
-                    </button>
-                </div>
-                <form id="payment-form">
-                    <div class="modal-body" id="ticketModalBody">
-                        <div id="paymentFailedAlert" class="alert alert-dismissible alert-danger" style="display:none;">
-                            <span>Woops! There's been an error! Try again!</span>
-                        </div>
-                        <div id="paymentSucceedAlert" class="alert alert-dismissible alert-success" style="display:none;">
-                            Payment succeeded!
-                        </div>
+</div>
+<div id="toasts" style="z-index:100;position:fixed; left:0; bottom:0;"></div>
 
 
-                        <label for="numTickets">Number of Tickets</label>
-                        <input type="number" class="form-control" id="numTickets" min="@Math.Ceiling(0.5/Model.AuctionModel.TicketCost)" max="1000" value="@Math.Ceiling(0.5/Model.AuctionModel.TicketCost)"/>
-                        <div id="card-element" style="padding: 10px 0px 0px 10px;">
-                            <!-- Elements will create input elements here -->
-                        </div>
 
-                        <!-- We'll put the error messages in this element -->
-                        <div id="card-errors" role="alert"></div>
+<script>
+    var currentPage = 1;
 
-                    </div>
-                    <div class="modal-footer" style="flex-wrap:nowrap;">
-                        <button style="font-size:150%; width: 100%;" class="btn btn-success" id="buyTickets">
-                            Pay $<span>@decimal.Round((decimal)(Math.Ceiling(0.5 / Model.AuctionModel.TicketCost) * Model.AuctionModel.TicketCost), 2)</span>
-                        </button>
-                        <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-
-
-    <script>
     var ticketOut = true;
     var currentSelectedBasketId = -1;
     var errorMessage = null;
     var clientSecret = null;
-
+    var walletBalance = @Model.Wallet.WalletBalance; //balance of wallet
 
         $(document).ajaxError(function (event, jqxhr, settings, thrownError) {
             if (jqxhr.status == 401) { //unauthorized due to bad login
@@ -145,8 +142,6 @@
             idleMode: false
         });
     }()); //loads galleria
-
-        $(document).on("mouseenter", ".galleria-stage", loadGallery);
 
     function toggleTicket(){
         if (ticketOut) {
@@ -166,8 +161,10 @@
         $("#purchaseTicketsButton").click(function () { //what happens when you click purchase ticket button
             if (!ticketOut) //if hidden, pop out
                 toggleTicket();
-            else
+            else {
+                $(".modal").modal("hide"); //hide other modals
                 $("#purchaseTicketsModal").modal("show");
+            }
         });
 
         $(document).scroll(function () {
@@ -175,28 +172,146 @@
                 toggleTicket();
         });
 
-    function loadGallery(e) {
-        var card = $(e.currentTarget);
-        if (card.attr("data-loaded") == "false") {
-            var basketId = card.attr("data-id");
-            $.ajax({
-                url: "/api/baskets/" + basketId + "/images",
-                success: function (result) {
-                    var galleria = card.find(".galleria").data('galleria');
-                    result.forEach(function (element, i) {
-                        if (i != 0) //don't worry about the first element, it's already there
-                            galleria.push({ image: element });
-                    });
-                    card.attr("data-loaded", "true");
-                    card.off("mouseenter", loadGallery); //remove handler
-                }
-            });
-        }
-    }
+        numToasts = 0;
+        function createAddToast(basketName, numTickets) {
+            numToasts += 1;
+            var html =
+            `<div class="toast" id="toast-` + numToasts +`" role="alert" aria-live="assertive" aria-atomic="true" data-delay="10000">\
+              <div class="toast-header">\
+                <strong class="mr-auto">Tickets Added</strong>\
+                <small class="text-muted">Now</small>\
+                <button type="button" class="ml-2 mb-1 close" data-dismiss="toast" aria-label="Close">\
+                  <span aria-hidden="true">&times;</span>\
+                </button>\
+              </div>\
+              <div class="toast-body">`;
+            html += `You successfully added ` + numTickets + ` ticket(s) to ` + basketName + `!\
+              </div>\
+            </div>`;
 
-        var elements;
-        var baskets = []; //contains all baskets
-        $(function () {
+            $('#toasts').append(html); //add toast to body
+            $('#toast-' + numToasts).toast("show");
+        }
+
+        //Adds basket to DOM
+        function addBasket(basket) {
+            var container = $("#basketContainer");
+            var html = `<div class="card mb-3 basketCard" style="border-radius: 30px" data-id="` + basket["basketId"] + `" data-loaded="false">\
+                    <h3 class="card-header" style="font-size:114%">`+ basket["basketTitle"]
+
+            @if (!disablePurchase) {
+                WriteLiteral("html += \"(<span class='text-muted'>\" + basket[\"numTickets\"] + \"</span>)\";");
+            }
+
+            html += `</h3>\
+                <div style="height:300px; overflow:hidden">\
+                    <div id="gallery-`+ basket["basketId"] + `" class="galleria basketCardImages" style="z-index:1;background-color:rgba(0, 0, 0, 0.00); height:300px; width:inherit">`;
+                        //ADD PHOTOS
+                        basket["photos"].forEach(function(photo){
+                            html += `<img src="` + photo["url"] + `" />`;
+                        });
+                    html += `</div>\
+                    <div id="basket-`+ basket["basketId"] + `-details" style="opacity:0; display:none; height:270px; overflow-y:auto;">\
+                        <div class="modalHeader">Description:</div>
+                        <div class="basketDesc" style="text-align:center;">\
+                            `+ basket["basketDescription"] + `\
+                        </div>\
+                        <div class="modalHeader">Contents:</div>
+                        <table class="basketContents table">\
+                            <tbody style="display:flex; justify-content:center; flex-wrap: wrap;">`;
+                        //add contents
+                        basket["basketContents"].forEach(function (element) {
+                            html += "<tr style='flex-basis: 50%; display:flex; justify-content:center' class='table-light'>"; //build list
+                            html += "<td style='padding: unset;'>" + element + "</td>";
+                            html += "</tr>";
+                        });
+
+                        html +=
+                            `</tbody>\
+                        </table>\
+                    </div>\
+                </div>\
+                <div class="basketButtons" style="display:flex; margin-top:-30px; z-index:2">`;
+            @if (!disablePurchase)
+            {
+                <text>
+                html += `<button class="addTicket btn btn-primary"`;
+                if(walletBalance == 0) //disable if wallet is empty
+                    html += " disabled";
+                html += ` style="flex:1;">Add Tickets</button>`;
+                </text>
+            }
+            html += `<button class="btn btn-primary viewDetails" style="flex:1;">Details</button>\
+                </div>\
+            </div>`
+            container.append(html);
+        }
+
+        var currentDropdownId;
+        //targetButton is the addTicket button that triggered the event
+        function toggleTicketDropdown(basketId) {
+            var oldCard = $(".basketCard[data-id=" + currentDropdownId + "]");
+            var dropDownCard = $(".basketCard[data-id=" + basketId + "]");
+            var currentDropdown = $(".addTicket-form");
+
+            if ($("#addTicket-form-" + dropDownCard.attr("data-id")).length == 0) { //the window isn't already open
+                var elementBottom = dropDownCard.find(".basketButtons").offset().top - 45;
+                var cardWidth = dropDownCard.innerWidth();
+                var cardLeft = dropDownCard.offset().left + (dropDownCard.outerWidth(true) - dropDownCard.innerWidth()) / 2;
+                var html =
+                    `<form class="addTicket-form" id="addTicket-form-` + dropDownCard.attr("data-id") + `" style="height: 45px;z-index:3;display:flex; overflow: hidden; opacity:0; position:absolute; top:` + elementBottom + `px; left:` + cardLeft + `px; width:` + cardWidth + `px">\
+                    <input type="hidden" name="basketId" value="`+ dropDownCard.attr("data-id") + `"/>\
+                    <div style="display: flex; justify-content:center; width: 100%;">\
+                        <input type="number" style="height:100%;flex:.8" class="form-control" name="numTickets" value="1" min="0" max="` + walletBalance + `" />\
+                        <button style="flex:.2; line-height:105%;" class="btn btn-success" id="addTickets">\
+                            Add Tickets\
+                        </button>\
+                    </div>\
+                </form>`;
+                if (currentDropdown != null) {
+                    oldCard.find(".addTicket").html("Add Ticket");
+                    currentDropdown.animate({ opacity: "0" }, 500, function () {
+                        $(this).remove();
+                    }); //close the old dropdown, if one exists
+                }
+                $("body").prepend(html);
+                dropDownCard.find(".addTicket").html("Cancel");
+                currentDropdown = $("#addTicket-form-" + dropDownCard.attr("data-id"));
+                currentDropdown.animate({ opacity: "1" }, 500); //drop it down
+                currentDropdownId = dropDownCard.attr("data-id");
+            }
+            else {
+                dropDownCard.find(".addTicket").html("Add Ticket");
+                currentDropdown.animate({ opacity: "0" }, 500, function () {
+                    $(this).remove();
+                }); //shrink and remove from DOM
+
+            }
+
+        }
+
+        $(window).resize(function () { //make the card popup reactive
+            if ($(".addTicket-form").length == 0) //don't both if there's nothing to resize
+                return;
+            var card = $(".basketCard[data-id=" + currentDropdownId + "]");
+            var elementTop = card.find(".galleria-stage").offset().top + card.find(".galleria-stage").outerHeight(false) - 45;
+            var cardWidth = card.innerWidth();
+            var cardLeft = card.offset().left + (card.outerWidth(true) - card.innerWidth()) / 2;
+            $(".addTicket-form").first().css({
+                top: elementTop + "px",
+                width: cardWidth + "px",
+                left: cardLeft + "px"
+            });
+        });//ensure any dropups stay with their parent
+
+
+        //when a add ticket button on a basket card is clicked
+        $(document).on("click", ".addTicket", function (e) {
+            toggleTicketDropdown($(this).closest(".basketCard").attr("data-id"));
+        });
+
+        var baskets = [];
+        function loadBaskets() {
             $.ajax( //load in all of the baskets
                 {
                     url: "/api/auctions/@Model.AuctionModel.AuctionId/baskets",
@@ -207,34 +322,117 @@
                             xhr.setRequestHeader("Authorization", "Bearer " + token);
                     },
                     success: function (result) {
-                        var container = $("#basketContainer");
-                        container.html(""); //clear
                         baskets = result;
-                        result.forEach(function (basket) {
-                            var html =
-                            `<div class="card mb-3 basketCard" style="border-radius: 30px" data-id="` + basket["basketId"] + `" data-loaded="false">\
-                                <h3 class="card-header" style="font-size:114%">`+ basket["basketTitle"] + `(<span class="text-muted">` + basket["numTickets"] + `</span>)</h3>\
-                                <div id="gallery-`+ basket["basketId"] + `" class="galleria basketCardImages" style="z-index:1;background-color:rgba(0, 0, 0, 0.00); height:300px; width:inherit">\
-                                    <img src="`+ basket["photos"][0]["url"] + `" />\
-                                </div>\
-                                <div style="display:flex; margin-top:-30px; z-index:2">`;
-                            @if (!disablePurchase)
-                            {
-                                <text>
-                                html += `<button class="addTicket btn btn-primary" onclick="addTicket(` + basket["basketId"] + `)" style="flex:1;">Add Ticket</button>`;
-                                </text>
-                            }
-                            html += `<button class="btn btn-primary" style="flex:1;" onclick="viewBasket(` + basket["basketId"] + `)">View Basket</button>\
-                                </div>\
-                            </div>`
-                            container.append(html);
-                        });
+                        var page = getParameterByName("page");
+                        page = page == "" ? 1 : parseInt(page);
+                        loadPage(page); //load page, sets current page
+                        buildPagination();
+                    }
+                });
+        }
 
-                        Galleria.run('.galleria');
+        $("#numPerPageForm").submit(function (e) {
+            e.preventDefault();
+            numPerPage = parseInt($(this).find(`[name="numPerPage"]`).val());
+            history.replaceState(null, "", UpdateQueryString("itemsPerPage", numPerPage)); //update query string
+            loadPage(1);
+            buildPagination();
+        });
 
+        function buildPagination() {
+            var itemsPerPage = getParameterByName("itemsPerPage");
+            itemsPerPage = itemsPerPage == "" ? 9 : parseInt(itemsPerPage);
+            $("#numPerPageForm [name='numPerPage'").val(itemsPerPage); //set change form
+            //baskets must alrady be populated
+            var numPages = Math.ceil(baskets.length / itemsPerPage);
+            var firstPage = currentPage - 2 < 1 ? 1 : currentPage - 2;
+            var container = $("#pages");
+            if (numPages < 2) { //don't bother if there's only one page
+                container.html(""); //remove nav
+                return;
+            }
+
+            var html = `
+            <ul class="pagination">\
+                <li class="page-item`;
+            if (currentPage == 1)
+                html += ` disabled`;
+
+                html += `" id="page-1-chevron">\
+                    <a class="page-link" style="cursor:pointer" onclick="loadPage(1)">&laquo;</a>\
+                </li>`;
+                for (i = 0; i <= 4; i++)
+                {
+                    html += `<li class="page-item number` + ((currentPage == firstPage + i) ? " active" : "") + `" id="page-` + (firstPage + i) + `">\
+                        <a class="page-link" style="cursor:pointer" onclick="loadPage(` + (firstPage + i) + `)">` + (firstPage + i) + `</a>\
+                    </li>`;
+
+                    if (numPages < firstPage + i + 1)//this means that we reached the max page
+                    {
+                        break;
                     }
                 }
-            );
+
+                html += `<li class="page-item ` + ((currentPage == numPages) ? ` disabled` : "") + `" id="page-` + numPages + `-chevron">\
+                    <a class="page-link" style="cursor:pointer" onclick="loadPage(` + numPages + `)">&raquo;</a>\
+                </li>\
+            </ul>`;
+            container.html(html);
+
+        }
+
+        function loadPage(pageNum) {
+            $(".addTicket-form").remove(); //closes all ticket popups before new page
+            var itemsPerPage = getParameterByName("itemsPerPage");
+            itemsPerPage = itemsPerPage == "" ? 9 : parseInt(itemsPerPage); //default 9 items per page
+            //baskets must alrady be populated
+            var numPages = Math.ceil(baskets.length / itemsPerPage);
+
+            if (pageNum > numPages) //force the page to be #1
+                pageNum = 1;
+
+            var container = $("#basketContainer");
+            container.html(""); //clear container
+            var startIndex = (pageNum - 1) * itemsPerPage;
+            var numEntries = baskets.length;
+            if (startIndex > numEntries - 1) //don't bother if loading more baskets than exist
+            {
+                container.html("Invalid page number!");
+                return;
+            }
+            var endIndex = (pageNum) * itemsPerPage - 1;
+            endIndex = endIndex + 1 <= numEntries ? endIndex : numEntries - 1; //make sure index doesn't escape array
+
+            numbers = $(".pagination .number");
+            if (numPages > numbers.length) {
+                var lowest = pageNum - 2 > 0 ? pageNum - 2 : 1; //the lowest value in list
+                if (lowest + numbers.length - 1 > numPages)
+                    lowest = numPages - numbers.length + 1;
+                numbers.each(function (i) { //should be 5 elements in numbers, i=0->4
+                    var pageNumber = lowest + i;
+                    var link = $(this).find("a");
+                    link.attr("onclick", "loadPage(" + pageNumber + ")");
+                    $(this).attr("id", "page-" + pageNumber);
+                    link.html(pageNumber);
+                });
+            }
+
+            $(".pagination li").removeClass("active"); //deactivate all
+            $("#page-" + pageNum).addClass("active"); //activate current page
+            $("[id$=-chevron]").removeClass("disabled"); //enable all chevrons
+            if (pageNum == numPages || pageNum == 1)
+                $("#page-" + pageNum + "-chevron").addClass("disabled"); //disable any chevron we are at
+
+            for (i = startIndex; i <= endIndex; i++) {
+                addBasket(baskets[i]); //add page's worth of baskets
+            }
+            Galleria.run('.galleria');
+            history.replaceState(null, "", UpdateQueryString("page", pageNum));
+            currentPage = pageNum;
+        }
+
+        $(function () {
+        loadBaskets();
         var stripe = Stripe('@ViewData["StripePublicKey"]');
         elements = stripe.elements();
         // Set up Stripe.js and Elements to use in checkout form
@@ -317,7 +515,9 @@
                                                 clearInterval(intervalId);
                                                 $("#buyTickets").removeAttr("disabled");
                                                 $("#PageLoadingModal").css("display", "none");
-                                                $("#purchaseTicketsButton div").html("<span>"+data.numTickets+"</span> Tickets")
+                                                walletBalance = data.numTickets;
+                                                $("#walletBalance").html("<span>" + walletBalance + "</span> Tickets");
+                                                $(".addTicket").removeAttr("disabled"); //enable ticket button
                                             }
                                         }
                                     }
@@ -346,50 +546,48 @@
         $("#numTicketLabel span").html($("#numTickets").val());
     });
 
-    function viewBasket(id) {
-        if (currentSelectedBasketId == id) { //no ajax if it's already loaded
-            $("#basketDataModal").modal("toggle");
-            return;
-        }
-
-        $("#currentBasketAddTicket").data("id", id); //add id to button data
-        $("#currentBasketAddTicket").click(function () { addTicket($(this).data("id")); })
-
-        var data = null;
-        baskets.forEach(function (basket) { //get target basket from internal data store;
-            if (basket["basketId"] == id)
-                data = basket;
+        //View basket details
+        $(document).on("click", ".viewDetails", function (e) {
+            var card = $(this).closest(".basketCard");
+            var gallery = card.find(".galleria");
+            var desc = card.find("[id$=-details]");
+            if (gallery.position().top == 0) //when galleria is collapsed. open galleria
+            {
+                desc.animate({
+                    opacity: 0
+                }, 500, function () {
+                    desc.css("display", "none");
+                    gallery.css("display", "block");
+                    gallery.data('galleria').resize(); //if page was resized while not displaying, the gallery is invisible
+                    gallery.animate({ opacity: 1 }, 500);
+                    card.find(".viewDetails").html("Details");
+                });
+            }
+            else { //when galleria is open
+                gallery.animate({
+                    opacity: 0
+                }, 500, function () {
+                    gallery.css("display", "none");
+                    desc.css("display", "block");
+                    desc.animate({ opacity: 1 }, 500);
+                    card.find(".viewDetails").html("Images");
+                });
+            }
         });
 
-        if (data == null)
-            return;
-
-        $("#currentBasketGallery").html();
-        Galleria.run('#currentBasketGallery');
-
-        var galleriaData = [];
-        data["photos"].forEach(function (element) {
-            galleriaData.push({ image: element["url"] });
+        $(document).on('submit', '.addTicket-form', function (e) {
+            var form = $(".addTicket-form");
+            e.preventDefault();
+            var basketId = form.find("[name=basketId]").val();
+            var numTickets = form.find("[name=numTickets]").val();
+            addTicket(basketId, numTickets);
+            toggleTicketDropdown(basketId);
+            return false;
         });
-        $("#currentBasketGallery").data("galleria")._options.imageCrop = false; //the main gallery shouldn't crop
-        $("#currentBasketGallery").data("galleria").load(galleriaData); //load in images
-        $("#currentBasketDescription").html(data["basketDescription"]);
-        $("#currentBasketTitle, #modalHeader").html(data["basketTitle"]);
-        $("#currentBasketAddTicket span").html(data["numTickets"]);
-        var contentHtml = "";
-        data["basketContents"].forEach(function (element) {
-            contentHtml += "<tr style='flex-basis: 50%; display:flex; justify-content:center' class='table-light'>"; //build list
-            contentHtml += "<td style='padding: unset;'>" + element + "</td>";
-            contentHtml += "</tr>";
-        });
-        $("#currentBasketContents tbody").html(contentHtml);
-        $("#basketDataModal").modal("toggle");
-        currentSelectedBasketId = id;
-    }
 
-    function addTicket(basketId) {
+    function addTicket(basketId, numTickets) {
         $.ajax({
-            url: "/api/baskets/" + basketId + "/ticket/add",
+            url: "/api/baskets/" + basketId + "/ticket/add/" + numTickets,
             method: "POST",
             beforeSend: function (xhr) {
                 var token = getCookie("BearerToken");
@@ -397,19 +595,27 @@
                     xhr.setRequestHeader("Authorization", "Bearer " + token);
             },
             success: function (data) {
-                $("#currentBasketAddTicket span").html(data); //update modal ticket counter
-                $(".basketCard[data-id=" + basketId + "]").find("h3 span").html(data); //update ticket count on basket card
-                var numTickets = parseInt($("#purchaseTicketsButton span").html());
-                if (numTickets - 1 > 0)
-                    $("#purchaseTicketsButton span").html(numTickets - 1); //add to purchase button
+                $(".basketCard[data-id=" + basketId + "]").find("h3 span").html(data.numTickets); //update ticket count on basket card
+                if (walletBalance - numTickets > 0)
+                    $("#walletBalance span").html(walletBalance - numTickets); //add to purchase button
                 else
-                    $("#purchaseTicketsButton div").html("Purchase Tickets");
+                    $("#walletBalance").html("Purchase Tickets");
+                walletBalance -= numTickets;
+                if (walletBalance == 0)
+                    $(".addTicket").attr("disabled", ""); //disable if all spent
+                $("#ticketAddFailed").css("display", "none"); //remove any error message
+                createAddToast(data.basketTitle, numTickets); //toast the success
+                baskets.forEach(function (basket) {
+                    if (basket.basketId == basketId)
+                        basket.numTickets = data.numTickets; //to keep the inner state valid
+                });
             },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
-                $("#currentBasketAddTicket").html("Error: " + XMLHttpRequest.responseText).removeClass("btn-success").addClass("btn-danger");
-                $(".basketCard[data-id=" + basketId + "] .addTicket").html(XMLHttpRequest.responseText).removeClass("btn-outline-secondary").addClass("btn-danger"); //update ticket count on basket card
+                //HANDLE TICKET ADD ERROR
+                $("#ticketAddFailed span").html(XMLHttpRequest.responseText);
+                $("#ticketAddFailed").css("display", "block");
             }
         });
     }
 
-    </script>
+</script>

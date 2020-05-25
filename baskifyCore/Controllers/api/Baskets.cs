@@ -71,8 +71,8 @@ namespace baskifyCore.Controllers
         }
 
         [HttpPost]
-        [Route("{id}/ticket/add")]
-        public ActionResult AddTicket(int id, [FromHeader] string authorization)
+        [Route("{id}/ticket/add/{numTickets}")] //numTickets is optional
+        public ActionResult AddTicket(int id, [FromHeader] string authorization, int numTickets)
         {
             if (authorization == null)
                 return Unauthorized("No Authorization");
@@ -96,23 +96,24 @@ namespace baskifyCore.Controllers
             //now the auction is live and the basket exists
 
             var userWallet = _context.UserAuctionWallet.Find(user.Username, basket.AuctionId);
-            if (userWallet == null || userWallet.WalletBalance < 1)
+            if (userWallet == null || userWallet.WalletBalance < numTickets)
                 return BadRequest("Insufficient Balance");
 
-            userWallet.WalletBalance--; //remove a ticket from wallet
+            userWallet.WalletBalance -= numTickets; //remove tickets from wallet
+            _context.SaveChanges(); //avoid any weird behavior
 
             var tickets = _context.TicketModel.Find(user.Username, id);
             if (tickets == null)
             {
-                tickets = new TicketModel() { BasketId = id, NumTickets = 1, Username = user.Username };
+                tickets = new TicketModel() { BasketId = id, NumTickets = numTickets, Username = user.Username };
                 _context.TicketModel.Add(tickets);
             }
             else
-                tickets.NumTickets++; //add ticket to basket
+                tickets.NumTickets += numTickets; //add tickets to basket
 
             _context.SaveChanges();
 
-            return Ok(tickets.NumTickets);
+            return Ok(new { NumTickets = tickets.NumTickets, BasketTitle = basket.BasketTitle });
 
 
         }
