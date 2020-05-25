@@ -56,7 +56,7 @@
 <div id="SignOnModal" class="modal">
     @await Html.PartialAsync("SignInPartialView")
 </div>
-<div id="PageLoadingModal" style="z-index:1052">
+<div id="PageLoadingModal" style="z-index:999999">
     <div class="loading-spinner" style="height: 100px; width: 100px; display: block; visibility: visible;">
         <div class="loading-body">
             <div></div><div></div><div></div>
@@ -85,6 +85,51 @@
 
     function checkLoaded() {
         return document.readyState === "complete";
+    }
+
+    //from query string
+    function getParameterByName(name) {
+        url = window.location.href;
+        name = name.replace(/[\[\]]/g, '\\$&');
+        var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+            results = regex.exec(url);
+        if (!results) return '';
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    }
+
+    function UpdateQueryString(key, value, url) {
+        if (!url) url = window.location.href;
+        var re = new RegExp("([?&])" + key + "=.*?(&|#|$)(.*)", "gi"),
+            hash;
+
+        if (re.test(url)) {
+            if (typeof value !== 'undefined' && value !== null) {
+                return url.replace(re, '$1' + key + "=" + value + '$2$3');
+            }
+            else {
+                hash = url.split('#');
+                url = hash[0].replace(re, '$1$3').replace(/(&|\?)$/, '');
+                if (typeof hash[1] !== 'undefined' && hash[1] !== null) {
+                    url += '#' + hash[1];
+                }
+                return url;
+            }
+        }
+        else {
+            if (typeof value !== 'undefined' && value !== null) {
+                var separator = url.indexOf('?') !== -1 ? '&' : '?';
+                hash = url.split('#');
+                url = hash[0] + separator + key + '=' + value;
+                if (typeof hash[1] !== 'undefined' && hash[1] !== null) {
+                    url += '#' + hash[1];
+                }
+                return url;
+            }
+            else {
+                return url;
+            }
+        }
     }
 
     $(function () {
@@ -139,12 +184,16 @@
         else
             return false; //good token
     }
+
+    $(document).on("click", "[data-hide]", function () {
+        $(this).closest("." + $(this).attr("data-hide")).css("display", "none"); //hide all alerts rather than remove
+    });
 </script>
 
 @if (ViewData["LoginAgain"] != null && (bool)ViewData["LoginAgain"])
 {
     <div class="alert alert-dismissible alert-warning">
-        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <button type="button" class="close" data-hide="alert">&times;</button>
         <h4 class="alert-heading">Woops!</h4>
         <p class="mb-0">There was an error, please login and resubmit.</p>
     </div>
@@ -156,7 +205,7 @@
     @foreach (UserAlertModel alert in Model.UserAlerts)//print any alerts to user
     {
         <div class="alert alert-dismissible alert-warning" style="margin-bottom: 0;" data-dismissable="@alert.Dismissable" data-id="@alert.Id">
-            <button type="button" class="close" data-dismiss="alert">&times;</button>
+            <button type="button" class="close" data-hide="alert">&times;</button>
             <h4 class="alert-heading">@alert.AlertHeader</h4>
             <p class="mb-0">@alert.AlertBody</p>
         </div>
@@ -166,7 +215,7 @@
 @if (ViewData["Alert"] != null)//used to pass around temporary realtime alerts
 {
     <div class="alert alert-dismissible alert-warning" style="margin-bottom: 0;">
-        <button type="button" class="close" data-dismiss="alert">&times;</button>
+        <button type="button" class="close" data-hide="alert">&times;</button>
         <h4 class="alert-heading">Alert!</h4>
         <p class="mb-0">@ViewData["Alert"]</p>
     </div>

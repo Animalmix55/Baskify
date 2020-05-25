@@ -7,7 +7,8 @@ namespace baskifyCore.Models
     public class ApplicationDbContext : DbContext
     {
         //public ApplicationDbContext() : base(ConfigurationManager.ConnectionStrings["BasketlyDB"].ConnectionString) { }
-        public ApplicationDbContext() : base(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Cory\baskifyCore.Models.ApplicationDbContext.mdf;Integrated Security=True;Connect Timeout=30") { }
+        public ApplicationDbContext() : base("Data Source=tcp:baskifycoredbserver.database.windows.net;Initial Catalog=Baskify;Persist Security Info=True;User ID=animalmix55;Password=@Nimalmix55") { }
+        //public ApplicationDbContext() : base(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Cory\baskifyCore.Models.ApplicationDbContext.mdf;Integrated Security=True;Connect Timeout=30") { }
         public DbSet<UserModel> UserModel { get; set; }
         public DbSet<UserAlertModel> UserAlert { get; set; }
         public DbSet<EmailVerificationModel> EmailVerification { get; set; }

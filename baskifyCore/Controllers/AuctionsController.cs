@@ -400,7 +400,7 @@ namespace baskifyCore.Controllers
         }
 
         [HttpGet]
-        public IActionResult View(int id)
+        public IActionResult View(int id, int? pageNum, int? itemsPerPage)
         {
             UserAuctionWalletModel wallet = null;
             var user = LoginUtils.getUserFromToken(Request.Cookies["BearerToken"], _context, Response);
@@ -436,7 +436,8 @@ namespace baskifyCore.Controllers
                 ViewData["RefreshAfterLogin"] = true; //to reload buttons
             }
 
-
+            ViewData["itemsPerPage"] = itemsPerPage;
+            ViewData["page"] = pageNum;
             ViewData["StripePublicKey"] = StripeConsts.publicKey;
 
             var userViewAuctionModel = new UserAuctionViewModel() { UserModel = user ?? new UserModel(), AuctionModel = auction, Wallet = wallet ?? new UserAuctionWalletModel() };

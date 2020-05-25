@@ -22,7 +22,7 @@
             @if (!Model.AcceptedByOrg && !Model.Draft && !(bool)(ViewData["HideVerification"] ?? false))//dont show for new baskets
             {
                 <div id="verifyWarning" class="alert alert-dismissible alert-warning">
-                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <button type="button" class="close" data-hide="alert">&times;</button>
                     <h4 class="alert-heading">Warning!</h4>
                     <p class="mb-0" style="display:flex">This basket has not been verified and added to your auction! <button id="verifyBasket" style="margin-left:auto" class="btn btn-outline-danger" onclick="verifyBasket(@Model.BasketId)">Verify</button></p>
                 </div>

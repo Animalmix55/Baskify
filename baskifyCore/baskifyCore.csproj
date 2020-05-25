@@ -24,6 +24,12 @@
     <Folder Include="wwwroot\Content\Auctions\BannerImages\" />
   </ItemGroup>
 
+  <ItemGroup>
+    <Content Update="App.Config">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
+  </ItemGroup>
+
 
 
 </Project>
