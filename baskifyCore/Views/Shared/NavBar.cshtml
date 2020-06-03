@@ -3,7 +3,7 @@
     <a class="navigationBarBrand navBarElement" href="/">Baskify</a>
 
     <div class="navBarElement searchBarContainerParent" id="navbarColor03">
-        @using (Html.BeginForm("Search", "Auctions", FormMethod.Post, new { @class = "form-inline my-2 my-lg-0 searchBarContainer" }))
+        @using (Html.BeginForm("Index", "Search", FormMethod.Get, new { @class = "form-inline my-2 my-lg-0 searchBarContainer" }))
         {
             @Html.TextBox("searchQuery", null, new { @class = "form-control mr-sm-2 searchBar", placeholder = "Search" })
             <Button Class="btn btn-secondary my-2 my-sm-0 searchButton" type="submit">Search</Button>
@@ -36,7 +36,7 @@
             {
                 <tr><td onclick="redirect('/account')">My Account</td></tr>
                 <tr><td onclick="redirect('/basket/userbaskets')">My Submitted Baskets</td></tr>
-                <tr><td>Raffle Results</td></tr>
+                <tr><td onclick="redirect('/auctions/results')">Raffle Results</td></tr>
                 <tr><td>My Ticket Wallet</td></tr>
                 <tr><td onclick="redirect('/login/signout')">Sign Out</td></tr>
             }

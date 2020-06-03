@@ -1,0 +1,101 @@
+﻿@model string
+@{
+    ViewData["Title"] = "Search";
+}
+
+<script src="~/js/moment-with-locales.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.4/js/dataTables.responsive.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css" />
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.4/css/responsive.dataTables.min.css" />
+
+<div class="maxWidthContainer">
+    <h2>Search Auctions</h2>
+    <table id="searchResults" class="table table-hover" style="width:100%">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Title</th>
+                <th>Host</th>
+                <th>End Date</th>
+                <th>Distance</th>
+            </tr>
+        </thead>
+    </table>
+</div>
+<script>
+
+    $(function () {
+        $("#searchResults").dataTable({
+        search: {
+            search: "@Model"
+        },
+        serverSide: true,
+        ajax: {
+            url: "/api/auctions/search",
+            type: "POST",
+            contentType: "application/json",
+            data: function (d) {
+                return JSON.stringify(d);
+            },
+            dataSrc: "data",
+            beforeSend: function (xhr) { //add token
+                var token = getCookie("BearerToken");
+                if (token != "")
+                    xhr.setRequestHeader("Authorization", "Bearer " + token);
+            }
+        },
+        responsive: {
+            details: {
+                type: 'column'
+            }
+        },
+        createdRow: function (row, data, dataIndex) {
+            $(row).find(".data").attr("onclick", "redirect('/auctions/view/" + data["auctionId"] + "')"); //view auction
+            $(row).css("cursor", "pointer");
+        },
+        columns: [
+            {
+                className: 'control',
+                orderable: false,
+                defaultContent: "",
+                data: null
+            },
+            {
+                name:"Title",
+                data: "title",
+                className: 'data',
+                responsivePriority: 1
+            },
+            {
+                name: "OrgName",
+                data: "hostUser.organizationName",
+                responsivePriority: 3,
+                className: 'data'
+            },
+            {
+                name: 'EndTime',
+                data: "endTime",
+                render: function (data, type, row) {
+                    return moment(data).format("MM/DD/YYYY hh:mm");
+                },
+                type: "date",
+                responsivePriority: 5,
+                className: 'data'
+            },
+            {
+                name: 'Distance',
+                data: "distanceFromUser",
+                responsivePriority: 4,
+                className: 'data',
+                render: function (data, type, row) {
+                    return data + " miles";
+                }
+            }
+        ]
+    });
+    });
+
+</script>
+

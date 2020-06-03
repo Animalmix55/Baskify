@@ -305,7 +305,7 @@ namespace baskifyCore.Controllers
 
             //generate the model
             var baskets = LinkModel.Auction.Baskets.Where(b => (b.SubmittingUsername == user.Username));
-            var model = new userAddBasketViewModel() { Auction = LinkModel.Auction, AuctionAddLink = LinkModel.Link, Baskets = new List<BasketModel>(baskets) };
+            var model = new userAddBasketViewModel() { Auction = LinkModel.Auction, AuctionAddLink = LinkModel.Link, Baskets = new List<BasketModel>(baskets), User = user };
 
             ViewData["NavBarOverride"] = user;
             var dbBasket = _context.BasketModel.Find(updatedBasket.BasketId);
@@ -366,8 +366,16 @@ namespace baskifyCore.Controllers
 
             if (basketUtils.deleteBasket(basket, _context, _env.WebRootPath))
             {
-                _context.SaveChanges();
-                return Content("SUCCESS");
+                try
+                {
+                    _context.SaveChanges();
+                    return Content("SUCCESS");
+                }
+                catch (Exception)
+                {
+                    return Content("ERROR: DELETION FAILED");
+                }
+                
             }
             else
                 return Content("ERROR: DELETION FAILED");
@@ -387,9 +395,7 @@ namespace baskifyCore.Controllers
             if (user.UserRole == Roles.COMPANY)
                 return Redirect("/auctions"); //send organizations elsewhere
 
-            _context.Entry(user).Collection(u => u.Baskets).Query().Include(b => b.AuctionModel.HostUser).Load(); //must have baskets included
             return View("UserBasketsView", user);
-
         }
 
         [HttpPost]
@@ -404,6 +410,8 @@ namespace baskifyCore.Controllers
 
             _context.Entry(AuctionLink).Reference(l => l.Auction).Load();
             //Oragnizations are allowed to use this, but why?
+            if(user.UserRole == Roles.COMPANY && AuctionLink.Auction.HostUsername != user.Username) //keep an org from owning baskets
+                return Content("ERROR: ORGANIZATIONS CANNOT CREATE BASKETS FOR OTHER ORGANIZATIONS");
 
             if (AuctionLink.Auction.EndTime < DateTime.UtcNow)
                 return Content("ERROR: AUCTION HAS ENDED"); //can't put a new basket in a terminated auction

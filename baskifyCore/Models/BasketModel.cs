@@ -57,6 +57,12 @@ namespace baskifyCore.Models
         [Display(Name = "Basket Contents")]
         public List<string> BasketContents { get; set; }
 
+        [ForeignKey("Winner")]
+        public string WinnerUsername {get; set;}
+
+        [ForeignKey("WinnerUsername")]
+        public UserModel Winner { get; set; }
+
         /// <summary>
         /// Indicates if the basket was ever completed by the user
         /// </summary>

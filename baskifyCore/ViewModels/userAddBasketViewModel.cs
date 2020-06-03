@@ -11,5 +11,7 @@ namespace baskifyCore.ViewModels
         public AuctionModel Auction { get; set; }
         public List<BasketModel> Baskets { get; set; }
         public Guid AuctionAddLink { get; set; }
+
+        public UserModel User { get; set; }
     }
 }

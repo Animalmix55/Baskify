@@ -23,11 +23,35 @@
 
 @if (disablePurchase)//warn the user
 {
-<div class="alert alert-dismissible alert-warning" style="margin-bottom: 0;">
-    <button type="button" class="close" data-hide="alert">&times;</button>
-    <h4 class="alert-heading">You cannot currently contribute!</h4>
-    <p class="mb-0">Create a user account to contribute to this auction!</p>
-</div>
+    <div class="alert alert-dismissible alert-warning" style="margin-bottom: 0;">
+        <button type="button" class="close" data-hide="alert">&times;</button>
+        <h4 class="alert-heading">You cannot currently contribute!</h4>
+        <p class="mb-0">Create a user account to contribute to this auction!</p>
+    </div>
+}
+else if (Model.AuctionModel.DeliveryType == DeliveryTypes.DeliveryByOrg || Model.AuctionModel.DeliveryType == DeliveryTypes.DeliveryBySubmitter)
+{
+    <div class="alert alert-dismissible alert-warning" style="margin-bottom: 0;">
+        <button type="button" class="close" data-hide="alert">&times;</button>
+        <h4 class="alert-heading">Delivery Info</h4>
+        <p class="mb-0">
+            The organization has arranged for you to be delivered any baskets that you win. Your name, address, and email will be shared
+            with the organization @if (Model.AuctionModel.DeliveryType == DeliveryTypes.DeliveryBySubmitter) { WriteLiteral("and/or basket donor"); } to
+            facilitate delivery.
+        </p>
+    </div>
+}
+else if (Model.AuctionModel.DeliveryType == DeliveryTypes.Pickup)
+{
+    <div class="alert alert-dismissible alert-warning" style="margin-bottom: 0;">
+        <button type="button" class="close" data-hide="alert">&times;</button>
+        <h4 class="alert-heading">Delivery Info</h4>
+        <p class="mb-0">
+            The organization requires that any baskets won be picked up at their central location 
+            @decimal.Round((decimal)baskifyCore.Utilities.SearchUtils.getMiles(Model.AuctionModel.Latitude, Model.AuctionModel.Longitude, Model.UserModel.Latitude, Model.UserModel.Longitude), 2) miles away
+            from your account address.
+        </p>
+    </div>
 }
 
 <div id="AuctionBody" style="display:flex; flex-wrap:wrap; justify-content:center" class="maxWidthContainer">
@@ -51,7 +75,7 @@
 
     <img src="@Model.AuctionModel.BannerImageUrl" style="width: 100%; height: auto;" />
     <div style="padding-left:10px;margin-top: 10px; margin-bottom: 10px; width: 100%">
-        <h2>@Model.AuctionModel.Title</h2>
+        <div style="display:flex"><h2>@Model.AuctionModel.Title</h2><div class="text-muted" style="margin-left:auto">Benefitting @Model.AuctionModel.HostUser.OrganizationName</div></div>
         <div class="text-muted" style="display: flex; width: 100%; justify-content: inherit">
             <span>@Model.AuctionModel.StartTime - @Model.AuctionModel.EndTime</span>
         </div>
@@ -95,7 +119,7 @@
 
 
                     <label for="numTickets">Number of Tickets</label>
-                    <input type="number" class="form-control" id="numTickets" min="@Math.Ceiling(0.5 / Model.AuctionModel.TicketCost)" max="1000" value="@Math.Ceiling(0.5 / Model.AuctionModel.TicketCost)" />
+                    <input type="number" class="form-control" id="numTickets" min="@Math.Ceiling(Model.AuctionModel.MinPurchase / Model.AuctionModel.TicketCost)" max="1000" value="@Math.Ceiling(Model.AuctionModel.MinPurchase / Model.AuctionModel.TicketCost)" />
                     <div id="card-element" style="padding: 10px 0px 0px 10px;">
                         <!-- Elements will create input elements here -->
                     </div>
@@ -106,7 +130,7 @@
                 </div>
                 <div class="modal-footer" style="flex-wrap:nowrap;">
                     <button style="font-size:150%; width: 100%;" class="btn btn-success" id="buyTickets">
-                        Pay $<span>@decimal.Round((decimal)(Math.Ceiling(0.5 / Model.AuctionModel.TicketCost) * Model.AuctionModel.TicketCost), 2)</span>
+                        Pay $<span>@decimal.Round((decimal)(Math.Ceiling(Model.AuctionModel.MinPurchase / Model.AuctionModel.TicketCost) * Model.AuctionModel.TicketCost), 2)</span>
                     </button>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
                 </div>

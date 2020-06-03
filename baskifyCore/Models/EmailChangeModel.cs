@@ -67,9 +67,10 @@ namespace baskifyCore.Models
                     if (!regex.IsMatch(Payload))
                         yield return new ValidationResult("INVALID EMAIL FORMAT", new[] { "NewValue" });
 
+                    /*
                     if (AlertId == Guid.Empty || AlertId == null)
                         yield return new ValidationResult("EMAIL ALERTS MUST BE TIED TO EMAIL CHANGES", new[] { "AlertId" }); //require email alert
-
+                    */
                     break;
                     //this is expandable should more email verification changes be needed!
             }

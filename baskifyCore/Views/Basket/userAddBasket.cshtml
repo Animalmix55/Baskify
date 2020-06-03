@@ -10,6 +10,7 @@
     }
 </style>
 
+<script src="https://maps.googleapis.com/maps/api/js?key=@baskifyCore.Utilities.AuctionUtilities.getGoogleAPI()&callback=initMap" defer></script>
 <script src="~/galleria/galleria.min.js"></script>
 
 @if (Model.Auction.StartTime < DateTime.UtcNow)
@@ -37,6 +38,40 @@
     <img class="AuctionBannerImage" src="@Model.Auction.BannerImageUrl" />
 }
 <div id="AuctionInfoBlock">
+    <div class="alert alert-dismissible alert-danger" style="margin-bottom:unset">
+        <button type="button" class="close" data-hide="alert">&times;</button>
+        <h4 class="alert-heading">Basket Delivery</h4>
+        @switch (Model.Auction.DeliveryType)
+        {
+            case DeliveryTypes.DeliveryBySubmitter:
+                <p class="mb-0">
+                    @Model.Auction.HostUser.OrganizationName has specified that basket donors are responsible for delivering baskets within
+                    @Model.Auction.MaxRange miles of the auction's base location (@decimal.Round((decimal)baskifyCore.Utilities.SearchUtils.getMiles(Model.Auction.Latitude, Model.Auction.Longitude, Model.User.Latitude, Model.User.Longitude), 2) miles away).
+                    This radius is depicted below...
+                </p>
+                break;
+            case DeliveryTypes.DeliveryByOrg:
+            case DeliveryTypes.Pickup:
+                <p class="mb-0">
+                    @Model.Auction.HostUser.OrganizationName is responsible for delivering baskets to their respective winners.
+                    @if (Model.Auction.BasketRetrieval == BasketRetrieval.OrgPickup)
+                    {
+                        <text>
+                            @Model.Auction.HostUser.OrganizationName will be furnished with your (account) address and email once the basket is submitted and
+                            will reach out to facilitate a basket pickup at their nearest convenience.
+                        </text>
+                    }
+                    else if (Model.Auction.BasketRetrieval == BasketRetrieval.UserDeliver)
+                    {
+                        <text>
+                            @Model.Auction.HostUser.OrganizationName requests that basket submissions are delivered to the auction's base location (@decimal.Round((decimal)baskifyCore.Utilities.SearchUtils.getMiles(Model.Auction.Latitude, Model.Auction.Longitude, Model.User.Latitude, Model.User.Longitude), 2) miles away), specified in the
+                            map below. Once you submit a basket, this page will furnish you with their auction's address and basket delivery information.
+                        </text>
+                    }
+                </p>
+                break;
+        }
+    </div>
     <div class="list-group">
         <a class="list-group-item list-group-item-action flex-column align-items-start">
             <div class="d-flex w-100 justify-content-between">
@@ -47,6 +82,7 @@
             <p class="mb-1">@Model.Auction.Description</p>
         </a>
     </div>
+    <div id="userAddressMap"></div>
 </div>
 
 <div id="myTabContent" class="tab-content">
@@ -117,6 +153,38 @@
             }
         );
     }
+
+    var ServiceRadius;
+    var map;
+    var marker;
+    function initMap() {
+        // Create the map.
+        var initCoords = { lat: @Model.Auction.Latitude, lng: @Model.Auction.Longitude };
+
+        map = new google.maps.Map(document.getElementById('userAddressMap'), {
+            zoom: 10,
+            center: initCoords,
+            mapTypeId: 'terrain'
+        });
+
+        marker = new google.maps.Marker({
+            position: initCoords,
+            map: map,
+            title: '@Model.Auction.HostUser.OrganizationName'
+        });
+
+        ServiceRadius = new google.maps.Circle({
+            strokeColor: '#FF0000',
+            strokeOpacity: 0.8,
+            strokeWeight: 2,
+            fillColor: '#FF0000',
+            fillOpacity: 0.35,
+            map: map,
+            center: initCoords,
+            radius: @Model.Auction.MaxRange * 1609.34 //mile to meter conversion
+        });
+    }
+
     function deleteBasket(basketId) {//deletes the given basket
         $.post("/basket/delete", { basketID: basketId, auctionID: @Model.Auction.AuctionId },
             function (data) {
@@ -156,7 +224,7 @@
     }()); //loads galleria
 
     $("#auctionInfoForm").on("submit", function () { $("#PageLoadingModal").css("display", "flex"); }); //queue loading
-    window.history.pushState("", "", '/auctions/addBasket/@Model.AuctionAddLink'); //always keeps URL functioning
+    window.history.replaceState(null, "", '/auctions/addBasket/@Model.AuctionAddLink'); //always keeps URL functioning
 
 </script>
 

@@ -7,7 +7,7 @@
 <script src="~/js/moment-with-locales.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
-<script src="https://maps.googleapis.com/maps/api/js?key=@baskifyCore.Utilities.AuctionUtilities.getGoogleAPI()&callback=initMap" async defer></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=@baskifyCore.Utilities.AuctionUtilities.getGoogleAPI()&callback=initMap" defer></script>
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 
 <div id="accountSettings">
@@ -35,6 +35,36 @@
                 @Html.HiddenFor(Model => Model.EndTime)
                 @Html.ValidationMessageFor(Model => Model.StartTime)
                 @Html.ValidationMessageFor(Model => Model.EndTime)
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(Model => Model.TicketCost)
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">$</span>
+                    </div>
+                    @Html.TextBoxFor(Model => Model.TicketCost, null, new { @class = "form-control" })
+                </div>
+                @Html.ValidationMessageFor(Model => Model.TicketCost)
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(Model => Model.MinPurchase)
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">$</span>
+                    </div>
+                    @Html.TextBoxFor(Model => Model.MinPurchase, null, new { @class = "form-control" })
+                </div>
+                @Html.ValidationMessageFor(Model => Model.MinPurchase)
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(Model => Model.DeliveryType)
+                @Html.DropDownListFor(Model => Model.DeliveryType, Html.GetEnumSelectList<DeliveryTypes>(), "Select Delivery Type", new { @class = "custom-select" })
+                @Html.ValidationMessageFor(Model => Model.DeliveryType)
+            </div>
+            <div id="basketRetrievalGroup" class="form-group">
+                @Html.LabelFor(Model => Model.BasketRetrieval)
+                @Html.DropDownListFor(Model => Model.BasketRetrieval, Html.GetEnumSelectList<BasketRetrieval>(), "Select Retrieval Type", new { @class = "custom-select" })
+                @Html.ValidationMessageFor(Model => Model.BasketRetrieval)
             </div>
             <legend>Where Will You Be Hosting From?</legend>
             <div class="form-group">
@@ -123,7 +153,20 @@ $("#MaxRange").on("change", function (e) {
         ServiceRadius.setRadius($("#MaxRange").val() * 1609.34)
     });
 
+    $("#DeliveryType").on("change", function (e) {
+            if ($(this).val() == @((int)DeliveryTypes.Pickup) || $(this).val() == @((int)DeliveryTypes.DeliveryByOrg))
+                $("#basketRetrievalGroup").css("display", "block");
+            else {
+                $("#basketRetrievalGroup").css("display", "none");
+                $("#BasketRetrieval").val("");
+            }
+        });
+
     $(function () {
+        $("#basketRetrievalGroup").css("display", "none");
+
+        $("#DeliveryType").change(); //trigger update
+
         initMap()
         $('input[name="datetimes"]').daterangepicker({
             timePicker: true,
@@ -183,6 +226,6 @@ $("#MaxRange").on("change", function (e) {
     $("#MaxRange").on("change", function (e) {
         $("#SelectedRange span").html($("#MaxRange").val() == @AuctionModel.MaxDistance? "&infin;" : $("#MaxRange").val());
     });
-    window.history.pushState("", "", '/auctions/createauction');
+    window.history.replaceState(null, "", '/auctions/createauction');
 </script>
 

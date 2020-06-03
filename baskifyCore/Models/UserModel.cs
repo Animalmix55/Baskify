@@ -104,6 +104,10 @@ namespace baskifyCore.Models
 
         public ICollection<AuctionModel> Auctions { get; set; }
 
+        [EmailAddress(ErrorMessage = "Invalid email address!")]
+        [Display(Name = "Public Contact Email")]
+        public string ContactEmail { get; set; }
+
         //---------------------------------------------------------UNMAPPED PROPERTIES FOR APPLICATION WORKFLOW----------------------------------------------------------
         [NotMapped]
         public string bearerToken { get; set; }
@@ -124,6 +128,8 @@ namespace baskifyCore.Models
             {
                 if (String.IsNullOrWhiteSpace(OrganizationName))
                     errormsg.Add(new ValidationResult("Organization Name Must Not Be Empty", new string[] { "OrganizationName" }));
+                if (String.IsNullOrEmpty(ContactEmail))
+                    errormsg.Add(new ValidationResult("Invalid Contact Email", new string[] { "ContactEmail" }));
             }
             return errormsg;
         }

@@ -116,6 +116,7 @@
     var imagesToAdd = []; //this has relative urls
     $(function () {
         Galleria.run('.galleria', {
+            theme: 'classic',
             extend: function () {
                 var gallery = this;
                 $('#deleteCurrentImage').click(function () {
@@ -140,44 +141,45 @@
     });
 
     $("#imageUploadForm").submit(function (e) {
-                            e.stopPropagation();
-                            e.preventDefault();
-                            var formData = new FormData();
-                            var files = $("#uploadImages").prop("files");
+        e.stopPropagation();
+        e.preventDefault();
+        var formData = new FormData();
+        var files = $("#uploadImages").prop("files");
+        if (files.length == 0)
+            return; //dont bother
         $.each(files, function (i, file) {
-                                formData.append('files', file);
-                            });
-                            formData.append('basketId', $('#imageBasketId').val());
+            formData.append('files', file);
+        });
+        formData.append('basketId', $('#imageBasketId').val());
 
         $.ajax({
-                            url: "/basket/uploadBasketImages",
+            url: "/basket/uploadBasketImages",
             type: 'POST',
             processData: false,
             contentType: false,
             data: formData,
             dataType: 'text',
             success: function (data) {
-                                    if (data.startsWith("ERROR"))
+                if (data.startsWith("ERROR"))
                     $("#imageUploadError").html(data);
                 else {
-                                        //data is an array of new image URLs
-                                        var response = JSON.parse(data);
-                                        if ($('.galleria').data('galleria').getDataLength() == 0 && response.length > 0) //if empty gallery
+                    //data is an array of new image URLs
+                    var response = JSON.parse(data);
+                    if ($('.galleria').data('galleria').getDataLength() == 0 && response.length > 0) //if empty gallery
                     {
-                                            var imageList = [];
-                                            response.forEach(element => {
-                                            imageList.push({ image: element });
-                                            imagesToAdd.push(element);
-                                        });
+                        var imageList = [];
+                        response.forEach(element => {
+                            imageList.push({ image: element });
+                            imagesToAdd.push(element);
+                        });
                         $('.galleria').data('galleria').load(imageList);
-                                    }
+                    }
                     else
-                                        response.forEach(element => { $('.galleria').data('galleria').push({ image: element }); imagesToAdd.push(element); }); //add to galleria
+                        response.forEach(element => { $('.galleria').data('galleria').push({ image: element }); imagesToAdd.push(element); }); //add to galleria
 
-                                if ($('.galleria').data('galleria').getDataLength > 1)
-                        $("#deleteCurrentImage").prop('disabled', false);
-                            }
-                        }
+                    $("#deleteCurrentImage").removeAttr('disabled');
+                }
+            }
         });
         return false;
 

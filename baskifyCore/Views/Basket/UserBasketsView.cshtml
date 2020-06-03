@@ -4,6 +4,13 @@
     ViewData["Title"] = "View Submitted Baskets";
 }
 <script src="~/galleria/galleria.min.js"></script>
+<script src="~/js/moment-with-locales.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.4/js/dataTables.responsive.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css" />
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.4/css/responsive.dataTables.min.css" />
+
 
 <div id="basketDataModal" class="modal">
     @if (ViewData["basket"] != null)//if given a basket, load the modal with it
@@ -13,69 +20,40 @@
     }
 </div>
 
+<div id="basketDetailsModal" style="position: fixed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.25);
+    left: 0;
+    z-index: 333;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    display:none;">
+</div>
+
 <div id="myTabContent" class="tab-content">
-    <div id="baskets">
+    <div id="baskets" style="overflow:hidden">
         <h2 style="text-align:center;" class="display-4">Your Submitted Baskets</h2>
         <p style="text-align:center;">Baskets can be edited until they are verified by the organization.</p>
-        @if (Model.Baskets != null && Model.Baskets.Count > 0)
-        {
-            <table class="table table-hover">
-                <thead>
-                    <tr>
-                        <th scope="col">Basket Name</th>
-                        <th scope="col">Auction Name</th>
-                        <th scope="col">Organization</th>
-                        <th scope="col">Submission Date</th>
-                    </tr>
-                </thead>
-                <tbody id="basketListBody">
-                    @foreach (var basket in Model.Baskets)
-                    {
-                        @if (basket.Draft)
-                            continue;//don't worry about draft baskets
-                        @if (basket.AcceptedByOrg)
-                        {
-                            <tr class="table-success" id="basketRow-@basket.BasketId">
-                                <td scope="row">@basket.BasketTitle <span class="badge badge-pill badge-primary">Accepted</span></td>
-                                <td>@basket.AuctionModel.Title</td>
-                                <td>@basket.AuctionModel.HostUser.OrganizationName</td>
-                                <td>@basket.SubmissionDate.ToShortDateString()</td>
-                                <td></td>
-                            </tr>
-                        }
-                        else
-                        {
-                            @if (basket.AuctionModel.EndTime > DateTime.UtcNow)//auction is not yet ended
-                            {
-                                <tr class="table-danger" id="basketRow-@basket.BasketId" style="cursor: pointer">
-                                    <td scope="row" onclick="viewBasket(@basket.BasketId, @basket.AuctionId)">@basket.BasketTitle <span class="badge badge-pill badge-primary">Pending</span></td>
-                                    <td onclick="viewBasket(@basket.BasketId, @basket.AuctionId)">@basket.AuctionModel.Title</td>
-                                    <td onclick="viewBasket(@basket.BasketId, @basket.AuctionId)">@basket.AuctionModel.HostUser.OrganizationName</td>
-                                    <td onclick="viewBasket(@basket.BasketId, @basket.AuctionId)">@basket.SubmissionDate.ToShortDateString()</td>
-                                    <td>
-                                        <button type="button" class="close" onclick="deleteBasket(@basket.BasketId, @basket.AuctionId)" aria-label="Close">
-                                            <span aria-hidden="true">&times;</span>
-                                        </button>
-                                        <span class="rowError"></span>
-                                    </td>
-                                </tr>
-                            }
-                            else //auction has ended, never verified
-                            {
-                                <tr class="table-success" id="basketRow-@basket.BasketId">
-                                    <td scope="row">@basket.BasketTitle <span class="badge badge-pill badge-primary">Never Accepted</span></td>
-                                    <td>@basket.AuctionModel.Title</td>
-                                    <td>@basket.AuctionModel.HostUser.OrganizationName</td>
-                                    <td>@basket.SubmissionDate.ToShortDateString()</td>
-                                    <td></td>
-                                </tr>
-                            }
-                        }
-                    }
-                </tbody>
-            </table>
-        }
-
+        <table id="basketTable" class="table table-hover" style="width:100%">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th scope="col">Basket Name</th>
+                    <th scope="col">Verified</th>
+                    <th scope="col">Auction Name</th>
+                    <th scope="col">Organization</th>
+                    <th scope="col">Submission Date</th>
+                    <th></th>
+                </tr>
+            </thead>
+            <tbody id="basketListBody">
+            </tbody>
+        </table>
     </div>
 </div>
 <script>
@@ -88,11 +66,11 @@
                     $("#basketDataModal").html(data);
                     $("#basketDataModal").modal("show");
                 }
-                else if(data == "ERROR: INVALID LOGIN"){
+                else if (data == "ERROR: INVALID LOGIN") {
                     openSignOnModal(); //get signin
                 }
-                else if(id != -1)
-                    $("#basketRow-"+ basketId+" .rowError").html("ERROR");
+                else if (id != -1)
+                    $("#basketRow-" + basketId + " .rowError").html("ERROR");
             }
         );
     }
@@ -111,6 +89,7 @@
 
     $(function () {
         Galleria.loadTheme('/galleria/themes/classic/galleria.classic.js');
+        Galleria.loadTheme('/galleria/themes/twelve/galleria.twelve.js');
         Galleria.configure({
             imageCrop: false,
             _toggleInfo: false,
@@ -118,6 +97,230 @@
             transition: 'fade'
         });
     }()); //loads galleria
+
+    var basketTable = $("#basketTable");
+
+     basketTable.dataTable({
+        ajax: {
+            url: "/api/baskets/submitted",
+            type: "GET",
+            dataSrc: "",
+            beforeSend: function (xhr) { //add token
+                var token = getCookie("BearerToken");
+                if (token != "")
+                    xhr.setRequestHeader("Authorization", "Bearer " + token);
+            }
+        },
+         responsive: {
+             details: false
+         },
+        createdRow: function (row, data, dataIndex) {
+            if (data["acceptedByOrg"]) {
+                $(row).addClass("table-success");
+                $(row).find(".data").attr("onclick", "viewAcceptedBasket(" + data["basketId"] + ")"); //only data rows
+            }
+            else {
+                $(row).addClass("table-danger");
+                $(row).find(".data").attr("onclick", "viewBasket(" + data["basketId"] + "," + data["auctionId"] + ")"); //only data rows
+            }
+
+            if (data["winner"] != null)
+                $(row).children().first().addClass("details-control"); //add button to those with winners
+
+            $(row).css("cursor", "pointer");
+            $(row).attr("id", "basketRow-" + data["basketId"]);
+            
+        },
+        columns: [
+            {
+                orderable: false,
+                defaultContent: "",
+                data: null,
+                targets: 0,
+                responsivePriority: 1
+            },
+            {
+                data: "basketTitle",
+                className: 'data',
+                responsivePriority: 1
+            },
+            {
+                data: "acceptedByOrg",
+                render: function (data, type, row) {
+                    if (!data)
+                        return `<span class="badge badge-pill badge-primary" style="color:green">&#10006;</span>`
+                    else {
+                        return `<span class="badge badge-pill badge-primary" style="color:red;">&#10004;</span>`;
+                    }
+                },
+                responsivePriority: 3,
+                className: 'data'
+            },
+            {
+                data: "auctionModel.title",
+                responsivePriority: 4,
+                className: 'data'
+            },
+            {
+                data: "auctionModel.hostUser.organizationName",
+                responsivePriority: 6,
+                className: "data"
+            },
+            {
+                data: "submissionDate",
+                render: function (data, type, row) {
+                    return new Date(data + 'Z').toUTCString();
+                },
+                type: "date",
+                responsivePriority: 5,
+                className: 'data'
+            },
+            {
+                data: "acceptedByOrg",
+                render: function (data, type, row) {
+                    if (!data) {
+                        return `<button type="button" class="close" onclick="deleteBasket(` + row.basketId + `)" aria-label="Close">\
+                                                    <span aria-hidden="true">&times;</span>\
+                                                </button>\
+                                                <span class="rowError"></span>`
+                    }
+                    else return "";
+                },
+                orderable: false,
+                responsivePriority: 2
+            }
+        ]
+     });
+
+    function viewAcceptedBasket(basketId) {
+        var baskets = $("#basketTable").DataTable().data()
+        var basket;
+        for (var i = 0; i < baskets.length; i++) { //find basket data
+            if (baskets[i].basketId == basketId) {
+                basket = baskets[i];
+                break;
+            }
+        }
+
+        if (basket == null) //basket not found
+            return;
+
+
+        var html = `<div class="card mb-3 basketCard" style="border-radius: 30px" data-id="` + basket["basketId"] + `" data-loaded="false">\
+                    <h3 class="card-header" style="font-size:114%">`+ basket["basketTitle"]
+        html += `</h3>\
+                <div style="height:300px; overflow:hidden;z-index:2">\
+                    <div id="gallery-`+ basket["basketId"] + `" class="galleria basketCardImages" style="z-index:1;background-color:rgba(0, 0, 0, 0.00); height:300px; width:inherit">`;
+        //ADD PHOTOS
+        basket["photos"].forEach(function (photo) {
+            html += `<img src="` + photo["url"] + `" />`;
+        });
+        html += `</div>\
+                    <div id="basket-`+ basket["basketId"] + `-details" style="opacity:0; display:none; height:270px; overflow-y:auto;">\
+                        <div class="modalHeader">Description:</div>
+                        <div class="basketDesc" style="text-align:center;">\
+                            `+ basket["basketDescription"] + `\
+                        </div>\
+                        <div class="modalHeader">Contents:</div>
+                        <table class="basketContents table">\
+                            <tbody style="display:flex; justify-content:center; flex-wrap: wrap;">`;
+        //add contents
+        basket["basketContents"].forEach(function (element) {
+            html += "<tr style='flex-basis: 50%; display:flex; justify-content:center' class='table-light'>"; //build list
+            html += "<td style='padding: unset;'>" + element + "</td>";
+            html += "</tr>";
+        });
+
+        html +=
+            `</tbody>\
+                        </table>\
+                    </div>\
+                </div>\
+                <div class="basketButtons" style="display:flex; margin-top:-30px; z-index:2">`;
+        html += `<button class="btn btn-primary viewDetails" style="flex:1;">Details</button>\
+                </div>\
+            </div>`
+        $("#basketDetailsModal").html(html);
+        $("#basketDetailsModal").css("display", "flex");
+        Galleria.run("#basketDetailsModal .galleria", {
+            imageCrop: true,
+            lightbox: true,
+            transition: 'fade',
+            idleMode: false,
+            theme: "twelve"
+        });
+    }
+
+    $("#basketDetailsModal").on("click", function (e) {
+        if ($(e.target).hasClass("card"))
+            e.stopPropagation();
+        else if ($(e.target).attr("id") == "basketDetailsModal")
+            $(e.target).css("display", "none");
+    })
+
+    $(document).on("click", ".viewDetails", function (e) {
+        var card = $(this).closest(".basketCard");
+        var gallery = card.find(".galleria");
+        var desc = card.find("[id$=-details]");
+        if (gallery.position().top == 0) //when galleria is collapsed. open galleria
+        {
+            desc.animate({
+                opacity: 0
+            }, 500, function () {
+                desc.css("display", "none");
+                gallery.css("display", "block");
+                gallery.data('galleria').resize(); //if page was resized while not displaying, the gallery is invisible
+                gallery.animate({ opacity: 1 }, 500);
+                card.find(".viewDetails").html("Details");
+            });
+        }
+        else { //when galleria is open
+            gallery.animate({
+                opacity: 0
+            }, 500, function () {
+                gallery.css("display", "none");
+                desc.css("display", "block");
+                desc.animate({ opacity: 1 }, 500);
+                card.find(".viewDetails").html("Images");
+            });
+        }
+    });
+
+    function winnerInfoFormat(winner) {
+        // `d` is the original data object for the row
+        return '<h2>Winner Info</h2>' +
+            '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">' +
+            '<tr>' +
+            '<td>Full name:</td>' +
+            '<td>' + winner.firstName + " " + winner.lastName + '</td>' +
+            '</tr>' +
+            '<tr>' +
+            '<td>Email:</td>' +
+            '<td>' + winner.email + '</td>' +
+            '</tr>' +
+            '<tr>' +
+            '<td>Address:</td>' +
+            '<td>' + winner.address + " " + winner.city + ", " + winner.state + " " + winner.zip + '</td>' +
+            '</tr>' +
+            '</table>';
+    }
+
+    $('#basketTable tbody').on('click', 'td.details-control', function () {
+        var tr = $(this).closest('tr');
+        var row = basketTable.DataTable().row(tr);
+
+        if (row.child.isShown()) {
+            // This row is already open - close it
+            row.child.hide();
+            tr.removeClass('shown');
+        }
+        else {
+            // Open this row
+            row.child(winnerInfoFormat(row.data()["winner"])).show();
+            tr.addClass('shown');
+            row.child().css("background-color", "white") //no hover coloring
+        }
+    });
 
     $("#auctionInfoForm").on("submit", function () { $("#PageLoadingModal").css("display", "flex"); }); //queue loading
 </script>
