@@ -469,7 +469,6 @@ h4{
     right: 0;
     margin: auto;
     transition: width .6s;
-    height: 800px;
     overflow-y: auto;
 }
 .galleria {
@@ -615,4 +614,17 @@ h4{
         width: 80vw;
     }
 
+}
+
+td.details-control {
+    background: url('/Content/details_open.png') no-repeat center center;
+    cursor: pointer;
+}
+
+tr.shown td.details-control {
+    background: url('/Content/details_close.png') no-repeat center center;
+}
+
+.dataTables_wrapper>.row{
+    width:100%;
 }

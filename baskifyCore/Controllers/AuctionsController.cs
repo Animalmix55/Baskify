@@ -3,7 +3,9 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
 using baskifyCore.Controllers.api;
+using baskifyCore.DTOs;
 using baskifyCore.Migrations;
 using baskifyCore.Models;
 using baskifyCore.Utilities;
@@ -35,7 +37,7 @@ namespace baskifyCore.Controllers
             if (user == null)
                 return Redirect("/login?redirectBack=" + LoginUtils.getAbsoluteUrl("/auctions", Request));
             else if (user.UserRole != Roles.COMPANY)
-                Redirect("/"); //send home if a user
+                return Redirect("/"); //send home if a user
 
             ViewData["page"] = page;
             _context.Entry(user).Collection(u => u.Auctions).Load(); //get auctions
@@ -52,7 +54,7 @@ namespace baskifyCore.Controllers
             else if (user.UserRole != Roles.COMPANY)
             {
                 ViewData["Alert"] = "You do not have access to this resource";
-                return View("~/Home/Index.cshtml", user);
+                return View("~/Views/Home/Index.cshtml", user);
             }
             ViewData["NavBarOverride"] = user;
             var auctionModel = new AuctionModel() { HostUsername = user.Username };
@@ -71,7 +73,7 @@ namespace baskifyCore.Controllers
             else if (user.UserRole != Roles.COMPANY)
             {
                 ViewData["Alert"] = "You do not have access to this resource";
-                return View("~/Home/Index.cshtml", user);
+                return View("~/Views/Home/Index.cshtml", user);
             }
 
             if (auction.StartTime < DateTime.UtcNow)
@@ -141,8 +143,8 @@ namespace baskifyCore.Controllers
                 var auction = _context.AuctionModel.Find(id);
                 if(auction.EndTime < DateTime.UtcNow)
                 {
-                    ViewData["Alert"] = "You cannot edit a completed auction!";
-                    return View("~/Views/Auctions/Index.cshtml", user); //send them back to the auction list!
+                    ViewData["NavBarOverride"] = user;
+                    return View("CompletedAuction", auction); //send them back to the auction list!
                 }
 
                 _context.Entry(auction).Collection(a => a.Baskets).Load();
@@ -270,6 +272,9 @@ namespace baskifyCore.Controllers
                 dbAuction.Latitude = auction.Latitude;
                 dbAuction.Longitude = auction.Longitude;
                 dbAuction.MaxRange = auction.MaxRange;
+                dbAuction.MinPurchase = auction.MinPurchase;
+                dbAuction.TicketCost = auction.TicketCost;
+                dbAuction.BasketRetrieval = auction.BasketRetrieval; //can change retrieval from donors
             }
             _context.SaveChanges();
 
@@ -327,8 +332,16 @@ namespace baskifyCore.Controllers
                 return View("~/Views/Home/Index.cshtml", user);
             }
 
+            //don't allow donations out of range
+            if (SearchUtils.getMiles(model.Auction.Latitude, model.Auction.Longitude, user.Latitude, user.Longitude) > model.Auction.MaxRange)
+            {
+                ViewData["Alert"] = "You are outside of the auction's specified range";
+                return View("~/Views/Home/Index.cshtml", user);
+            }
+
+
             var baskets = model.Auction.Baskets.Where(b => b.SubmittingUsername == user.Username); //get user's baskets
-            var userAddModel = new userAddBasketViewModel() { Auction = model.Auction, AuctionAddLink = AuctionLink, Baskets = new List<BasketModel>(baskets) };
+            var userAddModel = new userAddBasketViewModel() { Auction = model.Auction, AuctionAddLink = AuctionLink, Baskets = new List<BasketModel>(baskets), User = user };
 
             //all is well
             ViewData["NavBarOverride"] = user;
@@ -384,7 +397,7 @@ namespace baskifyCore.Controllers
             _context.SaveChanges();
             _context.Entry(deletionValidation).Reload();
 
-            if (EmailUtils.sendVerificationEmail(user.Email, deletionValidation, Request)) //send verification email
+            if (EmailUtils.sendVerificationEmail(user, deletionValidation, Request)) //send verification email
             {
                 _context.SaveChanges();
                 ViewData["Alert"] = "Success, verify the deletion via email to complete the process!";
@@ -414,14 +427,18 @@ namespace baskifyCore.Controllers
                 else
                     return View("~/Views/Home/Index.cshtml", user);
             }
-            _context.Entry(auction).Collection(a => a.Baskets).Query().Include(b => b.photos).Load(); //load in baskets with photos
+
+            //BASKETS ARE ALL LOADED IN LATER VIA AJAX
+            var numBaskets = _context.BasketModel.Where(b => b.AuctionId == id).Where(b => !b.Draft).Where(b => b.AcceptedByOrg).Count();
+            if (numBaskets == 0)
+            {
+                ViewData["Alert"] = "Auction has no baskets";
+                return View("~/Views/Home/Index.cshtml", user ?? new UserModel()); //if the auction has no visible baskets, kick them out
+            }
 
             if (user != null)
             {
                 ViewData["NavBarOverride"] = user;
-                foreach (var basket in auction.Baskets)
-                    basket.UserTickets = _context.TicketModel.Find(user.Username, basket.BasketId); //get the user's investment in each basket
-
                 wallet = _context.UserAuctionWallet.Find(user.Username, auction.AuctionId);
                 if (wallet == null)
                 {
@@ -439,10 +456,25 @@ namespace baskifyCore.Controllers
             ViewData["itemsPerPage"] = itemsPerPage;
             ViewData["page"] = pageNum;
             ViewData["StripePublicKey"] = StripeConsts.publicKey;
+            _context.Entry(auction).Reference(a => a.HostUser).Load(); //get org name
 
             var userViewAuctionModel = new UserAuctionViewModel() { UserModel = user ?? new UserModel(), AuctionModel = auction, Wallet = wallet ?? new UserAuctionWalletModel() };
             
             return View("ViewAuction", userViewAuctionModel);
+        }
+
+        public IActionResult Results()
+        {
+            var user = LoginUtils.getUserFromToken(Request.Cookies["BearerToken"], _context, Response);
+            if (user == null)
+                Redirect("/login?redirectBack=" + LoginUtils.getAbsoluteUrl("/auctions/results", Request));
+            else if (user.UserRole != Roles.USER)
+            {
+                ViewData["Alert"] = "Only users can access this resource.";
+                return View("~/Views/Home/Index.cshtml", user);
+            }
+
+            return View(user);
         }
     }
 }

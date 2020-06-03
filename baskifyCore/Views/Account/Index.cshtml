@@ -14,7 +14,7 @@
                 @Html.ValidationSummary(true)
             <fieldset>
                 <legend>Update User Information</legend>
-                @if (Model.UserRole == 1)
+                @if (Model.UserRole == Roles.USER)
                 {
                     <div class="form-group">
                         @Html.LabelFor(Model => Model.FirstName)
@@ -44,6 +44,14 @@
                     @Html.TextBoxFor(Model => Model.Email, null, new { @class = "form-control" })
                     @Html.ValidationMessageFor(Model => Model.Email)
                 </div>
+                @if (Model.UserRole == Roles.COMPANY)
+                {
+                    <div class="form-group">
+                    @Html.LabelFor(Model => Model.ContactEmail)
+                    @Html.TextBoxFor(Model => Model.ContactEmail, null, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(Model => Model.ContactEmail)
+                    </div>
+                }
                 <div class="form-group">
                     @Html.LabelFor(Model => Model.Address)
                     @Html.TextBoxFor(Model => Model.Address, null, new { @class = "form-control" })
@@ -84,7 +92,15 @@
 
         </div>
     </div>
-    <script>window.history.pushState("", "", '/Account');</script>
+    <script>
+        window.history.replaceState(null, "", '/Account');
+        $("#Email, #ContactEmail").on("focusout", function (e) { //autofills contact email if empty
+            var contactEmail = $("#ContactEmail");
+            if (contactEmail.length != 0 && contactEmail.val() == "") {
+                $("#ContactEmail").val($("#Email").val());
+            }
+        });
+    </script>
 </body>
 
 </html>

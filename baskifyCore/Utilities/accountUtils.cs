@@ -3,6 +3,7 @@ using baskifyCore.Models;
 using baskifyCore.ViewModels;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
+using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
@@ -113,7 +114,7 @@ namespace baskifyCore.Utilities
                         {"addressLine1", addressObject.Value<string>("addressLine1") },
                         {"city", addressObject.Value<string>("city") },
                         {"state", addressObject.Value<string>("state") },
-                        {"zip", addressObject.Value<string>("zip5") + "-" + addressObject.Value<string>("zip4") },
+                        {"zip", addressObject.Value<string>("zip5") + (string.IsNullOrEmpty(addressObject.Value<string>("zip4"))? "" : "-" + addressObject.Value<string>("zip4")) },
                         {"lat", lat },
                         {"lng", lng }
                     };
@@ -142,7 +143,7 @@ namespace baskifyCore.Utilities
         /// <param name="newUser"></param>
         /// <param name="_context">Uses context to update the user, alert, and email change entries</param>
         /// <param name="req">Needs the request to produce an email verification link without hardcoding</param>
-        public static void updateUser(UserModel oldUser, UserModel newUser, ApplicationDbContext _context, HttpRequest req, ModelStateDictionary ModelState)
+        public static void updateUser(UserModel oldUser, UserModel newUser, ApplicationDbContext _context, HttpRequest req, ModelStateDictionary ModelState, Controller controller, IWebHostEnvironment _env)
         {
             Dictionary<string, string> addressDict = validateAddress(newUser.Address, newUser.City, newUser.State, newUser.ZIP);
             if (addressDict["resultStatus"] == "ADDRESS NOT FOUND")
@@ -192,7 +193,9 @@ namespace baskifyCore.Utilities
                 _context.EmailVerification.Add(emailChange);
                 _context.SaveChanges(); //get email verification id
 
-                var emailsSent = EmailUtils.sendVerificationEmail(oldUser.Email, emailChange, req);
+                bool emailsSent = false;
+
+                emailsSent = EmailUtils.sendVerificationEmail(oldUser, emailChange, req);
 
                 if (!emailsSent)
                 {
@@ -217,6 +220,9 @@ namespace baskifyCore.Utilities
 
             oldUser.FirstName = newUser.FirstName;
             oldUser.LastName = newUser.LastName;
+            if (oldUser.UserRole == Roles.COMPANY)
+                oldUser.ContactEmail = newUser.ContactEmail;
+
             ModelState.Clear();
         }
 
@@ -274,7 +280,7 @@ namespace baskifyCore.Utilities
 
 
 
-        public static bool sendRecoveryEmail(ForgotPasswordViewModel model, ApplicationDbContext _context, HttpRequest request)
+        public static bool sendRecoveryEmail(ForgotPasswordViewModel model, ApplicationDbContext _context, HttpRequest request, Controller controller, IWebHostEnvironment _env)
         {
             UserModel user;
             if (model.isEmailValidation)
@@ -295,7 +301,7 @@ namespace baskifyCore.Utilities
 
             var RecoveryBearerToken = LoginUtils.buildToken(user, _context, TokenTypes.PASSWORDRESET).Result;
 
-            var sent = EmailUtils.sendRecoveryEmail(user.Email, RecoveryBearerToken, request);
+            var sent = EmailUtils.sendRecoveryEmail(user, RecoveryBearerToken, request);
 
             if (!sent) //if for some reason there's an error...
                 throw new Exception("Email failed to send");

@@ -3,13 +3,18 @@
 @{
     ViewData["Title"] = "View";
 }
+
 <script src="~/galleria/galleria.min.js"></script>
 <script src="~/js/moment-with-locales.js"></script>
-@if (Model.StartTime > DateTime.UtcNow)
-{
-<script src="https://maps.googleapis.com/maps/api/js?key=@baskifyCore.Utilities.AuctionUtilities.getGoogleAPI()&callback=initMap" async defer></script>
-}
+<script src="~/Chart/Chart.bundle.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css" />
+<script src="https://maps.googleapis.com/maps/api/js?key=@baskifyCore.Utilities.AuctionUtilities.getGoogleAPI()" defer></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.4/css/responsive.dataTables.min.css" />
+<script src="https://cdn.datatables.net/responsive/2.2.4/js/dataTables.responsive.min.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/plug-ins/1.10.21/sorting/numeric-comma.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
 
@@ -40,13 +45,16 @@
         {
             <img class="AuctionBannerImage" src="@Model.BannerImageUrl" />
         }
-
+        <button type="button" class="btn btn-primary btn-sm" style="position: fixed;bottom: 0;left: 0;right: 0;margin: auto;z-index: 1000;width: 100%;max-width: 200px;height: 50px;font-size: 100%;" onclick="viewBasket(-1)">Add New Basket</button>
         <ul class="nav nav-tabs" id="AuctionNavTabs">
             <li class="nav-item">
                 <a class="nav-link active" data-toggle="tab" href="#auctionInfo">Auction Info</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" data-toggle="tab" href="#baskets">Baskets</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#performance">Performance</a>
             </li>
         </ul>
         <div id="myTabContent" class="tab-content">
@@ -55,92 +63,93 @@
                 {
                     @Html.ValidationSummary(true)
 
-                    <fieldset>
-                        <legend>Auction Information</legend>
-                        <div class="form-group">
-                            @Html.LabelFor(Model => Model.Title)
-                            @Html.TextBoxFor(Model => Model.Title, null, new { @class = "form-control" })
-                            @Html.ValidationMessageFor(Model => Model.Title)
-                        </div>
-                        <div class="form-group">
-                            @Html.LabelFor(Model => Model.Description)
-                            @Html.TextAreaFor(Model => Model.Description, 5, 50, new { @class = "form-control" })
-                            @Html.ValidationMessageFor(Model => Model.Description)
-                        </div>
+                <fieldset>
+                    <legend>Auction Information</legend>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.Title)
+                        @Html.TextBoxFor(Model => Model.Title, null, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(Model => Model.Title)
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.Description)
+                        @Html.TextAreaFor(Model => Model.Description, 5, 50, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(Model => Model.Description)
+                    </div>
 
-                        @if (Model.StartTime > DateTime.UtcNow)
-                        {
-                            <div class="form-group">
-                                @Html.Label("Auction Date Range")
-                                <input type="text" id="dateRangePicker" name="datetimes" class="form-control" />
-                                @Html.HiddenFor(Model => Model.StartTime)
-                                @Html.HiddenFor(Model => Model.EndTime)
-                                @Html.ValidationMessageFor(Model => Model.StartTime)
-                                @Html.ValidationMessageFor(Model => Model.EndTime)
-                            </div>
-                            <legend>Change Starting Address</legend>
-                            <div class="form-group">
-                                @Html.LabelFor(Model => Model.Address)
-                                @Html.TextBoxFor(Model => Model.Address, null, new { @class = "form-control" })
-                                @Html.ValidationMessageFor(Model => Model.Address)
-                            </div>
-                            <div class="form-group">
-                                @Html.LabelFor(Model => Model.City)
-                                @Html.TextBoxFor(Model => Model.City, null, new { @class = "form-control" })
-                                @Html.ValidationMessageFor(Model => Model.City)
-                            </div>
-                            <div class="form-group">
-                                @Html.LabelFor(Model => Model.State)
-                                @Html.TextBoxFor(Model => Model.State, null, new { @class = "form-control" })
-                                @Html.ValidationMessageFor(Model => Model.State)
-                            </div>
-                            <div class="form-group">
-                                @Html.LabelFor(Model => Model.ZIP)
-                                @Html.TextBoxFor(Model => Model.ZIP, null, new { @class = "form-control" })
-                                @Html.ValidationMessageFor(Model => Model.ZIP)
-                            </div>
-                            <label style="color:red;" id="addressValidationResult"></label>
-                            <div class="form-group">
-                                @Html.LabelFor(Model => Model.MaxRange)
-                                <div style="display: flex">
-                                    @Html.TextBoxFor(Model => Model.MaxRange, null, new { @type = "range", @class = "custom-range", min = AuctionModel.MinDistance, max = AuctionModel.MaxDistance, flex = .9 })
-                                    <div id="SelectedRange" style="font-weight: bold; flex: .1; white-space: nowrap; margin-left: 6px; min-width: 80px;"><span>@Model.MaxRange</span> miles</div>
+                    @if (Model.StartTime > DateTime.UtcNow)//auction not yet started
+                    {
+                        <div class="form-group">
+                            @Html.Label("Auction Date Range")
+                            <input type="text" id="dateRangePicker" name="datetimes" class="form-control" />
+                            @Html.HiddenFor(Model => Model.StartTime)
+                            @Html.HiddenFor(Model => Model.EndTime)
+                            @Html.ValidationMessageFor(Model => Model.StartTime)
+                            @Html.ValidationMessageFor(Model => Model.EndTime)
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.TicketCost)
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">$</span>
                                 </div>
-                                @Html.ValidationMessageFor(Model => Model.MaxRange)
+                                @Html.TextBoxFor(Model => Model.TicketCost, null, new { @class = "form-control" })
                             </div>
-                            <div id="userAddressMap"></div>
-                            <script>
-                                var ServiceRadius;
-                                var map;
-                                var marker;
-                                function initMap() {
-                                    // Create the map.
-                                    var initCoords = { lat: @Model.Latitude, lng: @Model.Longitude };
-
-                                    map = new google.maps.Map(document.getElementById('userAddressMap'), {
-                                        zoom: 10,
-                                        center: initCoords,
-                                        mapTypeId: 'terrain'
-                                    });
-
-                                    marker = new google.maps.Marker({
-                                        position: initCoords,
-                                        map: map,
-                                        title: 'Your Organization'
-                                    });
-
-                                    ServiceRadius = new google.maps.Circle({
-                                        strokeColor: '#FF0000',
-                                        strokeOpacity: 0.8,
-                                        strokeWeight: 2,
-                                        fillColor: '#FF0000',
-                                        fillOpacity: 0.35,
-                                        map: map,
-                                        center: initCoords,
-                                        radius: @Model.MaxRange * 1609.34 //mile to meter conversion
-                                    });
-                                }
-
+                            @Html.ValidationMessageFor(Model => Model.TicketCost)
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.MinPurchase)
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">$</span>
+                                </div>
+                                @Html.TextBoxFor(Model => Model.MinPurchase, null, new { @class = "form-control" })
+                            </div>
+                            @Html.ValidationMessageFor(Model => Model.MinPurchase)
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.DeliveryType)
+                            @Html.DropDownListFor(Model => Model.DeliveryType, Html.GetEnumSelectList<DeliveryTypes>(), "Select Delivery Type", new { @disabled = "disabled", @class = "custom-select" })
+                            @Html.ValidationMessageFor(Model => Model.DeliveryType)
+                        </div>
+                        @if (Model.DeliveryType == DeliveryTypes.Pickup || Model.DeliveryType == DeliveryTypes.DeliveryByOrg)
+                        {
+                        <div id="basketRetrievalGroup" class="form-group">
+                            @Html.LabelFor(Model => Model.BasketRetrieval)
+                            @Html.DropDownListFor(Model => Model.BasketRetrieval, Html.GetEnumSelectList<BasketRetrieval>(), "Select Retrieval Type", new { @class = "custom-select" })
+                            @Html.ValidationMessageFor(Model => Model.BasketRetrieval)
+                        </div>
+                        }
+                        <legend>Change Starting Address</legend>
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.Address)
+                            @Html.TextBoxFor(Model => Model.Address, null, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(Model => Model.Address)
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.City)
+                            @Html.TextBoxFor(Model => Model.City, null, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(Model => Model.City)
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.State)
+                            @Html.TextBoxFor(Model => Model.State, null, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(Model => Model.State)
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.ZIP)
+                            @Html.TextBoxFor(Model => Model.ZIP, null, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(Model => Model.ZIP)
+                        </div>
+                        <label style="color:red;" id="addressValidationResult"></label>
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.MaxRange)
+                            <div style="display: flex">
+                                @Html.TextBoxFor(Model => Model.MaxRange, null, new { @type = "range", @class = "custom-range", min = AuctionModel.MinDistance, max = AuctionModel.MaxDistance, flex = .9 })
+                                <div id="SelectedRange" style="font-weight: bold; flex: .1; white-space: nowrap; margin-left: 6px; min-width: 80px;"><span>@Model.MaxRange</span> miles</div>
+                            </div>
+                            @Html.ValidationMessageFor(Model => Model.MaxRange)
+                        </div>
+                        <script>
                             $("#MaxRange").on("change", function (e) {
                                 if ($("#MaxRange").val() == @AuctionModel.MaxDistance) //unbind the radius if we hit max
                                     ServiceRadius.setMap(null);
@@ -152,7 +161,6 @@
                                 });
 
                                 $(function () {
-                                    initMap();
                                     $('input[name="datetimes"]').daterangepicker({
                                         timePicker: true,
                                         startDate: "@Model.StartTime",
@@ -205,24 +213,44 @@
                                     });
                                 });
 
-                            </script>
-                        }
-                        else //this auction has begun!
-                        {
-                            <div class="form-group">
-                                @Html.Label("Auction Start Date")
-                                @Html.TextBoxFor(Model => Model.StartTime, new { @readonly = "readonly", @class = "form-control" })
-                                @Html.ValidationMessageFor(Model => Model.StartTime)
-                                @Html.Label("Auction End Date")
-                                @Html.TextBoxFor(Model => Model.EndTime, new { @class = "form-control" })
-                                @Html.ValidationMessageFor(Model => Model.EndTime)
-                            </div>
-                            @Html.HiddenFor(Model => Model.Address)
-                            @Html.HiddenFor(Model => Model.City)
-                            @Html.HiddenFor(Model => Model.State)
-                            @Html.HiddenFor(Model => Model.ZIP)
+                        </script>
+                    }
+                    else //this auction has begun!
+                    {
+                        <div class="form-group">
+                            @Html.Label("Auction Start Date")
+                            @Html.TextBoxFor(Model => Model.StartTime, new { @readonly = "readonly", @class = "form-control" })
+                            @Html.ValidationMessageFor(Model => Model.StartTime)
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("Auction End Date")
+                            @Html.TextBoxFor(Model => Model.EndTime, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(Model => Model.EndTime)
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.Address)
+                            @Html.TextBoxFor(Model => Model.Address, new { @readonly = "readonly", @class = "form-control" })
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.City)
+                            @Html.TextBoxFor(Model => Model.City, new { @readonly = "readonly", @class = "form-control" })
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.State)
+                            @Html.TextBoxFor(Model => Model.State, new { @readonly = "readonly", @class = "form-control" })
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.ZIP)
+                            @Html.TextBoxFor(Model => Model.ZIP, new { @readonly = "readonly", @class = "form-control" })
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.MaxRange)
+                            @Html.HiddenFor(Model => Model.MaxRange)
+                            <input class="form-control" value="@Model.MaxRange miles" readonly />
+                        </div>
 
-                            <script>
+
+                        <script>
                             $(function () {
                                 $('input[name="EndTime"]').daterangepicker({
                                     singleDatePicker: true,
@@ -240,103 +268,105 @@
                                 });
                             });
 
-                            </script>
+                        </script>
 
-                        }
+                    }
+                    <div id="userAddressMap"></div>
 
+                    @Html.HiddenFor(Model => Model.AuctionId)
+                    @Html.HiddenFor(Model => Model.HostUsername)
 
-                        @Html.HiddenFor(Model => Model.AuctionId)
-                        @Html.HiddenFor(Model => Model.HostUsername)
-
-                        <label for="exampleInputFile">Update Your Banner!</label>
-                        <div class="form-group">
-                            @Html.TextBoxFor(Model => Model.BannerImage, new { @type = "file", @class = "form-control-file", @id = "inputBannerFile" })
-                            <small id="fileHelp" class="form-text text-muted">Upload an image that encapsulates your goal! Recommended: 300px x 1000px</small>
-                        </div>
-                        <div style="display: flex;">
-                            <button id="updateButton" type="submit" class="btn btn-success btn-lg btn-block">Update Auction</button>
-                        </div>
-                    </fieldset>
+                    <label for="exampleInputFile">Update Your Banner!</label>
+                    <div class="form-group">
+                        @Html.TextBoxFor(Model => Model.BannerImage, new { @type = "file", @class = "form-control-file", @id = "inputBannerFile" })
+                        <small id="fileHelp" class="form-text text-muted">Upload an image that encapsulates your goal! Recommended: 300px x 1000px</small>
+                    </div>
+                    <div style="display: flex;">
+                        <button id="updateButton" type="submit" class="btn btn-success btn-lg btn-block">Update Auction</button>
+                    </div>
+                </fieldset>
                 }
                 @if (Model.StartTime > DateTime.UtcNow)
                 {
-                using (Html.BeginForm("deleteAuction", "Auctions", FormMethod.Post, new { @id = "deleteAuctionForm" }))
-                {
-                    @Html.HiddenFor(Model => Model.AuctionId, new { @id = "deleteAuctionId" });
-                    <div style="display: flex;">
-                        <button id="deleteButton" type="submit" class="btn btn-danger btn-lg btn-block">Delete Auction</button>
-                    </div>
-                }
+                    using (Html.BeginForm("deleteAuction", "Auctions", FormMethod.Post, new { @id = "deleteAuctionForm" }))
+                    {
+                        @Html.HiddenFor(Model => Model.AuctionId, new { @id = "deleteAuctionId" });
+                        <div style="display: flex;">
+                            <button id="deleteButton" type="submit" class="btn btn-danger btn-lg btn-block">Delete Auction</button>
+                        </div>
+                    }
                 }
             </div>
-            <div class="tab-pane fade" id="baskets">
-                <table class="table table-hover">
+            <div class="tab-pane fade" id="baskets" style="overflow-x: hidden;">
+                <table id="basketTable" class="table table-hover" style="width:100%;">
                     <thead>
                         <tr>
-                            <th scope="col">Basket Name</th>
-                            <th scope="col">Submitting User</th>
-                            <th scope="col">Submission Date</th>
-                            <th scope="col">
-                                <button type="button" class="btn btn-primary btn-sm" onclick="viewBasket(-1)">Add New Basket</button>
-                            </th>
+                            <th></th>
+                            <th>Basket Name</th>
+                            <th>Verified</th>
+                            <th>Submitting User</th>
+                            <th>Submission Date</th>
+                            <th>Tickets Submitted</th>
+                            <th></th>
+                            <th>Submitter Email</th>
+                            <th>Submitter Name</th>
+                            <th>Submitter Address</th>
                         </tr>
                     </thead>
-                    <tbody id="basketListBody">
-                        @if (Model.Baskets != null)
-                        {
-                            Model.Baskets = Model.Baskets.OrderBy(b => b.AcceptedByOrg).ToList();//order them
-                            @foreach (var basket in Model.Baskets)
-                            {
-                                @if (basket.Draft)
-                                    continue;//don't worry about draft baskets
-                                @if (basket.AcceptedByOrg)
-                                {
-                                    <tr class="table-success" id="basketRow-@basket.BasketId" style="cursor: pointer">
-                                        <td scope="row" onclick="viewBasket(@basket.BasketId)">@basket.BasketTitle</td>
-                                        <td onclick="viewBasket(@basket.BasketId)">@basket.SubmittingUsername</td>
-                                        <td onclick="viewBasket(@basket.BasketId)">@basket.SubmissionDate.ToShortDateString()</td>
-                                        <td>
-                                            @if (Model.StartTime > DateTime.UtcNow || !basket.AcceptedByOrg) //if the auction hasn't started yet OR basket hasn't been approved
-                                            {
-                                                <button type="button" class="close" onclick="deleteBasket(@basket.BasketId)" aria-label="Close">
-                                                    <span aria-hidden="true">&times;</span>
-                                                </button>
-                                                <span class="rowError"></span>
-                                            }
-                                        </td>
-                                    </tr>
-                                }
-                                else
-                                {
-                                    <tr class="table-danger" id="basketRow-@basket.BasketId" style="cursor: pointer">
-                                        <td scope="row" onclick="viewBasket(@basket.BasketId)">@basket.BasketTitle <span class="badge badge-pill badge-primary">Unverified</span></td>
-                                        <td onclick="viewBasket(@basket.BasketId)">@basket.SubmittingUsername</td>
-                                        <td onclick="viewBasket(@basket.BasketId)">@basket.SubmissionDate.ToShortDateString()</td>
-                                        @if (Model.StartTime > DateTime.UtcNow || !basket.AcceptedByOrg) //if the auction hasn't started yet OR basket not yet approved
-                                        {
-                                            <td>
-                                                <button type="button" class="close" onclick="deleteBasket(@basket.BasketId)" aria-label="Close">
-                                                    <span aria-hidden="true">&times;</span>
-                                                </button>
-                                                <span class="rowError"></span>
-                                            </td>
-                                        }
-                                    </tr>
-                                }
-                            }
-
-                        }
-                    </tbody>
                 </table>
-                @if (Model.Baskets == null || Model.Baskets.All(b => b.Draft))
-                {
-                    <h4>This auction currently has no baskets</h4>
-                }
+            </div>
+            <div id="performance" class="tab-pane fade maxWidthContainer">
+                <div id="chartContainer" style="width:100%; height:50vh; position:relative;">
+                    <canvas id="salesChart"></canvas>
+                </div>
+                <table id="salesTable" class="table table-hover" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th>Info</th>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>User</th>
+                        </tr>
+                    </thead>
+                </table>
             </div>
         </div>
     </div>
 </div>
 <script>
+
+    var ServiceRadius;
+    var map;
+    var marker;
+    function initMap() {
+        // Create the map.
+        var initCoords = { lat: @Model.Latitude, lng: @Model.Longitude };
+
+        map = new google.maps.Map(document.getElementById('userAddressMap'), {
+            zoom: 10,
+            center: initCoords,
+            mapTypeId: 'terrain'
+        });
+
+        marker = new google.maps.Marker({
+            position: initCoords,
+            map: map,
+            title: 'Your Organization'
+        });
+
+        ServiceRadius = new google.maps.Circle({
+            strokeColor: '#FF0000',
+            strokeOpacity: 0.8,
+            strokeWeight: 2,
+            fillColor: '#FF0000',
+            fillOpacity: 0.35,
+            map: map,
+            center: initCoords,
+            radius: @Model.MaxRange * 1609.34 //mile to meter conversion
+        });
+    }
+
+    var basketTable = $("#basketTable")
     function viewBasket(id) {//loads in the basket modal
         $.post("/basket/viewModal", { basketID: id, auctionID: @Model.AuctionId },
             function (data) {
@@ -352,11 +382,15 @@
             }
         );
     }
+
     function deleteBasket(id) {//deletes the given basket
         $.post("/basket/delete", { basketID: id, auctionID: @Model.AuctionId },
             function (data) {
                 if (!data.startsWith("ERROR")) {
-                    $("#basketRow-" + id).remove(); //empty row
+                    basketTable.DataTable()
+                        .row($("#basketRow-" + id))
+                        .remove()
+                        .draw();//empty row
                 }
                 else {
                     $("#basketRow-" + id + " .rowError").html("ERROR");
@@ -364,36 +398,23 @@
             }
         );
     }
+
     function verifyBasket(id) {
     $.post("/Basket/verifyBasket", { basketId: id },
         function (data) {
             if (!data.startsWith("ERROR")) {
-                $("#basketRow-" + id).removeClass("table-danger").addClass("table-success"); //make it green
-                $("#basketRow-" + id + " .badge").remove(); //remove pill badge
                 $("#verifyWarning").remove();
+                basketTable.DataTable().ajax.reload();
             }
             else {
                 $("#verifyWarning .mb-0").html("Verification failed!");
             }
         });
     }
-    function addBasketRow(basketId, SubmittingUser, SubmissionDate)
-    {
-        var html = '<tr class="table-danger" id="basketRow-'+basketId+'">\
-                <td scope="row" onclick="viewBasket('+ basketId + ')">Provide a title <span class="badge badge-pill badge-primary">Unverified</span></td>\
-                <td onclick="viewBasket('+ basketId + ')">'+ SubmittingUser +'</td>\
-                <td onclick="viewBasket('+ basketId + ')">' + SubmissionDate + '</td>\
-                <td>\
-                    <button type="button" class="close" onclick="deleteBasket(' + basketId + ')" aria-label="Close">\
-                        <span aria-hidden="true">&times;</span>\
-                    </button>\
-                    <span class="rowError"></span>\
-                </td>\
-            </tr>'
-        $("#basketListBody").append(html);
-    }
 
     $(document).ready(function () {
+        initMap(); //load map
+        loadChart(); //load performance tab
         $('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
             localStorage.setItem('activeTab', $(e.target).attr('href'));
         });
@@ -429,6 +450,253 @@
     }
 
     $("#auctionInfoForm").on("submit", function () { $("#PageLoadingModal").css("display", "flex"); }); //queue loading
-    window.history.pushState("", "", '/auctions/editAuction/@Model.AuctionId'); //always keeps URL functioning
+
+    //Datatables
+    basketTable.dataTable({
+        ajax: {
+            url: "/api/auctions/@Model.AuctionId/detailedBaskets",
+            type: "GET",
+            dataSrc: "",
+            beforeSend: function (xhr) { //add token
+                var token = getCookie("BearerToken");
+                if (token != "")
+                    xhr.setRequestHeader("Authorization", "Bearer " + token);
+            }
+        },
+        responsive: {
+            details: {
+                type: 'column'
+            }
+        },
+        createdRow: function (row, data, dataIndex) {
+            if (data["acceptedByOrg"])
+                $(row).addClass("table-success");
+            else
+                $(row).addClass("table-danger");
+            $(row).attr("id", "basketRow-" + data["basketId"]);
+            $(row).find(".data").attr("onclick", "viewBasket(" + data["basketId"] + ")"); //only data rows
+            $(row).css("cursor", "pointer");
+        },
+        columns: [
+            {
+                className: 'control',
+                orderable: false,
+                defaultContent: "",
+                data: null
+            },
+            {
+                data: "basketTitle",
+                className: 'data',
+                responsivePriority: 1
+            },
+            {
+                data: "acceptedByOrg",
+                render: function (data, type, row) {
+                    if (!data)
+                        return `<span class="badge badge-pill badge-primary" style="color:green">&#10006;</span>`
+                    else {
+                        return `<span class="badge badge-pill badge-primary" style="color:red;">&#10004;</span>`;
+                    }
+                },
+                responsivePriority: 3,
+                className: 'data'
+            },
+            {
+                data: "submittingUser.username",
+                responsivePriority: 4,
+                className: 'data'
+            },
+            {
+                data: "submissionDate",
+                render: function (data, type, row) {
+                    return new Date(data + 'Z').toUTCString();
+                },
+                type: "date",
+                responsivePriority: 5,
+                className: 'data'
+            },
+            {
+                data: "numTickets",
+                responsivePriority: 6
+            },
+            {
+                data: "acceptedByOrg",
+                render: function (data, type, row) {
+                    if (!data || "@(Model.StartTime > DateTime.UtcNow)" == "True") {
+                        return `<button type="button" class="close" onclick="deleteBasket(` + row.basketId + `)" aria-label="Close">\
+                                                    <span aria-hidden="true">&times;</span>\
+                                                </button>\
+                                                <span class="rowError"></span>`
+                    }
+                    else return "";
+                },
+                orderable: false,
+                responsivePriority: 2
+            },
+            {
+                data: "submittingUser.email",
+                className:"none"
+            },
+            {//name
+                data: "submittingUser",
+                render: function (data, type, row) {
+                    if (data.firstName != "")
+                        return data.firstName + " " + data.lastName;
+                    else
+                        return "You"; //organizations have no name
+                },
+                className: "none"
+            },
+            {//address 
+                data: "submittingUser",
+                render: function (data, type, row) {
+                    return data.address + ", " + data.city + ", " + data.state + " " + data.zip;
+                },
+                className: "none"
+            }
+        ]
+    });
+
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) { //when tab is fully visible
+        var table = $(".table").DataTable();
+        table.draw(); //redraw to avoid issues
+        table.responsive.recalc(); //recalculate width for responsiveness
+    });
+
+    //PERFORMANCE TAB
+    var salesData;
+    function loadChart() {
+        var ctx = $('#salesChart');
+
+        var startDate = new Date(Date.parse("@Model.StartTime.Date"));
+        var endDate = new Date(Date.parse("@Model.EndTime.Date"));
+        $.ajax({
+            url: "/api/data/auction/@Model.AuctionId",
+            beforeSend: function (xhr) { //add token
+                var token = getCookie("BearerToken");
+                if (token != "")
+                    xhr.setRequestHeader("Authorization", "Bearer " + token);
+            },
+            success: function (data) {
+                salesData = data;
+                var data = [];
+
+                for (var key in salesData) {
+                    data.push({
+                        x: key,
+                        y: salesData[key]["amount"] / 100 //in cents
+                    });
+                }
+
+                let chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        datasets: [{
+                            label: 'Sales',
+                            backgroundColor: 'rgba(210, 235, 245, 1)',
+                            data: data
+                        }],
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        tooltips: {
+                            callbacks: {
+                                label: function (tooltipObj, data) {
+                                    var sales = tooltipObj.value;
+                                    var label = "$" + parseInt(sales).toFixed(2);
+                                    return label;
+                                },
+                                title: function (tooltipObjs, data) {
+                                    var date = tooltipObjs[0].label;
+                                    date = moment(date).format("MM/DD/YYYY");
+                                    return date;
+                                }
+                            }
+                        },
+                        lengend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            fontSize: 20,
+                            text: "Ticket Sales"
+                        },
+                        responsive: true,
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    Min: 0,
+                                    callback: function (value, index, values) {
+                                        return "$" + parseInt(value).toFixed(2);
+                                    }
+                                },
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: "Sales (USD)"
+                                }
+                            }],
+                            xAxes: [{
+                                type: 'time',
+                                distribution: 'linear',
+                                time: {
+                                    unit: 'day'
+                                }
+                            }]
+                        }
+                    }
+                });
+
+                var tableData = [];
+                for (var day of Object.values(salesData)) {
+                    for (var transaction of day["breakdown"]) {
+                        tableData.push(transaction);
+                    }
+                }
+                var tableContainer = $("#salesTable");
+                tableContainer.DataTable({
+                    data: tableData,
+                    responsive: {
+                        details: {
+                            type: 'column'
+                        }
+                    },
+                    columns: [
+                        {
+                            searchable: false,
+                            targets: 0,
+                            className: 'control',
+                            orderable: false,
+                            defaultContent: "",
+                            data: null
+                        },
+                        {
+                            data: "time",
+                            render: function (data, type, row) {
+                                return moment(data).format("MM/DD hh:mm");
+                            },
+                            responsivePriority: 2
+                        },
+                        {
+                            data: "amount",
+                            render: function (data, type, row) {
+                                return "$" + parseInt(data).toFixed(2);
+                            },
+                            responsivePriority: 1
+                        },
+                        {
+                            data: "username",
+                            responsivePriority: 3
+                        }
+                    ]
+                });
+            },
+            error: function (xhr) {
+                ctx.html(xhr.responseText);
+            }
+        });
+
+    }
+
+    window.history.replaceState(null, "", '/auctions/editAuction/@Model.AuctionId'); //always keeps URL functioning
 </script>
 

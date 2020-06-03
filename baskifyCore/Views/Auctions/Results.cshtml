@@ -1,0 +1,296 @@
+﻿@model UserModel
+
+@{
+    ViewData["Title"] = "My Raffles";
+}
+<script src="~/galleria/galleria.min.js"></script>
+<script src="~/js/moment-with-locales.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.4/js/dataTables.responsive.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css" />
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.4/css/responsive.dataTables.min.css" />
+
+
+<div id="basketDataModal" class="modal">
+    @if (ViewData["basket"] != null)//if given a basket, load the modal with it
+    {
+        await Html.RenderPartialAsync("BasketModalPartialView", ViewData["basket"]);
+        <script>$("#basketDataModal").modal("toggle")</script>
+    }
+</div>
+
+<div id="basketDetailsModal" style="position: fixed;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100vw;
+    height: 100vh;
+    background-color: rgba(0, 0, 0, 0.25);
+    left: 0;
+    z-index: 333;
+    right: 0;
+    top: 0;
+    bottom: 0;
+    display:none;">
+</div>
+
+<div id="myTabContent" class="tab-content">
+    <div id="baskets" style="overflow:hidden">
+        <h2 style="text-align:center;" class="display-4">Your Results</h2>
+        <p style="text-align:center;">Here, you can see your status in all of the auctions and baskets that you have entered into.</p>
+        <table id="basketTable" class="table table-hover" style="width:100%">
+            <thead>
+                <tr>
+                    <th></th>
+                    <th scope="col">Auction Name</th>
+                    <th scope="col">Organization</th>
+                    <th scope="col">Draw Date</th>
+                </tr>
+            </thead>
+            <tbody id="basketListBody">
+            </tbody>
+        </table>
+    </div>
+</div>
+<script>
+
+    $(function () {
+        Galleria.loadTheme('/galleria/themes/twelve/galleria.twelve.js');
+        Galleria.configure({
+            imageCrop: true,
+            _toggleInfo: false,
+            lightbox: true,
+            transition: 'fade'
+        });
+    }()); //loads galleria
+
+    var basketTable = $("#basketTable");
+
+     basketTable.dataTable({
+        ajax: {
+            url: "/api/baskets/results",
+            type: "GET",
+            dataSrc: "",
+            beforeSend: function (xhr) { //add token
+                var token = getCookie("BearerToken");
+                if (token != "")
+                    xhr.setRequestHeader("Authorization", "Bearer " + token);
+            }
+        },
+         responsive: {
+             details: false
+         },
+        createdRow: function (row, data, dataIndex) {
+            $(row).addClass("table-success");
+            $(row).css("cursor", "pointer");
+            $(row).attr("id", "basketRow-" + data["auction.auctionId"]);
+        },
+        columns: [
+            {
+                orderable: false,
+                defaultContent: "",
+                data: null,
+                className: 'details-control',
+                targets: 0,
+                responsivePriority: 1
+            },
+            {
+                data: "auction.title",
+                className: 'data',
+                responsivePriority: 1
+            },
+            {
+                data: "auction.hostUser.organizationName",
+                responsivePriority: 2,
+                className: 'data'
+            },
+            {
+                data: "auction.drawDate",
+                type: "date",
+                responsivePriority: 3,
+                className: 'data',
+                render: function (data, type, row) {
+                    if (data != null)
+                        return new Date(data + 'Z').toUTCString();
+                    else
+                        return "Not Drawn";
+                }
+            }
+        ]
+     });
+
+    function viewBasket(basketId) {
+        var baskets = $("#basketRow-" + basketId).closest("table").DataTable().data()
+        var basket;
+        for (var i = 0; i < baskets.length; i++) { //find basket data
+            if (baskets[i]["basket"].basketId == basketId) {
+                basket = baskets[i]["basket"];
+                break;
+            }
+        }
+
+        if (basket == null) //basket not found
+            return;
+
+
+        var html = `<div class="card mb-3 basketCard" style="border-radius: 30px" data-id="` + basket["basketId"] + `" data-loaded="false">\
+                    <h3 class="card-header" style="font-size:114%">`+ basket["basketTitle"]
+        html += `</h3>\
+                <div style="height:300px; overflow:hidden;z-index:2">\
+                    <div id="gallery-`+ basket["basketId"] + `" class="galleria basketCardImages" style="z-index:1;background-color:rgba(0, 0, 0, 0.00); height:300px; width:inherit">`;
+        //ADD PHOTOS
+        basket["photos"].forEach(function (photo) {
+            html += `<img src="` + photo["url"] + `" />`;
+        });
+        html += `</div>\
+                    <div id="basket-`+ basket["basketId"] + `-details" style="opacity:0; display:none; height:270px; overflow-y:auto;">\
+                        <div class="modalHeader">Description:</div>
+                        <div class="basketDesc" style="text-align:center;">\
+                            `+ basket["basketDescription"] + `\
+                        </div>\
+                        <div class="modalHeader">Contents:</div>
+                        <table class="basketContents table">\
+                            <tbody style="display:flex; justify-content:center; flex-wrap: wrap;">`;
+        //add contents
+        basket["basketContents"].forEach(function (element) {
+            html += "<tr style='flex-basis: 50%; display:flex; justify-content:center' class='table-light'>"; //build list
+            html += "<td style='padding: unset;'>" + element + "</td>";
+            html += "</tr>";
+        });
+
+        html +=
+            `</tbody>\
+                        </table>\
+                    </div>\
+                </div>\
+                <div class="basketButtons" style="display:flex; margin-top:-30px; z-index:2">`;
+        html += `<button class="btn btn-primary viewDetails" style="flex:1;">Details</button>\
+                </div>\
+            </div>`
+        $("#basketDetailsModal").html(html);
+        $("#basketDetailsModal").css("display", "flex");
+        Galleria.run("#basketDetailsModal .galleria", {
+            imageCrop: true,
+            lightbox: true,
+            transition: 'fade',
+            idleMode: false,
+            theme: "twelve"
+        });
+    }
+
+    $("#basketDetailsModal").on("click", function (e) {
+        if ($(e.target).hasClass("card"))
+            e.stopPropagation();
+        else if ($(e.target).attr("id") == "basketDetailsModal")
+            $(e.target).css("display", "none");
+    })
+
+    $(document).on("click", ".viewDetails", function (e) {
+        var card = $(this).closest(".basketCard");
+        var gallery = card.find(".galleria");
+        var desc = card.find("[id$=-details]");
+        if (gallery.position().top == 0) //when galleria is collapsed. open galleria
+        {
+            desc.animate({
+                opacity: 0
+            }, 500, function () {
+                desc.css("display", "none");
+                gallery.css("display", "block");
+                gallery.data('galleria').resize(); //if page was resized while not displaying, the gallery is invisible
+                gallery.animate({ opacity: 1 }, 500);
+                card.find(".viewDetails").html("Details");
+            });
+        }
+        else { //when galleria is open
+            gallery.animate({
+                opacity: 0
+            }, 500, function () {
+                gallery.css("display", "none");
+                desc.css("display", "block");
+                desc.animate({ opacity: 1 }, 500);
+                card.find(".viewDetails").html("Images");
+            });
+        }
+    });
+
+    $('#basketTable tbody').on('click', 'td.details-control, td.data', function () {
+        var tr = $(this).closest('tr');
+        var row = basketTable.DataTable().row(tr);
+
+        if (row.child.isShown()) {
+            // This row is already open - close it
+            row.child.hide();
+            tr.removeClass('shown');
+        }
+        else {
+            basketTable.DataTable().row(basketTable.find(".shown")).child.hide(); //close other open tabs
+            basketTable.find(".shown").removeClass("shown");
+
+            // Open this row
+            var childRow = row.child([
+                renderAuctionInfo(row.data()["auction"]),
+                `<table class="childTable" style="width:100%"></table>`
+            ]);
+            childRow.show(); //show row
+
+            var $childNode = row.child().find(".childTable");
+            $childNode.DataTable({
+                data: row.data()["raffleResults"],
+                createdRow: function (row, data, dataIndex) {
+                    $(row).css("cursor", "pointer");
+                    $(row).attr("onclick", "viewBasket("+data["basket"]["basketId"]+")")
+                    $(row).attr("id", "basketRow-" + data["basket"]["basketId"]);
+                },
+                columns: [
+                    { //basketName
+                        title: "Basket Name",
+                        data: "basket.basketTitle"
+                    },
+                    {//numTickets
+                        title: "Number of Tickets",
+                        data: "basket.numTickets"
+                    },
+                    {//status
+                        title: "Status",
+                        data: "status"
+                    }
+                ]
+            });
+
+
+            tr.addClass('shown');
+            row.child().css({ "background-color": "white" }) //no hover coloring
+            row.child().each(function () {
+                $(this).find("td").first().css({
+                    borderRight: "2px solid #cdedd8",
+                    borderLeft: "2px solid #cdedd8"
+                });
+            });
+        }
+    });
+
+    function renderAuctionInfo(auction) {
+        if (auction.deliveryType == @((int)DeliveryTypes.Pickup))//pickup
+        {
+            return `<div class="alert alert-dismissible alert-info">\
+                            <strong>Heads up!</strong> Baskets that you've won should be picked up promptly at:<br>\
+                            <b>`+ auction.address + `, ` + auction.city + `, ` + auction.state + ` ` + auction.zip + `<br><br>\
+                            `+ auction.hostUser.organizationName + ` can be contacted at: <a href="mailto:` + auction.hostUser.contactEmail + `">` + auction.hostUser.contactEmail + `</a>\
+                        </div>`;
+        }
+        else if (auction.deliveryType == @((int)DeliveryTypes.DeliveryBySubmitter) || auction.deliveryType == @((int)DeliveryTypes.DeliveryByOrg))//delivery
+        {
+            return `<div class="alert alert-dismissible alert-info">\
+                            <strong>Heads up!</strong> Baskets that you've won will be delivered to your address on file.<br><br>\
+                            `+ auction.hostUser.organizationName + ` can be contacted at: <a href="mailto:` + auction.hostUser.contactEmail + `">` + auction.hostUser.contactEmail + `</a>\
+                        </div>`;
+        }
+        return "";
+    }
+
+    $("#auctionInfoForm").on("submit", function () { $("#PageLoadingModal").css("display", "flex"); }); //queue loading
+</script>
+
+
+

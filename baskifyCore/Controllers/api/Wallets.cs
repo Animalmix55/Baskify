@@ -46,6 +46,10 @@ namespace baskifyCore.Controllers.api
             var auction = _context.AuctionModel.Find(auctionId);
             if (auction == null)
                 return BadRequest("Invalid Auction");
+            if (!auction.isLive)
+                return BadRequest("Auction is not live");
+            if (tickets * auction.TicketCost < auction.MinPurchase) //don't allow users to purchase below the min
+                return BadRequest(string.Format("Purchase must exceed ${0}", auction.MinPurchase));
 
             var wallet = _context.UserAuctionWallet.Find(user.Username, auctionId);
             if (wallet == null) //make new wallet

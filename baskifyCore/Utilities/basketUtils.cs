@@ -107,7 +107,7 @@ namespace baskifyCore.Utilities
 
             //now any desired photos have been added and removed, lets update other stuff
             updatedBasket.BasketContents.RemoveAll(m => string.IsNullOrWhiteSpace(m));
-            updatedBasket.BasketContents.ForEach(e => HttpUtility.HtmlEncode(e)); //clean the contents of bad chars and whitespace
+            updatedBasket.BasketContents.ForEach(e => e = HttpUtility.HtmlEncode(e)); //clean the contents of bad chars and whitespace
 
             dbBasket.BasketContents = updatedBasket.BasketContents;
             dbBasket.BasketDescription = updatedBasket.BasketDescription.Replace(">", String.Empty)

@@ -64,7 +64,7 @@ namespace baskifyCore.Controllers
                         ViewData["Alert"] = "Image upload failed, try another?";
                 try
                 {
-                    accountUtils.updateUser(oldUser, user, _context, Request, ModelState);
+                    accountUtils.updateUser(oldUser, user, _context, Request, ModelState, this, _env);
                 }
                 catch(Exception)//only the email change throws error
                 {
@@ -138,7 +138,7 @@ namespace baskifyCore.Controllers
                 return View("ForgotPassword", model);
             try
             {
-                var sent = accountUtils.sendRecoveryEmail(model, _context, Request);
+                var sent = accountUtils.sendRecoveryEmail(model, _context, Request, this, _env);
                 if (sent)
                     ViewData["Alert"] = "Recovery email sent to your inbox!";
                 else

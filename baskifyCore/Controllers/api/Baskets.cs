@@ -7,8 +7,11 @@ using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Data.Entity;
 using System.Security.Authentication;
 using System.Threading.Tasks;
+using System.Security.Cryptography.X509Certificates;
+using System.Text.RegularExpressions;
 
 namespace baskifyCore.Controllers
 {
@@ -115,6 +118,141 @@ namespace baskifyCore.Controllers
 
             return Ok(new { NumTickets = tickets.NumTickets, BasketTitle = basket.BasketTitle });
 
+
+        }
+
+
+        /// <summary>
+        /// Gets the baskets that a user submitted
+        /// </summary>
+        /// <param name="authorization"></param>
+        /// <returns></returns>
+        [Route("submitted")]
+        [HttpGet]
+        public ActionResult Submitted([FromHeader] string authorization)
+        {
+            if (authorization == null)
+                return Unauthorized("No authorization");
+            var user = LoginUtils.getUserFromToken(authorization.Replace("Bearer ", string.Empty), _context);
+            if (user == null)
+                return Unauthorized("Bad authorization");
+
+            var baskets = _context.BasketModel
+                .Include(b => b.AuctionModel.HostUser)
+                .Include(b => b.Winner)
+                .Include(b => b.photos)
+                .Where(b => b.SubmittingUsername == user.Username).Where(b => !b.Draft);
+
+            List<OrgBasketDto> basketDto = Mapper.Map<List<OrgBasketDto>>(baskets);
+
+            //sanitize sensitive user data, only when the users need to know delivery info, should they
+            basketDto.ForEach(b =>
+            {
+            if (b.AuctionModel.DeliveryType != (int) DeliveryTypes.DeliveryBySubmitter)
+                    b.Winner = null;
+            });
+
+            return Ok(basketDto);
+        }
+
+
+        /// <summary>
+        /// Returns JSON containing the status of all of the tickets the user has invested, grouped by auction
+        /// </summary>
+        /// <param name="authorization"></param>
+        /// <returns></returns>
+        [Route("results")]
+        [HttpGet]
+        public ActionResult results([FromHeader] string authorization)
+        {
+            if (authorization == null)
+                return Unauthorized("No authorization");
+            var user = LoginUtils.getUserFromToken(authorization.Replace("Bearer ", string.Empty), _context);
+            if (user == null)
+                return Unauthorized("Bad authorization");
+
+            //now we have a user
+
+            var results = _context.BasketModel.Include(b => b.photos).Include(b => b.AuctionModel.HostUser).Join(
+                _context.TicketModel.Where(t => t.Username == user.Username),
+                basket => basket.BasketId,
+                ticket => ticket.BasketId,
+                (basket, ticket) => new
+                {
+                    basket,
+                    ticket
+                })
+                .GroupJoin(
+                _context.BasketPhotoModel,
+                r => r.basket.BasketId,
+                photo => photo.BasketId,
+                (r, photos) => new
+                {
+                    r.basket,
+                    r.ticket,
+                    photos
+                })
+                .Join(
+                _context.AuctionModel,
+                r => r.basket.AuctionId,
+                auction => auction.AuctionId,
+                (r, auction) => new
+                {
+                    r.basket,
+                    r.ticket,
+                    r.photos,
+                    auction
+                })
+                .Join(
+                _context.UserModel,
+                r => r.auction.HostUsername,
+                user => user.Username,
+                (r, host) => new
+                {
+                    r.basket,
+                    r.ticket,
+                    r.photos,
+                    r.auction,
+                    host
+                }).GroupBy(r => r.auction.AuctionId)
+                .ToList(); //grouped by auctions
+
+
+            var returnList = new List<RaffleDtoGroup>();
+
+            //package everything up by auction
+            foreach(var resultGroup in results)
+            {
+                var auction = resultGroup.First().auction;
+                auction.HostUser = resultGroup.First().host;
+
+                var dtoGroup = new RaffleDtoGroup()
+                {
+                    auction = Mapper.Map<LocationAuctionDto>(auction), //get group auction, includes location information
+                    raffleResults = new List<RaffleResultDto>()
+                };
+                
+                foreach(var result in resultGroup.ToList())
+                {
+                    var basket = result.basket;
+                    basket.photos = result.photos.ToList();
+                    var basketDto = Mapper.Map<BasketDto>(basket);
+                    basketDto.NumTickets = result.ticket.NumTickets;
+
+                    var resultDto = new RaffleResultDto()
+                    {
+                        Basket = basketDto,
+                        Status = !auction.isDrawn? Results.PENDING : (basket.WinnerUsername == user.Username? Results.WON : Results.LOST)
+                        
+                    };
+                    dtoGroup.raffleResults.Add(resultDto);
+                }
+
+                returnList.Add(dtoGroup);
+                              
+            }
+
+            return Ok(returnList);
 
         }
     }

@@ -33,5 +33,10 @@ namespace baskifyCore.Models
 
         [ForeignKey("AuctionId")]
         public AuctionModel Auction { get; set; }
+
+        /// <summary>
+        /// States whether the user has met the auction's minimum purchase
+        /// </summary>
+        public bool MinimumMet { get; set; }
     }
 }

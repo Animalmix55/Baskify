@@ -1,7 +1,10 @@
 ﻿using baskifyCore.Models;
+using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Mvc;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
+using System.Data.Entity;
 using System.Linq;
 using System.Net;
 using System.Threading.Tasks;
@@ -46,13 +49,21 @@ namespace baskifyCore.Utilities
             WebResponse response = request.GetResponse();
             XDocument xdoc = XDocument.Load(response.GetResponseStream());
 
-            XElement result = xdoc.Element("GeocodeResponse").Element("result");
-            XElement locationElement = result.Element("geometry").Element("location");
-            XElement lat = locationElement.Element("lat");
-            XElement lng = locationElement.Element("lng");
+            Latitude = null;
+            Longitude = null;
 
-            Latitude = lat.Value;
-            Longitude = lng.Value;
+            //an exception occurs if an empty address is passed
+            try
+            {
+                XElement result = xdoc.Element("GeocodeResponse").Element("result");
+                XElement locationElement = result.Element("geometry").Element("location");
+                XElement lat = locationElement.Element("lat");
+                XElement lng = locationElement.Element("lng");
+
+                Latitude = lat.Value;
+                Longitude = lng.Value;
+            }
+            catch (Exception) { }
 
             if (Latitude == null || Longitude == null)
                 return false;
@@ -92,6 +103,45 @@ namespace baskifyCore.Utilities
             _context.AuctionModel.Remove(auction);
             _context.SaveChanges();
             return "Auction deleted successfully!";
+        }
+
+        /// <summary>
+        /// Draws all the baskets from the given auction, does not check to ensure a user has permission nor that the auction has completed
+        /// </summary>
+        /// <param name="auctionId"></param>
+        /// <param name="_context"></param>
+        public static bool draw(int auctionId, ApplicationDbContext _context, string webRootUrl)
+        {
+            var auction = _context.AuctionModel.Find(auctionId);
+            if (auction == null)
+                return false;
+
+            _context.Entry(auction).Collection(a => a.Baskets).Query().Include(b => b.Tickets).Include(b => b.photos).Load(); //load baskets and their tickets/photos
+            _context.Entry(auction).Reference(a => a.HostUser).Load(); //get auction host info
+            auction.DrawDate = DateTime.UtcNow;
+            foreach(var basket in auction.Baskets)
+            {
+                var numTickets = basket.Tickets.Sum(t => t.NumTickets); //adds all the tickets up
+                if (numTickets == 0)
+                    continue;
+                var rnd = new Random();
+                var winner = Math.Floor(rnd.NextDouble() * numTickets); //the winning ticket index
+
+                var curTicket = 0;
+                foreach(var ticket in basket.Tickets) //find the winning ticket
+                {
+                    curTicket += ticket.NumTickets;
+                    if(curTicket > winner)
+                    {
+                        basket.WinnerUsername = ticket.Username;
+                        var user = _context.UserModel.Find(ticket.Username);
+                        EmailUtils.sendBasketWinnerEmail(user, basket, auction, webRootUrl);
+                        break; //escape drawing
+                    }
+                }
+                auction.isDrawn = true;
+            }
+            return true;
         }
     }
 }

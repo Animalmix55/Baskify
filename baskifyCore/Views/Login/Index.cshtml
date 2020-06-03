@@ -74,7 +74,7 @@
         $("#LoginForm").on("submit", function () {
             $("#loginLoader").css("visibility", "visible")
         });
-        window.history.pushState("", "", '/login');
+        window.history.replaceState(null, "", '/login');
 
     </script>
 </body>

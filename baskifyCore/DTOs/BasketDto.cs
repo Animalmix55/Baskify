@@ -16,6 +16,8 @@ namespace baskifyCore.DTOs
 
         public string BasketDescription { get; set; }
 
+        public bool AcceptedByOrg { get; set; }
+
         public DateTime SubmissionDate { get; set; }
 
         public int AuctionId { get; set; }

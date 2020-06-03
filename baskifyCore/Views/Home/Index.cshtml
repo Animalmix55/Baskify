@@ -14,7 +14,7 @@
 <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
 <div id="homePagePhotoWall">
     <div id="searchBarPhotoWall">
-        @using (Html.BeginForm("Search", "Auctions", FormMethod.Post, new { @class = "form-inline my-2 my-lg-0 searchBarContainer" }))
+        @using (Html.BeginForm("Index", "Search", FormMethod.Get, new { @class = "form-inline my-2 my-lg-0 searchBarContainer" }))
         {
             @Html.TextBox("searchQueryHome", null, new { @class = "form-control mr-sm-2 searchBar", placeholder = "Search" })
             <Button id="searchQueryButtonHome" Class="btn btn-secondary my-2 my-sm-0 searchButton" type="submit">Search</Button>
@@ -63,6 +63,6 @@
 
 <script>
     AOS.init();
-    window.history.pushState("", "", '/');
+    window.history.replaceState(null, "", '/');
 </script>
 
