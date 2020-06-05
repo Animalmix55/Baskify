@@ -66,8 +66,6 @@ namespace baskifyCore.Controllers.api
             if (auction == null)
                 return NotFound("Auction does not exist");
 
-            List<BasketDto> baskets;
-
             if (string.IsNullOrWhiteSpace(authorization))
             {
                 return Unauthorized("Invalid Authorization");
@@ -88,13 +86,16 @@ namespace baskifyCore.Controllers.api
 
             List<BasketModel> permBasketModel;
             if (auction.EndTime < DateTime.UtcNow) //only show accepted baskets if auction has ended
-                permBasketModel = _context.BasketModel.Include(b => b.photos).Include(b => b.Tickets).Include(b => b.Winner).Where(b => b.AuctionId == id).Where(b => !b.Draft && b.AcceptedByOrg).ToList();
+                permBasketModel = _context.BasketModel.Include(b => b.photos).Include(b => b.SubmittingUser).Include(b => b.Tickets).Include(b => b.Winner).Where(b => b.AuctionId == id).Where(b => !b.Draft && b.AcceptedByOrg).ToList();
             else
-                permBasketModel = _context.BasketModel.Include(b => b.photos).Include(b => b.Tickets).Where(b => b.AuctionId == id).Where(b => !b.Draft).ToList();
+                permBasketModel = _context.BasketModel.Include(b => b.photos).Include(b => b.SubmittingUser).Include(b => b.Tickets).Where(b => b.AuctionId == id).Where(b => !b.Draft).ToList();
 
-            var OrgBasketDto = Mapper.Map<List<OrgBasketDto>>(permBasketModel); //includes donor address and email
+            var OrgBasketDto = Mapper.Map<List<PrivBasketDto>>(permBasketModel); //includes donor address and email
+
+            //cleanse info
+            OrgBasketDto.ForEach(b => b.Cleanse(auction.DeliveryType == DeliveryTypes.Pickup, auction.BasketRetrieval != BasketRetrieval.OrgPickup, false));
+
             return Ok(OrgBasketDto);
-
 
         }
 
@@ -393,12 +394,6 @@ namespace baskifyCore.Controllers.api
                 };
                 return BadRequest(returnObject);
             }
-
-
-
-
-
-
         }
         [HttpGet]
         [Route("{id}/basketReport")]
@@ -411,6 +406,7 @@ namespace baskifyCore.Controllers.api
             var user = LoginUtils.getUserFromToken(authorization.Replace("Bearer ", string.Empty), _context);
             if (user == null)
                 return Unauthorized("Invalid login");
+                
 
             var auction = _context.AuctionModel.Find(id);
             if (auction == null)
@@ -424,8 +420,6 @@ namespace baskifyCore.Controllers.api
             ReportUtils.getAuctionReport(id, _context, out ms);
             ms.Position = 0;
             return File(ms, "text/csv", auction.Title.Replace(' ', '_') + "_report.csv");
-            
-            
             
         }
 

@@ -3,9 +3,13 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using AutoMapper;
+using baskifyCore.DTOs;
 using baskifyCore.Models;
+using baskifyCore.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Stripe;
+using System.Data.Entity;
 
 namespace baskifyCore.Controllers.api
 {
@@ -25,6 +29,7 @@ namespace baskifyCore.Controllers.api
         public async Task<IActionResult> Index()
         {
             var json = await new StreamReader(HttpContext.Request.Body).ReadToEndAsync();
+            PaymentModel paymentModel;
 
             try
             {
@@ -36,7 +41,7 @@ namespace baskifyCore.Controllers.api
                 {
                     var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
 
-                    var paymentModel = _context.PaymentModel.Find(paymentIntent.Id);
+                    paymentModel = _context.PaymentModel.Include(p => p.AuctionModel.HostUser).Include(p => p.UserModel).Where(p => p.PaymentIntentId == paymentIntent.Id).FirstOrDefault();
                     if (paymentModel == null)
                         return BadRequest("Invalid Payment Model Id");
 
@@ -51,9 +56,6 @@ namespace baskifyCore.Controllers.api
                     paymentModel.Success = true;
                     paymentModel.Complete = true;
 
-                    _context.Entry(paymentModel).Reference(pm => pm.UserModel).Load();
-                    _context.Entry(paymentModel).Reference(pm => pm.AuctionModel).Load();
-
                     var wallet = _context.UserAuctionWallet.Find(paymentModel.UserModel.Username, paymentModel.AuctionId);
                     if (wallet == null) //no wallet? Make a new one
                     {
@@ -61,18 +63,29 @@ namespace baskifyCore.Controllers.api
                         _context.UserAuctionWallet.Add(wallet);
                     }
 
-                    var numTickets = (int)((paymentIntent.AmountReceived/100) / paymentModel.AuctionModel.TicketCost);
+                    var numTickets = (int)(((decimal)paymentIntent.AmountReceived/100) / paymentModel.AuctionModel.TicketCost);
 
                     wallet.WalletBalance += numTickets; //add tickets to wallet
-
                     _context.SaveChanges();
+
+                    var recieptDto = Mapper.Map<ReceiptDto>(paymentModel);
+                    var service = new PaymentMethodService();
+                    var paymentMethod = service.Get(paymentIntent.PaymentMethodId); //get card
+
+                    recieptDto.CardLastFour = paymentMethod.Card.Last4;
+                    recieptDto.CardType = paymentMethod.Card.Brand.ToUpper();
+                    recieptDto.CardExp = $"{paymentMethod.Card.ExpMonth}/{paymentMethod.Card.ExpYear}";
+
+                    EmailUtils.SendReceiptEmail(paymentModel.UserModel, recieptDto);
+
+
                     return Ok();
                 }
                 else if (stripeEvent.Type == Events.PaymentIntentPaymentFailed)
                 {
                     var paymentIntent = stripeEvent.Data.Object as PaymentIntent;
 
-                    var paymentModel = _context.PaymentModel.Find(paymentIntent.Id);
+                    paymentModel = _context.PaymentModel.Find(paymentIntent.Id);
                     if (paymentModel == null)
                         return BadRequest("Invalid Payment Model Id");
 

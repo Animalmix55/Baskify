@@ -1,4 +1,5 @@
-﻿using baskifyCore.Models;
+﻿using baskifyCore.DTOs;
+using baskifyCore.Models;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using System;
 using System.Collections.Generic;
@@ -161,5 +162,51 @@ namespace baskifyCore.Utilities
             _context.BasketModel.RemoveRange(_context.BasketModel.Where(b => b.SubmittingUsername == user.Username).Where(b => b.Draft).Where(b => b.BasketId != omitId));
             _context.SaveChanges();
         }
+
+
+        /// <summary>
+        /// Cleanses private info from PrivBasketDtos; if the isUser flag is set, removes names and emails from cleansed references.
+        /// </summary>
+        /// <param name="basket"></param>
+        /// <param name="cleanseWinner"></param>
+        /// <param name="cleanseSubmitter"></param>
+        /// <param name="isUser"></param>
+        public static void Cleanse(this PrivBasketDto basket, bool cleanseWinner, bool cleanseSubmitter, bool isUser)
+        {
+            if (basket.Winner == basket.SubmittingUser && (!cleanseWinner || !cleanseSubmitter)) //this will fix and bizzare issues when the submitter is the winner... this should be impossible though.
+                return;
+
+            if (cleanseWinner && basket.Winner != null)
+            {
+                if (isUser)
+                {
+                    basket.Winner = null;
+                }
+                else
+                {
+                    basket.Winner.Address = null;
+                    basket.Winner.City = null;
+                    basket.Winner.State = null;
+                    basket.Winner.City = null;
+                    basket.Winner.ZIP = null;
+                }
+            }
+            if (cleanseSubmitter && basket.SubmittingUser != null)
+            {
+                if (isUser)
+                {
+                    basket.SubmittingUser = null;
+                }
+                else
+                {
+                    basket.SubmittingUser.Address = null;
+                    basket.SubmittingUser.City = null;
+                    basket.SubmittingUser.State = null;
+                    basket.SubmittingUser.City = null;
+                    basket.SubmittingUser.ZIP = null;
+                }
+            }
+        }
+
     }
 }

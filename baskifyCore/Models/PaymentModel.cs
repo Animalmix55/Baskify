@@ -44,6 +44,20 @@ namespace baskifyCore.Models
         [Required]
         public float Amount { get; set; } //USD IN CENTS
 
-        public bool Locked { get; set; } //INDICATES THAT THE FIELD CANNOT BE EDITED, NOT ENFORECED BY DB
+
+        //Billing address info
+        [RegularExpression(@"^[-\.A-Za-z]+(\s[-\.A-Za-z]+)*$", ErrorMessage = "Name can only contain alphabetical letters, hyphens, and spaces")]
+        public string CardholderName { get; set; }
+        [RegularExpression(@"^[0-9]+(\s[-\.A-Za-z0-9]+)*$", ErrorMessage = "Invalid Address string")]
+        public string BillingAddress { get; set; }
+        [RegularExpression(@"^[-\.A-Za-z]+(\s[-\.A-Za-z]+)*$")]
+        public string BillingCity { get; set; }
+        [RegularExpression(@"^[-\.A-Za-z]+(\s[-\.A-Za-z]+)*$")]
+        public string BillingState { get; set; }
+        [RegularExpression(@"^([0-9]{5}\-[0-9]{4})|([0-9]{5})$", ErrorMessage = "ZIPs should be in the format ##### or #####-####)")]
+        public string BillingZIP { get; set; }
+        
+
+        public bool Locked { get; set; } //INDICATES THAT THE FIELD CANNOT BE EDITED, NOT ENFORCED BY DB
     }
 }

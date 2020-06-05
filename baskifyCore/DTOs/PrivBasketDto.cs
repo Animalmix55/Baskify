@@ -5,7 +5,10 @@ using System.Threading.Tasks;
 
 namespace baskifyCore.DTOs
 {
-    public class OrgBasketDto
+    /// <summary>
+    /// Contains PRIVATE basket information and should be cleansed
+    /// </summary>
+    public class PrivBasketDto
     {
         public List<BasketPhotoDto> photos { get; set; }
         public int BasketId { get; set; }

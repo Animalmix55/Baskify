@@ -16,10 +16,12 @@ namespace baskifyCore
             Mapper.CreateMap<BasketPhotoModel, BasketPhotoDto>();
             Mapper.CreateMap<AuctionModel, AuctionDto>();
             Mapper.CreateMap<AuctionModel, LocationAuctionDto>(); //auction with location info
-            Mapper.CreateMap<BasketModel, OrgBasketDto>();
+            Mapper.CreateMap<BasketModel, PrivBasketDto>();
             Mapper.CreateMap<TicketModel, TicketDto>();
             Mapper.CreateMap<UserModel, UserDto>();
             Mapper.CreateMap<UserModel, OrganizationDto>();
+            Mapper.CreateMap<PaymentModel, PaymentDto>();
+            Mapper.CreateMap<PaymentModel, ReceiptDto>();
         }
     }
 }

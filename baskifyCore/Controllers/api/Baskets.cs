@@ -143,14 +143,8 @@ namespace baskifyCore.Controllers
                 .Include(b => b.photos)
                 .Where(b => b.SubmittingUsername == user.Username).Where(b => !b.Draft);
 
-            List<OrgBasketDto> basketDto = Mapper.Map<List<OrgBasketDto>>(baskets);
-
-            //sanitize sensitive user data, only when the users need to know delivery info, should they
-            basketDto.ForEach(b =>
-            {
-            if (b.AuctionModel.DeliveryType != (int) DeliveryTypes.DeliveryBySubmitter)
-                    b.Winner = null;
-            });
+            List<PrivBasketDto> basketDto = Mapper.Map<List<PrivBasketDto>>(baskets);
+            basketDto.ForEach(b => b.Cleanse(b.AuctionModel.DeliveryType != (int)DeliveryTypes.DeliveryBySubmitter, true, true)); //cleanse
 
             return Ok(basketDto);
         }

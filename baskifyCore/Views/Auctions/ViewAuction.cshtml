@@ -117,9 +117,40 @@ else if (Model.AuctionModel.DeliveryType == DeliveryTypes.Pickup)
                         Payment succeeded!
                     </div>
 
+                    <div class="form-group">
+                        <label for="NumTickets">Number of Tickets</label>
+                        <input type="number" name="NumTickets" class="form-control" id="NumTickets" min="@Math.Ceiling(Model.AuctionModel.MinPurchase / Model.AuctionModel.TicketCost)" max="1000" value="@Math.Ceiling(Model.AuctionModel.MinPurchase / Model.AuctionModel.TicketCost)" />
+                    </div>
+                    <h2>Billing Information</h2>
+                    <div class="form-group">
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" name="UseAccountAddress" id="UseAccountAddress" checked="" value="true">
+                            <label class="custom-control-label" for="UseAccountAddress">Use Account Info</label>
+                        </div>
+                    </div>
+                    <div id="BillingAddress" style="display:none;">
+                        <div class="form-group">
+                            <label for="CardholderName">Cardholder Name</label>
+                            <input class="form-control" name="CardholderName" id="CardholderName" type="text" />
+                        </div>
+                        <div class="form-group">
+                            <label for="BillingAddress">Billing Address</label>
+                            <input class="form-control" name="BillingAddress" id="BillingAddress" type="text" />
+                        </div>
+                        <div class="form-group">
+                            <label for="BillingCity">Billing City</label>
+                            <input class="form-control" name="BillingCity" id="BillingCity" type="text" />
+                        </div>
+                        <div class="form-group">
+                            <label for="BillingState">Billing State</label>
+                            <input class="form-control" name="BillingState" id="BillingState" type="text" />
+                        </div>
+                        <div class="form-group">
+                            <label for="BillingAddress">Billing ZIP</label>
+                            <input class="form-control" name="BillingZIP" id="BillingZIP" type="text" />
+                        </div>
+                    </div>
 
-                    <label for="numTickets">Number of Tickets</label>
-                    <input type="number" class="form-control" id="numTickets" min="@Math.Ceiling(Model.AuctionModel.MinPurchase / Model.AuctionModel.TicketCost)" max="1000" value="@Math.Ceiling(Model.AuctionModel.MinPurchase / Model.AuctionModel.TicketCost)" />
                     <div id="card-element" style="padding: 10px 0px 0px 10px;">
                         <!-- Elements will create input elements here -->
                     </div>
@@ -166,6 +197,15 @@ else if (Model.AuctionModel.DeliveryType == DeliveryTypes.Pickup)
             idleMode: false
         });
     }()); //loads galleria
+
+    $("#UseAccountAddress").on("change", function () {
+        if ($(this).is(":checked")) {
+            $("#BillingAddress").animate({ opacity: 0 }, 500, function () { $(this).css("display", "none") });
+        }
+        else {
+            $("#BillingAddress").css("display","block").animate({ opacity: 1 }, 500);
+        }
+    });
 
     function toggleTicket(){
         if (ticketOut) {
@@ -487,9 +527,7 @@ else if (Model.AuctionModel.DeliveryType == DeliveryTypes.Pickup)
             $.ajax({
                 url: "/api/wallets/@Model.AuctionModel.AuctionId/getsecret",
                 method: "POST",
-                data: {
-                    tickets: $("#numTickets").val()
-                },
+                data: $(this).serialize(),
                 beforeSend: function (xhr) {
                     var token = getCookie("BearerToken");
                     if (token != "")
@@ -565,9 +603,9 @@ else if (Model.AuctionModel.DeliveryType == DeliveryTypes.Pickup)
 
     });
 
-    $("#numTickets").on('input', function () { //update ticket cost/number with slider
-        $("#buyTickets span").html((@Model.AuctionModel.TicketCost * $("#numTickets").val()).toFixed(2));
-        $("#numTicketLabel span").html($("#numTickets").val());
+    $("#NumTickets").on('input', function () { //update ticket cost/number with slider
+        $("#buyTickets span").html((@Model.AuctionModel.TicketCost * $("#NumTickets").val()).toFixed(2));
+        $("#numTicketLabel span").html($("#NumTickets").val());
     });
 
         //View basket details

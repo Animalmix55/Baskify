@@ -1,0 +1,124 @@
+﻿@model UserModel
+@{
+    ViewData["Title"] = "Index";
+}
+<script src="~/js/moment-with-locales.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.4/css/responsive.dataTables.min.css" />
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.4/js/dataTables.responsive.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css" />
+<div class="maxWidthContainer">
+    <h2 style="text-align: center;" class="display-4">Your Transactions</h2>
+    <p style="text-align:center;">This is a list of all of your transactions on file with Baskify.</p>
+
+    <table id="transactionTable" style="width:100%">
+        <thead>
+            <tr>
+                <th></th>
+                <th>Auction</th>
+                <th>Organization</th>
+                <th>Amount</th>
+                <th>Date</th>
+                <th>Status</th>
+                <th></th>
+            </tr>
+        </thead>
+    </table>
+</div>
+<script>
+    var table = $("#transactionTable");
+    table.dataTable({
+        ajax: {
+            url: "/api/payments",
+            type: "GET",
+            dataSrc: "",
+            beforeSend: function (xhr) { //add token
+                var token = getCookie("BearerToken");
+                if (token != "")
+                    xhr.setRequestHeader("Authorization", "Bearer " + token);
+            }
+        },
+        responsive: {
+            details: {
+                type: 'column'
+            }
+        },
+        order: [
+            [4, "desc"] //default sort by date
+        ],
+        columns: [
+            {
+                className: 'control',
+                width: "30px",
+                orderable: false,
+                defaultContent: "",
+                data: null,
+                targets: 0
+            },
+            {
+                className: 'data',
+                data: "auctionModel.title",
+                responsivePriority: 4
+            },
+            {
+                className: 'data',
+                data: "auctionModel.hostUser.organizationName",
+                render: function (data, type, row) {
+                    var html = `<div>`;
+                    html += data;
+                    html += `<svg style="padding-left:3px" data-toggle="tooltip" data-placement="right" title="" data-original-title="` + row.auctionModel.hostUser.contactEmail +`" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm1 18h-2v-6h-2v-2h4v8zm-1-9.75c-.69 0-1.25-.56-1.25-1.25s.56-1.25 1.25-1.25 1.25.56 1.25 1.25-.56 1.25-1.25 1.25z"/></svg>`;
+                    html += `</div>`;
+                    return html;
+                },
+                responsivePriority: 5
+            },
+            {
+                className: 'data',
+                data: "amount",
+                render: function (data, type, row) {
+                    return "$" + (data/100).toFixed(2);
+                },
+                responsivePriority: 1
+            },
+            {
+                className: 'data',
+                data: "time",
+                type:'date',
+                render: function (data, type, row) {
+                    return moment(data).format("MM/DD hh:mm");
+                },
+                responsivePriority: 2
+            },
+            {
+                className: 'data',
+                data: "success",
+                render: function (data, type, row) {
+                    if (data)
+                        return "Success";
+                    else {
+                        if (row["complete"])
+                            return "Failed";
+                        else
+                            return "Pending";
+                    }
+                },
+                responsivePriority: 3
+            },
+            {
+                data: "id",
+                orderable: false,
+                render: function (data, type, row) {
+                    return `<a href='/transactions/` + data + `'>Invoice</a>`
+                },
+            }
+        ]
+    });
+    table.DataTable().on('draw', function () {
+        $('[data-toggle="tooltip"]').tooltip(); //init tooltips on redraw
+    });
+    table.DataTable().on('responsive-display', function () {
+        $('[data-toggle="tooltip"]').tooltip(); //init tooltips on redraw
+    });
+</script>
+

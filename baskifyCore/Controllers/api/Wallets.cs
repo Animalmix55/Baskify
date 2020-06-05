@@ -1,4 +1,5 @@
-﻿using baskifyCore.Models;
+﻿using baskifyCore.DTOs;
+using baskifyCore.Models;
 using baskifyCore.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Stripe;
@@ -28,7 +29,7 @@ namespace baskifyCore.Controllers.api
         // /api/wallets/{id}/purchase
         [HttpPost]
         [Route("{auctionId}/getsecret")]
-        public ActionResult GetSecret([FromHeader] string authorization, [FromForm] int tickets, int auctionId)
+        public ActionResult GetSecret([FromHeader] string authorization, [FromForm] TicketPurchaseDto ticketPurchaseDto, int auctionId)
         {
             if (authorization == null)
                 return Unauthorized("No Authorization");
@@ -37,7 +38,7 @@ namespace baskifyCore.Controllers.api
             if (user == null)
                 return Unauthorized("Invalid Authorization");
 
-            if (tickets == 0)
+            if (ticketPurchaseDto.NumTickets == 0)
                 return BadRequest("Must purchase at least 1 ticket");
             if (user == null)
                 return BadRequest("Invalid credentials");
@@ -48,8 +49,33 @@ namespace baskifyCore.Controllers.api
                 return BadRequest("Invalid Auction");
             if (!auction.isLive)
                 return BadRequest("Auction is not live");
-            if (tickets * auction.TicketCost < auction.MinPurchase) //don't allow users to purchase below the min
+            if (ticketPurchaseDto.NumTickets * auction.TicketCost < auction.MinPurchase) //don't allow users to purchase below the min
                 return BadRequest(string.Format("Purchase must exceed ${0}", auction.MinPurchase));
+
+            if (!ticketPurchaseDto.UseAccountAddress)
+            {
+                var addressDict = accountUtils.validateAddress(ticketPurchaseDto.BillingAddress, ticketPurchaseDto.BillingCity, ticketPurchaseDto.BillingState, ticketPurchaseDto.BillingState);
+                if (addressDict["resultStatus"] == "ADDRESS NOT FOUND")
+                    return BadRequest("Invalid Address");
+                else if(string.IsNullOrEmpty(ticketPurchaseDto.CardholderName))
+                    return BadRequest("Invalid Cardholder Name");
+
+                ticketPurchaseDto.BillingAddress = addressDict["addressLine1"]; //set address
+                ticketPurchaseDto.BillingCity = addressDict["city"];
+                ticketPurchaseDto.BillingState = addressDict["state"];
+                ticketPurchaseDto.BillingZIP = addressDict["zip"];
+            }
+            else
+            {
+                ticketPurchaseDto.BillingAddress = user.Address;
+                ticketPurchaseDto.BillingCity = user.City;
+                ticketPurchaseDto.BillingState = user.State;
+                ticketPurchaseDto.BillingZIP = user.ZIP;
+                ticketPurchaseDto.CardholderName = user.FirstName + " " + user.LastName;
+            }
+
+            if (!ModelState.IsValid)
+                return BadRequest("Invalid Input");
 
             var wallet = _context.UserAuctionWallet.Find(user.Username, auctionId);
             if (wallet == null) //make new wallet
@@ -63,7 +89,16 @@ namespace baskifyCore.Controllers.api
             {
                 var custOptions = new CustomerCreateOptions
                 {
-                    Name = string.Format("{0} {1}", user.FirstName, user.LastName),
+                    Name = string.Format(ticketPurchaseDto.CardholderName),
+                    Address = new AddressOptions() {
+                        Line1 = user.Address,
+                        City = user.City,
+                        State = user.State,
+                        Country = "USA",
+                        PostalCode = user.ZIP
+                    },
+                    Email = user.Email
+
                 };
 
                 var custService = new CustomerService();
@@ -72,7 +107,7 @@ namespace baskifyCore.Controllers.api
                 user.StripeCustomerId = customer.Id; //add new customer
             }
 
-            var amount = (long?)(tickets * auction.TicketCost * 100); //amount in cents
+            var amount = (long?)(ticketPurchaseDto.NumTickets * auction.TicketCost * 100); //amount in cents
 
             var options = new PaymentIntentCreateOptions
             {
@@ -82,18 +117,23 @@ namespace baskifyCore.Controllers.api
                 ConfirmationMethod = "automatic",
                 Amount = amount, //in cents
                 Currency = "usd",
-                // Verify your integration in this guide by including this parameter
-                Metadata = new Dictionary<string, string>
-                {
-                    { "auctionId", wallet.AuctionId.ToString() },
-                    {"userId", user.Username }
-                },
                 SetupFutureUsage = "on_session"
             };
             var service = new PaymentIntentService();
             var paymentIntent = service.Create(options);
 
-            var PaymentModel = new PaymentModel() { Amount = (float)amount, PaymentIntentId = paymentIntent.Id, Time = paymentIntent.Created, Username = user.Username, AuctionId = auction.AuctionId };
+            var PaymentModel = new PaymentModel() { 
+                Amount = (float)amount, 
+                PaymentIntentId = paymentIntent.Id, 
+                Time = paymentIntent.Created, 
+                Username = user.Username, 
+                AuctionId = auction.AuctionId,
+                BillingAddress = ticketPurchaseDto.BillingAddress,
+                BillingCity = ticketPurchaseDto.BillingCity,
+                BillingState = ticketPurchaseDto.BillingState,
+                BillingZIP = ticketPurchaseDto.BillingZIP,
+                CardholderName = ticketPurchaseDto.CardholderName
+            };
             //create payment in database
             _context.PaymentModel.Add(PaymentModel);
             _context.SaveChanges();
