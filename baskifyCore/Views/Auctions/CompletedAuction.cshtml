@@ -50,50 +50,61 @@
             <div class="tab-pane fade active show" id="auctionInfo">
                 @using (Html.BeginForm("editAuction", "auctions", FormMethod.Post, new { @id = "auctionInfoForm", enctype = "multipart/form-data" }))
                 {
-                    <fieldset>
-                        <legend>Auction Information</legend>
-                        <div class="form-group">
-                            @Html.LabelFor(Model => Model.Title)
-                            @Html.TextBoxFor(Model => Model.Title, null, new { @readonly = "readonly", @class = "form-control" })
+                <fieldset>
+                    <legend>Auction Information</legend>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.Title)
+                        @Html.TextBoxFor(Model => Model.Title, null, new { @readonly = "readonly", @class = "form-control" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.Description)
+                        @Html.TextAreaFor(Model => Model.Description, 5, 50, new { @readonly = "readonly", @class = "form-control" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.DeliveryType)
+                        @Html.DropDownListFor(Model => Model.DeliveryType, Html.GetEnumSelectList<DeliveryTypes>(), "Select Delivery Type", new { @disabled = "disabled", @class = "custom-select" })
+                    </div>
+                    @if (Model.DeliveryType == DeliveryTypes.Pickup || Model.DeliveryType == DeliveryTypes.DeliveryByOrg)
+                    {
+                        <div id="basketRetrievalGroup" class="form-group">
+                            @Html.LabelFor(Model => Model.BasketRetrieval)
+                            @Html.DropDownListFor(Model => Model.BasketRetrieval, Html.GetEnumSelectList<BasketRetrieval>(), "Select Retrieval Type", new { @disabled = "disabled", @class = "custom-select" })
                         </div>
-                        <div class="form-group">
-                            @Html.LabelFor(Model => Model.Description)
-                            @Html.TextAreaFor(Model => Model.Description, 5, 50, new { @readonly = "readonly", @class = "form-control" })
-                        </div>
-                        <div class="form-group">
-                            @Html.Label("Auction Start Date")
-                            @Html.TextBoxFor(Model => Model.StartTime, new { @readonly = "readonly", @class = "form-control" })
-                        </div>
-                        <div class="form-group">
-                            @Html.Label("Auction End Date")
-                            @Html.TextBoxFor(Model => Model.EndTime, new { @readonly = "readonly", @class = "form-control" })
-                        </div>
-                        <div class="form-group">
-                            @Html.LabelFor(Model => Model.Address)
-                            @Html.TextBoxFor(Model => Model.Address, new { @readonly = "readonly", @class = "form-control" })
-                        </div>
-                        <div class="form-group">
-                            @Html.LabelFor(Model => Model.City)
-                            @Html.TextBoxFor(Model => Model.City, new { @readonly = "readonly", @class = "form-control" })
-                        </div>
-                        <div class="form-group">
-                            @Html.LabelFor(Model => Model.State)
-                            @Html.TextBoxFor(Model => Model.State, new { @readonly = "readonly", @class = "form-control" })
-                        </div>
-                        <div class="form-group">
-                            @Html.LabelFor(Model => Model.ZIP)
-                            @Html.TextBoxFor(Model => Model.ZIP, new { @readonly = "readonly", @class = "form-control" })
-                        </div>
-                        <div class="form-group">
-                            @Html.LabelFor(Model => Model.MaxRange)
-                            @Html.HiddenFor(Model => Model.MaxRange)
-                            <input class="form-control" value="@Model.MaxRange miles" readonly />
-                        </div>
-                        <div id="userAddressMap"></div>
+                    }
+                    <div class="form-group">
+                        @Html.Label("Auction Start Date")
+                        @Html.TextBoxFor(Model => Model.StartTime, new { @readonly = "readonly", @class = "form-control" })
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("Auction End Date")
+                        @Html.TextBoxFor(Model => Model.EndTime, new { @readonly = "readonly", @class = "form-control" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.Address)
+                        @Html.TextBoxFor(Model => Model.Address, new { @readonly = "readonly", @class = "form-control" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.City)
+                        @Html.TextBoxFor(Model => Model.City, new { @readonly = "readonly", @class = "form-control" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.State)
+                        @Html.TextBoxFor(Model => Model.State, new { @readonly = "readonly", @class = "form-control" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.ZIP)
+                        @Html.TextBoxFor(Model => Model.ZIP, new { @readonly = "readonly", @class = "form-control" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.MaxRange)
+                        @Html.HiddenFor(Model => Model.MaxRange)
+                        <input class="form-control" value="@Model.MaxRange miles" readonly />
+                    </div>
+                    <div id="userAddressMap"></div>
 
-                        @Html.HiddenFor(Model => Model.AuctionId)
-                        @Html.HiddenFor(Model => Model.HostUsername)
-                    </fieldset>
+                    @Html.HiddenFor(Model => Model.AuctionId)
+                    @Html.HiddenFor(Model => Model.HostUsername)
+                </fieldset>
                 }
             </div>
             <div class="tab-pane fade" id="baskets" style="overflow-x: hidden;">
@@ -511,23 +522,53 @@
         }
     });
 
-    function winnerInfoFormat(winner) {
+    function basketInfoFormat(basket) {
         // `d` is the original data object for the row
-        return '<h2>Winner Info</h2>' +
-            '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">' +
-            '<tr>' +
-            '<td>Full name:</td>' +
-            '<td>' + winner.firstName + " " + winner.lastName + '</td>' +
-            '</tr>' +
-            '<tr>' +
-            '<td>Email:</td>' +
-            '<td>' + winner.email + '</td>' +
-            '</tr>' +
-            '<tr>' +
-            '<td>Address:</td>' +
-            '<td>' + winner.address + " " + winner.city + ", " + winner.state + " " + winner.zip + '</td>' +
-            '</tr>' +
-            '</table>';
+        var html = `<div style="display:flex; flex-wrap:wrap">`;
+        if (basket.winner != null) {
+            var winner = basket.winner;
+            html += '<div style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center;"><h2>Winner Info</h2>' +
+                '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">' +
+                '<tr>' +
+                '<td>Full name:</td>' +
+                '<td>' + winner.firstName + " " + winner.lastName + '</td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td>Email:</td>' +
+                '<td>' + winner.email + '</td>' +
+                '</tr>' +
+                '<tr>';
+            if (winner.address != null) {
+                html += '<td>Address:</td>' +
+                    '<td>' + winner.address + " " + winner.city + ", " + winner.state + " " + winner.zip + '</td>' +
+                    '</tr>';
+            }
+            html += '</table></div>';
+        }
+        if (basket.submittingUser != null) {
+            var submitter = basket.submittingUser;
+            if (submitter.firstName == "")
+                submitter.firstName = "You"; //for orgs
+            html += '<div style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center;"><h2>Submitter Info</h2>' +
+                '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">' +
+                '<tr>' +
+                '<td>Full name:</td>' +
+                '<td>' + submitter.firstName + " " + submitter.lastName + '</td>' +
+                '</tr>' +
+                '<tr>' +
+                '<td>Email:</td>' +
+                '<td>' + submitter.email + '</td>' +
+                '</tr>' +
+                '<tr>';
+            if (submitter.address != null) {
+                html += '<td>Address:</td>' +
+                    '<td>' + submitter.address + " " + submitter.city + ", " + submitter.state + " " + submitter.zip + '</td>' +
+                    '</tr>';
+            }
+            html += '</table></div>';
+        }
+        html += "</div>";
+        return html;
     }
 
     $('#basketTable tbody').on('click', 'td.details-control', function () {
@@ -541,7 +582,7 @@
         }
         else {
             // Open this row
-            row.child(winnerInfoFormat(row.data()["winner"])).show();
+            row.child(basketInfoFormat(row.data())).show();
             tr.addClass('shown');
             row.child().css("background-color", "white") //no hover coloring
         }

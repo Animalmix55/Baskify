@@ -80,6 +80,10 @@
             </div>
             <small class="text-muted">Hosted By: @Model.Auction.HostUser.OrganizationName</small>
             <p class="mb-1">@Model.Auction.Description</p>
+            @if (Model.Baskets.Count(b => !b.Draft) > 0 && Model.Auction.BasketRetrieval == BasketRetrieval.UserDeliver)//provide address if a basket has been submitted
+            {
+            <p class="mb-1"><b>Dropoff Address: </b>@Model.Auction.Address, @Model.Auction.City, @Model.Auction.State @Model.Auction.ZIP</p>
+            }
         </a>
     </div>
     <div id="userAddressMap"></div>

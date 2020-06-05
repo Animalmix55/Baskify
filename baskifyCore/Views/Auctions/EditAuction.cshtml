@@ -113,11 +113,11 @@
                         </div>
                         @if (Model.DeliveryType == DeliveryTypes.Pickup || Model.DeliveryType == DeliveryTypes.DeliveryByOrg)
                         {
-                        <div id="basketRetrievalGroup" class="form-group">
-                            @Html.LabelFor(Model => Model.BasketRetrieval)
-                            @Html.DropDownListFor(Model => Model.BasketRetrieval, Html.GetEnumSelectList<BasketRetrieval>(), "Select Retrieval Type", new { @class = "custom-select" })
-                            @Html.ValidationMessageFor(Model => Model.BasketRetrieval)
-                        </div>
+                            <div id="basketRetrievalGroup" class="form-group">
+                                @Html.LabelFor(Model => Model.BasketRetrieval)
+                                @Html.DropDownListFor(Model => Model.BasketRetrieval, Html.GetEnumSelectList<BasketRetrieval>(), "Select Retrieval Type", new { @class = "custom-select" })
+                                @Html.ValidationMessageFor(Model => Model.BasketRetrieval)
+                            </div>
                         }
                         <legend>Change Starting Address</legend>
                         <div class="form-group">
@@ -217,6 +217,19 @@
                     }
                     else //this auction has begun!
                     {
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.DeliveryType)
+                            @Html.DropDownListFor(Model => Model.DeliveryType, Html.GetEnumSelectList<DeliveryTypes>(), "Select Delivery Type", new { @disabled = "disabled", @class = "custom-select" })
+                            @Html.ValidationMessageFor(Model => Model.DeliveryType)
+                        </div>
+                        @if (Model.DeliveryType == DeliveryTypes.Pickup || Model.DeliveryType == DeliveryTypes.DeliveryByOrg)
+                        {
+                            <div id="basketRetrievalGroup" class="form-group">
+                                @Html.LabelFor(Model => Model.BasketRetrieval)
+                                @Html.DropDownListFor(Model => Model.BasketRetrieval, Html.GetEnumSelectList<BasketRetrieval>(), "Select Retrieval Type", new { @disabled = "disabled", @class = "custom-select" })
+                                @Html.ValidationMessageFor(Model => Model.BasketRetrieval)
+                            </div>
+                        }
                         <div class="form-group">
                             @Html.Label("Auction Start Date")
                             @Html.TextBoxFor(Model => Model.StartTime, new { @readonly = "readonly", @class = "form-control" })
@@ -550,7 +563,11 @@
             {//address 
                 data: "submittingUser",
                 render: function (data, type, row) {
-                    return data.address + ", " + data.city + ", " + data.state + " " + data.zip;
+                    if (data.address != null) {
+                        return data.address + ", " + data.city + ", " + data.state + " " + data.zip;
+                    }
+                    else
+                        return "Hidden";
                 },
                 className: "none"
             }

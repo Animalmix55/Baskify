@@ -274,7 +274,7 @@ namespace baskifyCore.Controllers
                 dbAuction.MaxRange = auction.MaxRange;
                 dbAuction.MinPurchase = auction.MinPurchase;
                 dbAuction.TicketCost = auction.TicketCost;
-                dbAuction.BasketRetrieval = auction.BasketRetrieval; //can change retrieval from donors
+                dbAuction.BasketRetrieval = auction.BasketRetrieval; //can change retrieval from donors before auction starts
             }
             _context.SaveChanges();
 

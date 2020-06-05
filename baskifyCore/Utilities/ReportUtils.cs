@@ -1,4 +1,5 @@
-﻿using baskifyCore.Models;
+﻿using AutoMapper;
+using baskifyCore.Models;
 using CsvHelper;
 using CsvHelper.Configuration;
 using CsvHelper.Configuration.Attributes;
@@ -16,6 +17,25 @@ namespace baskifyCore.Utilities
 {
     public static class ReportUtils
     {
+        static ReportUtils() //create map
+        {
+            Mapper.CreateMap<BasketModel, BasketReportRow>()//flatten the model
+                .ForMember(d => d.SubmittingAddress, source => source.MapFrom(src => src.SubmittingUser.Address))
+                .ForMember(d => d.SubmittingCity, source => source.MapFrom(src => src.SubmittingUser.City))
+                .ForMember(d => d.SubmittingEmail, source => source.MapFrom(src => src.SubmittingUser.Email))
+                .ForMember(d => d.SubmittingState, source => source.MapFrom(src => src.SubmittingUser.State))
+                .ForMember(d => d.SubmittingZIP, source => source.MapFrom(src => src.SubmittingUser.ZIP))
+                .ForMember(d => d.SubmittingFirstname, source => source.MapFrom(src => src.SubmittingUser.FirstName))
+                .ForMember(d => d.SubmittingLastname, source => source.MapFrom(src => src.SubmittingUser.LastName)) //now winner
+                .ForMember(d => d.WinnerAddress, source => source.MapFrom(src => src.Winner.Address))
+                .ForMember(d => d.WinnerCity, source => source.MapFrom(src => src.Winner.City))
+                .ForMember(d => d.WinnerEmail, source => source.MapFrom(src => src.Winner.Email))
+                .ForMember(d => d.WinnerState, source => source.MapFrom(src => src.Winner.State))
+                .ForMember(d => d.WinnerZIP, source => source.MapFrom(src => src.Winner.ZIP))
+                .ForMember(d => d.WinnerFirstname, source => source.MapFrom(src => src.Winner.FirstName))
+                .ForMember(d => d.WinnerLastname, source => source.MapFrom(src => src.Winner.LastName));
+        }
+
         private class BasketReportRow
         {
             [Name("Identifier")]
@@ -31,6 +51,10 @@ namespace baskifyCore.Utilities
             [Name("Number of Tickets")]
             public int NumTickets { get; set; }
             [Name("Submitting Username")]
+            [Optional]
+            public string SubmittingFirstname { get; set; }
+            [Optional]
+            public string SubmittingLastname { get; set; }
             [Optional]
             public string SubmittingUsername { get; set; }
             [Name("Submitting User Address")]
@@ -52,6 +76,10 @@ namespace baskifyCore.Utilities
             [Optional]
             public string WinnerUsername { get; set; }
             [Name("Winner Address")]
+            [Optional]
+            public string WinnerFirstname { get; set; }
+            [Optional]
+            public string WinnerLastname { get; set; }
             [Optional]
             public string WinnerAddress { get; set; }
             [Name("Winner City")]
@@ -87,32 +115,9 @@ namespace baskifyCore.Utilities
 
             List<BasketModel> completeRows;
             completeRows = _context.BasketModel.Where(b => b.AuctionId == auctionId).Include(b => b.Winner).Include(b => b.SubmittingUser).Include(b => b.Tickets).ToList();
-            
 
-            List<BasketReportRow> censoredRows = completeRows.Select(r => new BasketReportRow()
-            {
-                BasketDescription = r.BasketDescription,
-                BasketId = r.BasketId,
-                BasketTitle = r.BasketTitle,
-                NumTickets = r.Tickets.Sum(t => t.NumTickets),
-                SubmissionDate = r.SubmissionDate,
-                SubmittingAddress = r.SubmittingUser != null ? r.SubmittingUser.Address : null,
-                SubmittingCity = r.SubmittingUser != null ? r.SubmittingUser.City : null,
-                SubmittingEmail = r.SubmittingUser != null ? r.SubmittingUser.Email : null,
-                SubmittingState = r.SubmittingUser != null ? r.SubmittingUser.State : null,
-                SubmittingUsername = r.SubmittingUsername,
-                SubmittingZIP = r.SubmittingUser != null ? r.SubmittingUser.ZIP : null,
-                WinnerAddress = r.Winner != null? r.Winner.Address : null,
-                WinnerCity = r.Winner != null ? r.Winner.City : null,
-                WinnerEmail = r.Winner != null ? r.Winner.Email : null,
-                WinnerState = r.Winner != null ? r.Winner.State : null,
-                WinnerUsername = r.WinnerUsername,
-                WinnerZIP = r.Winner != null ? r.Winner.ZIP : null,
-                BasketContentString = r.BasketContentString.Trim('[').Trim(']'),
-                DistanceFromAuction = r.Winner != null? (float)SearchUtils.getMiles(auction.Latitude, auction.Longitude, r.Winner.Latitude, r.Winner.Longitude) : 0,
-                AcceptedByOrg = r.AcceptedByOrg
-              
-            }).ToList();
+            var censoredRows = Mapper.Map<List<BasketReportRow>>(completeRows);
+            censoredRows.ForEach(r => r.Cleanse(auction.DeliveryType == DeliveryTypes.Pickup, auction.BasketRetrieval == BasketRetrieval.UserDeliver)); //remove all private info
 
             var config = new CsvConfiguration(CultureInfo.InvariantCulture);
             config.SanitizeForInjection = true;
@@ -130,6 +135,31 @@ namespace baskifyCore.Utilities
             }
             ts.Flush();
             return;
+        }
+
+        /// <summary>
+        /// Cleanses private info from PrivBasketDtos; if the isUser flag is set, removes names and emails from cleansed references.
+        /// </summary>
+        /// <param name="basket"></param>
+        /// <param name="cleanseWinner"></param>
+        /// <param name="cleanseSubmitter"></param>
+        /// <param name="isUser"></param>
+        private static void Cleanse(this BasketReportRow basket, bool cleanseWinner, bool cleanseSubmitter)
+        {
+            if (cleanseWinner)
+            {
+                basket.WinnerAddress = null;
+                basket.WinnerCity = null;
+                basket.WinnerState = null;
+                basket.WinnerCity = null;
+            }
+            if (cleanseSubmitter)
+            {
+                basket.SubmittingAddress = null;
+                basket.SubmittingCity = null;
+                basket.SubmittingState = null;
+                basket.SubmittingCity = null;
+            }
         }
     }
 }
