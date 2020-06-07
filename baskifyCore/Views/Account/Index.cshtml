@@ -8,98 +8,149 @@
 </head>
 <body>
     <div id="accountSettings">
-        <div id="accountSettingContainer">
-            @using (Html.BeginForm("updateValues", "Account", FormMethod.Post, new { @id = "userInfoForm", enctype = "multipart/form-data" }))
-            {
-                @Html.ValidationSummary(true)
-            <fieldset>
-                <legend>Update User Information</legend>
-                @if (Model.UserRole == Roles.USER)
+        <ul class="nav nav-tabs" id="AccountNavTabs">
+            <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#accountInfo">Account Info</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#payment">Payment</a>
+            </li>
+        </ul>
+        <div id="myTabContent" class="tab-content">
+            <div id="accountInfo" class="tab-pane fade active show">
+                @using (Html.BeginForm("updateValues", "Account", FormMethod.Post, new { @id = "userInfoForm", enctype = "multipart/form-data" }))
                 {
-                    <div class="form-group">
-                        @Html.LabelFor(Model => Model.FirstName)
-                        @Html.TextBoxFor(Model => Model.FirstName, null, new { @class = "form-control" })
-                        @Html.ValidationMessageFor(Model => Model.FirstName)
-                    </div>
-                    <div class="form-group">
-                        @Html.LabelFor(Model => Model.LastName)
-                        @Html.TextBoxFor(Model => Model.LastName, null, new { @class = "form-control" })
-                        @Html.ValidationMessageFor(Model => Model.LastName)
+                    @Html.ValidationSummary(true)
+                    <fieldset>
+                        <legend>Update User Information</legend>
+                        @if (Model.UserRole == Roles.USER)
+                        {
+                            <div class="form-group">
+                                @Html.LabelFor(Model => Model.FirstName)
+                                @Html.TextBoxFor(Model => Model.FirstName, null, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(Model => Model.FirstName)
+                            </div>
+                            <div class="form-group">
+                                @Html.LabelFor(Model => Model.LastName)
+                                @Html.TextBoxFor(Model => Model.LastName, null, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(Model => Model.LastName)
 
-                    </div>
+                            </div>
+                        }
+                        else
+                        {
+                            <div class="form-group">
+                                @Html.LabelFor(Model => Model.OrganizationName)
+                                @Html.TextBoxFor(Model => Model.OrganizationName, null, new { @class = "form-control", @readonly = "\"\"" })
+                            </div>
+                        }
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.Username)
+                            @Html.TextBoxFor(Model => Model.Username, null, new { @class = "form-control", @readonly = "\"\"" })
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.Email)
+                            @Html.TextBoxFor(Model => Model.Email, null, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(Model => Model.Email)
+                        </div>
+                        @if (Model.UserRole == Roles.COMPANY)
+                        {
+                            <div class="form-group">
+                                @Html.LabelFor(Model => Model.ContactEmail)
+                                @Html.TextBoxFor(Model => Model.ContactEmail, null, new { @class = "form-control" })
+                                @Html.ValidationMessageFor(Model => Model.ContactEmail)
+                            </div>
+                        }
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.Address)
+                            @Html.TextBoxFor(Model => Model.Address, null, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(Model => Model.Address)
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.City)
+                            @Html.TextBoxFor(Model => Model.City, null, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(Model => Model.City)
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.State)
+                            @Html.TextBoxFor(Model => Model.State, null, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(Model => Model.State)
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.ZIP)
+                            @Html.TextBoxFor(Model => Model.ZIP, null, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(Model => Model.ZIP)
+                        </div>
+                        <iframe id="userAddressMap" src="@baskifyCore.Utilities.accountUtils.getMapLink(Model.Address, Model.City, Model.State, Model.ZIP)"></iframe>
+                        @Html.HiddenFor(Model => Model.UserRole)
+                        @Html.HiddenFor(Model => Model.iconUrl)
+                        <label for="exampleInputFile">Upload New Icon</label>
+                        <div class="form-group" id="imgUploadContainer">
+                            <img src="@Model.iconUrl" id="userIcon" />
+                            <div>
+                                <input type="file" name="Icon" class="form-control-file" id="exampleInputFile" aria-describedby="fileHelp">
+                                <small id="fileHelp" class="form-text text-muted">Upload an image with dimensions that do not exceed 500px by 500px.</small>
+                            </div>
+                        </div>
+                        <div style="display: flex;">
+                            <button id="loginButton" type="submit" class="btn btn-success btn-lg btn-block">Save Changes</button>
+                        </div>
+                        <button type="button" class="btn btn-primary btn-lg btn-block" onclick="redirect('/account/changepassword')">Reset Password</button>
+                    </fieldset>
                 }
-                else
-                {
-                    <div class="form-group">
-                        @Html.LabelFor(Model => Model.OrganizationName)
-                        @Html.TextBoxFor(Model => Model.OrganizationName, null, new { @class = "form-control", @readonly = "\"\"" })
-                    </div>
-                }
-                <div class="form-group">
-                    @Html.LabelFor(Model => Model.Username)
-                    @Html.TextBoxFor(Model => Model.Username, null, new { @class = "form-control", @readonly = "\"\"" })
-                </div>
-                <div class="form-group">
-                    @Html.LabelFor(Model => Model.Email)
-                    @Html.TextBoxFor(Model => Model.Email, null, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(Model => Model.Email)
-                </div>
-                @if (Model.UserRole == Roles.COMPANY)
-                {
-                    <div class="form-group">
-                    @Html.LabelFor(Model => Model.ContactEmail)
-                    @Html.TextBoxFor(Model => Model.ContactEmail, null, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(Model => Model.ContactEmail)
-                    </div>
-                }
-                <div class="form-group">
-                    @Html.LabelFor(Model => Model.Address)
-                    @Html.TextBoxFor(Model => Model.Address, null, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(Model => Model.Address)
-                </div>
-                <div class="form-group">
-                    @Html.LabelFor(Model => Model.City)
-                    @Html.TextBoxFor(Model => Model.City, null, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(Model => Model.City)
-                </div>
-                <div class="form-group">
-                    @Html.LabelFor(Model => Model.State)
-                    @Html.TextBoxFor(Model => Model.State, null, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(Model => Model.State)
-                </div>
-                <div class="form-group">
-                    @Html.LabelFor(Model => Model.ZIP)
-                    @Html.TextBoxFor(Model => Model.ZIP, null, new { @class = "form-control" })
-                    @Html.ValidationMessageFor(Model => Model.ZIP)
-                </div>
-                <iframe id="userAddressMap" src="@baskifyCore.Utilities.accountUtils.getMapLink(Model.Address, Model.City, Model.State, Model.ZIP)"></iframe>
-                @Html.HiddenFor(Model => Model.UserRole)
-                @Html.HiddenFor(Model => Model.iconUrl)
-                <label for="exampleInputFile">Upload New Icon</label>
-                <div class="form-group" id="imgUploadContainer">
-                    <img src="@Model.iconUrl" id="userIcon" />
-                    <div>
-                        <input type="file" name="Icon" class="form-control-file" id="exampleInputFile" aria-describedby="fileHelp">
-                        <small id="fileHelp" class="form-text text-muted">Upload an image with dimensions that do not exceed 500px by 500px.</small>
-                    </div>
-                </div>
-                <div style="display: flex;">
-                    <button id="loginButton" type="submit" class="btn btn-success btn-lg btn-block">Save Changes</button>
-                </div>
-                <button type="button" class="btn btn-primary btn-lg btn-block" onclick="redirect('/account/changepassword')">Reset Password</button>
-            </fieldset>
-            }
 
+                </div>
+            <div id="payment" class="tab-content">
+                <h2>Your Payment Methods</h2>
+                <table id="cardTable" class="table table-hover" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
         </div>
     </div>
     <script>
-        window.history.replaceState(null, "", '/Account');
-        $("#Email, #ContactEmail").on("focusout", function (e) { //autofills contact email if empty
-            var contactEmail = $("#ContactEmail");
-            if (contactEmail.length != 0 && contactEmail.val() == "") {
-                $("#ContactEmail").val($("#Email").val());
+            window.history.replaceState(null, "", '/Account');
+            $("#Email, #ContactEmail").on("focusout", function (e) { //autofills contact email if empty
+                var contactEmail = $("#ContactEmail");
+                if (contactEmail.length != 0 && contactEmail.val() == "") {
+                    $("#ContactEmail").val($("#Email").val());
+                }
+            });
+
+        cardTable = $("#cardTable");
+    cardTable.dataTable({
+        ajax: {
+            url: "/api/payments/methods",
+            type: "GET",
+            dataSrc: "",
+            beforeSend: function (xhr) { //add token
+                var token = getCookie("BearerToken");
+                if (token != "")
+                    xhr.setRequestHeader("Authorization", "Bearer " + token);
             }
-        });
+        },
+        createdRow: function (row, data, dataIndex) {
+        },
+        columns: [
+            {
+                className: 'cardIcon',
+                orderable: false,
+                defaultContent: "",
+                data: null,
+                targets: 0
+            },
+            {
+                className: 'data',
+                data: "basketTitle",
+                responsivePriority: 1
+            }
+        ]
+    });
     </script>
 </body>
 

@@ -78,6 +78,21 @@ namespace baskifyCore.Controllers.api
 
                     EmailUtils.SendReceiptEmail(paymentModel.UserModel, recieptDto);
 
+                    service.Update(paymentMethod.Id, new PaymentMethodUpdateOptions() { //add address to payment method
+                        BillingDetails = new BillingDetailsOptions()
+                        {
+                            Address = new AddressOptions()
+                            {
+                                Line1 = paymentModel.BillingAddress,
+                                City = paymentModel.BillingCity,
+                                State = paymentModel.BillingState,
+                                PostalCode = paymentModel.BillingZIP,
+                                Country = "US"
+                            },
+                            Email = paymentModel.UserModel.Email,
+                            Name = paymentModel.CardholderName
+                        }
+                    });
 
                     return Ok();
                 }

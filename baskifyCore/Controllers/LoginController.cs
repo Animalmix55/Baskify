@@ -62,7 +62,7 @@ namespace baskifyCore.Controllers
 
                 return PartialView("NavBar", user);
             }
-            catch(Exception)
+            catch(Exception e)
             {
                 return Content("ERROR: Invalid Password");
             }

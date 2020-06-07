@@ -395,33 +395,5 @@ namespace baskifyCore.Controllers.api
                 return BadRequest(returnObject);
             }
         }
-        [HttpGet]
-        [Route("{id}/basketReport")]
-        public ActionResult Report(int id, [FromHeader] string authorization)
-        {
-            if (authorization == null)
-                return Unauthorized("Missing auth");
-                
-
-            var user = LoginUtils.getUserFromToken(authorization.Replace("Bearer ", string.Empty), _context);
-            if (user == null)
-                return Unauthorized("Invalid login");
-                
-
-            var auction = _context.AuctionModel.Find(id);
-            if (auction == null)
-                return NotFound();
-
-            if (auction.HostUsername != user.Username)
-                return BadRequest("Invalid owner");
-
-            MemoryStream ms;
-
-            ReportUtils.getAuctionReport(id, _context, out ms);
-            ms.Position = 0;
-            return File(ms, "text/csv", auction.Title.Replace(' ', '_') + "_report.csv");
-            
-        }
-
     }
 }

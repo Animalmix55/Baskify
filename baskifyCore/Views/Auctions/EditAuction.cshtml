@@ -696,7 +696,7 @@
                         {
                             data: "amount",
                             render: function (data, type, row) {
-                                return "$" + parseInt(data).toFixed(2);
+                                return "$" + (parseInt(data)/100.00).toFixed(2);
                             },
                             responsivePriority: 1
                         },

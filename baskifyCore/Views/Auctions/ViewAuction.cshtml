@@ -158,6 +158,12 @@ else if (Model.AuctionModel.DeliveryType == DeliveryTypes.Pickup)
                     <!-- We'll put the error messages in this element -->
                     <div id="card-errors" role="alert"></div>
 
+                    <div class="form-group">
+                        <div class="custom-control custom-switch">
+                            <input type="checkbox" class="custom-control-input" name="SaveCard" id="SaveCard" checked="" value="true">
+                            <label class="custom-control-label" for="UseAccountAddress">Save Card</label>
+                        </div>
+                    </div>
                 </div>
                 <div class="modal-footer" style="flex-wrap:nowrap;">
                     <button style="font-size:150%; width: 100%;" class="btn btn-success" id="buyTickets">
