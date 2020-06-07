@@ -7,6 +7,7 @@ using Microsoft.AspNetCore.Mvc;
 using Microsoft.AspNetCore.Mvc.ModelBinding;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
+using Stripe;
 using System;
 using System.Collections.Generic;
 using System.Configuration;
@@ -208,18 +209,37 @@ namespace baskifyCore.Utilities
 
                 _context.Entry(oldUser).Reload();
             }
-            
+
             //To get here, address must be valid and emails must have sent
-            oldUser.Address = newUser.Address;
-            oldUser.City = newUser.City;
-            oldUser.State = newUser.State;
-            oldUser.ZIP = newUser.ZIP;
-            oldUser.Latitude = newUser.Latitude;
-            oldUser.Longitude = newUser.Longitude;
+            if (oldUser.StripeCustomerId != null && oldUser.Address != newUser.Address)
+            {
+                var service = new CustomerService();
+                var update = new CustomerUpdateOptions()
+                {
+                    Address = new AddressOptions() {
+                        Line1 = newUser.Address, 
+                        City = newUser.City, 
+                        State = newUser.State,
+                        PostalCode = newUser.ZIP,
+                        Country = "USA"
+                    }
+                };
+
+                service.Update(oldUser.StripeCustomerId, update); //update stripe
+
+                oldUser.Address = newUser.Address; //update user
+                oldUser.City = newUser.City;
+                oldUser.State = newUser.State;
+                oldUser.ZIP = newUser.ZIP;
+                oldUser.Latitude = newUser.Latitude;
+                oldUser.Longitude = newUser.Longitude;
+            } //address on stripe and db
+
             oldUser.iconUrl = newUser.iconUrl;
 
             oldUser.FirstName = newUser.FirstName;
             oldUser.LastName = newUser.LastName;
+
             if (oldUser.UserRole == Roles.COMPANY)
                 oldUser.ContactEmail = newUser.ContactEmail;
 

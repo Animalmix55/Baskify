@@ -98,7 +98,6 @@ namespace baskifyCore.Controllers.api
                         PostalCode = user.ZIP
                     },
                     Email = user.Email
-
                 };
 
                 var custService = new CustomerService();
@@ -117,7 +116,7 @@ namespace baskifyCore.Controllers.api
                 ConfirmationMethod = "automatic",
                 Amount = amount, //in cents
                 Currency = "usd",
-                SetupFutureUsage = "on_session"
+                SetupFutureUsage = "on_session",
             };
             var service = new PaymentIntentService();
             var paymentIntent = service.Create(options);

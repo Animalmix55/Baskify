@@ -11,7 +11,6 @@
 <div class="maxWidthContainer">
     <h2 style="text-align: center;" class="display-4">Your Transactions</h2>
     <p style="text-align:center;">This is a list of all of your transactions on file with Baskify.</p>
-
     <table id="transactionTable" style="width:100%">
         <thead>
             <tr>
@@ -109,7 +108,10 @@
                 data: "id",
                 orderable: false,
                 render: function (data, type, row) {
-                    return `<a href='/transactions/` + data + `'>Invoice</a>`
+                    if (row["success"])
+                        return `<a href='/transactions/receipt/` + data + `' target="_blank">Receipt</a>`
+                    else
+                        return "";
                 },
             }
         ]

@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Data.Entity;
+using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
 using AutoMapper;
@@ -475,6 +476,29 @@ namespace baskifyCore.Controllers
             }
 
             return View(user);
+        }
+
+        [HttpGet]
+        public ActionResult BasketReport(int id)
+        {
+            var user = LoginUtils.getUserFromToken(Request.Cookies["BearerToken"], _context, Response);
+            if (user == null)
+                return Unauthorized("Invalid login");
+
+
+            var auction = _context.AuctionModel.Find(id);
+            if (auction == null)
+                return NotFound();
+
+            if (auction.HostUsername != user.Username)
+                return BadRequest("Invalid owner");
+
+            MemoryStream ms;
+
+            ReportUtils.getAuctionReport(id, _context, out ms);
+            ms.Position = 0;
+            return File(ms, "text/csv", auction.Title.Replace(' ', '_') + "_report.csv");
+
         }
     }
 }
