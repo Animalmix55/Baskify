@@ -471,7 +471,7 @@ h4{
     transition: width .6s;
     overflow-y: auto;
 }
-.galleria {
+.galleria, .basketGallery {
     width: 100%;
     height: 400px;
     background: #000
@@ -628,4 +628,7 @@ tr.shown td.details-control {
 .dataTables_wrapper>.row{
     width:100%;
 }
-/*---------------ToolTip----------------------*/
+
+#cardTable .selected {
+    background-color: #cdedd8
+}

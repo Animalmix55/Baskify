@@ -173,6 +173,10 @@ namespace baskifyCore.Utilities
         /// <param name="isUser"></param>
         public static void Cleanse(this PrivBasketDto basket, bool cleanseWinner, bool cleanseSubmitter, bool isUser)
         {
+
+            if (isUser && basket.Status == BasketStates.Delivered) //wont cause null reference since users never have partial cleansing
+                basket.Winner = null; //hide winners once delivered
+
             if (basket.Winner == basket.SubmittingUser && (!cleanseWinner || !cleanseSubmitter)) //this will fix and bizzare issues when the submitter is the winner... this should be impossible though.
                 return;
 

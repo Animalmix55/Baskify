@@ -13,7 +13,7 @@
         </div>
         <div class="modal-body" id="basketModalBody">
             <button id="deleteCurrentImage" class="btn btn-primary btn-sm" style="position:absolute; right:16px; z-index:10">Delete Current Image</button>
-            <div class="galleria">
+            <div class="basketGallery">
                 @foreach (var image in Model.photos)
                 {
                     <img src="@image.Url" data="@image.PhotoId" />
@@ -115,7 +115,7 @@
     var imagesToRemove = []; //this has relative urls
     var imagesToAdd = []; //this has relative urls
     $(function () {
-        Galleria.run('.galleria', {
+        Galleria.run('.basketGallery', {
             theme: 'classic',
             extend: function () {
                 var gallery = this;
@@ -165,17 +165,17 @@
                 else {
                     //data is an array of new image URLs
                     var response = JSON.parse(data);
-                    if ($('.galleria').data('galleria').getDataLength() == 0 && response.length > 0) //if empty gallery
+                    if ($('.basketGallery').data('galleria').getDataLength() == 0 && response.length > 0) //if empty gallery
                     {
                         var imageList = [];
                         response.forEach(element => {
                             imageList.push({ image: element });
                             imagesToAdd.push(element);
                         });
-                        $('.galleria').data('galleria').load(imageList);
+                        $('.basketGallery').data('galleria').load(imageList);
                     }
                     else
-                        response.forEach(element => { $('.galleria').data('galleria').push({ image: element }); imagesToAdd.push(element); }); //add to galleria
+                        response.forEach(element => { $('.basketGallery').data('galleria').push({ image: element }); imagesToAdd.push(element); }); //add to galleria
 
                     $("#deleteCurrentImage").removeAttr('disabled');
                 }

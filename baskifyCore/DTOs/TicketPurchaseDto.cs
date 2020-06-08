@@ -22,6 +22,8 @@ namespace baskifyCore.DTOs
         [RegularExpression(@"^([0-9]{5}\-[0-9]{4})|([0-9]{5})$", ErrorMessage = "ZIPs should be in the format ##### or #####-####)")]
         public string BillingZIP { get; set; }
         public bool UseAccountAddress { get; set; }
+        public string PaymentMethodId { get; set; }
+
         public bool SaveCard { get; set; }
     }
 }

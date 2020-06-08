@@ -1,4 +1,7 @@
-﻿using System;
+﻿using baskifyCore.Models;
+using Newtonsoft.Json;
+using Newtonsoft.Json.Converters;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
@@ -22,6 +25,8 @@ namespace baskifyCore.DTOs
         public List<string> BasketContents { get; set; }
         public UserDto Winner { get; set; }
         public AuctionDto AuctionModel { get; set; }
+        [JsonConverter(typeof(StringEnumConverter))]
+        public BasketStates Status { get; set; }
         public int NumTickets
         {
             get { return Tickets.Sum(t => t.NumTickets); }

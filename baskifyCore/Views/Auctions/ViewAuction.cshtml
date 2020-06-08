@@ -10,8 +10,16 @@
         display: none;
     }
 </style>
+<script src="~/js/moment-with-locales.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.4/css/responsive.dataTables.min.css" />
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.4/js/dataTables.responsive.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css" />
 <script src="https://js.stripe.com/v3/"></script>
 <script src="~/galleria/galleria.min.js"></script>
+
+
 <div id="paymentSucceedAlert2" class="alert alert-dismissible alert-success" style="display:none;">
     <button type="button" class="close" data-hide="alert">&times;</button>
     Payment succeeded! You may now use your tickets!
@@ -47,7 +55,7 @@ else if (Model.AuctionModel.DeliveryType == DeliveryTypes.Pickup)
         <button type="button" class="close" data-hide="alert">&times;</button>
         <h4 class="alert-heading">Delivery Info</h4>
         <p class="mb-0">
-            The organization requires that any baskets won be picked up at their central location 
+            The organization requires that any baskets won be picked up at their central location
             @decimal.Round((decimal)baskifyCore.Utilities.SearchUtils.getMiles(Model.AuctionModel.Latitude, Model.AuctionModel.Longitude, Model.UserModel.Latitude, Model.UserModel.Longitude), 2) miles away
             from your account address.
         </p>
@@ -118,50 +126,67 @@ else if (Model.AuctionModel.DeliveryType == DeliveryTypes.Pickup)
                     </div>
 
                     <div class="form-group">
-                        <label for="NumTickets">Number of Tickets</label>
+                        <label for="NumTickets">Number of Tickets ($@Decimal.Round(Model.AuctionModel.TicketCost,2) per ticket)</label>
                         <input type="number" name="NumTickets" class="form-control" id="NumTickets" min="@Math.Ceiling(Model.AuctionModel.MinPurchase / Model.AuctionModel.TicketCost)" max="1000" value="@Math.Ceiling(Model.AuctionModel.MinPurchase / Model.AuctionModel.TicketCost)" />
                     </div>
                     <h2>Billing Information</h2>
-                    <div class="form-group">
-                        <div class="custom-control custom-switch">
-                            <input type="checkbox" class="custom-control-input" name="UseAccountAddress" id="UseAccountAddress" checked="" value="true">
-                            <label class="custom-control-label" for="UseAccountAddress">Use Account Info</label>
-                        </div>
-                    </div>
-                    <div id="BillingAddress" style="display:none;">
-                        <div class="form-group">
-                            <label for="CardholderName">Cardholder Name</label>
-                            <input class="form-control" name="CardholderName" id="CardholderName" type="text" />
-                        </div>
-                        <div class="form-group">
-                            <label for="BillingAddress">Billing Address</label>
-                            <input class="form-control" name="BillingAddress" id="BillingAddress" type="text" />
-                        </div>
-                        <div class="form-group">
-                            <label for="BillingCity">Billing City</label>
-                            <input class="form-control" name="BillingCity" id="BillingCity" type="text" />
-                        </div>
-                        <div class="form-group">
-                            <label for="BillingState">Billing State</label>
-                            <input class="form-control" name="BillingState" id="BillingState" type="text" />
-                        </div>
-                        <div class="form-group">
-                            <label for="BillingAddress">Billing ZIP</label>
-                            <input class="form-control" name="BillingZIP" id="BillingZIP" type="text" />
+
+                    <div id="cardsLoading" class="loading-spinner" style="height: 100px;width: 100px;display: none;visibility: visible;left: 0;right: 0;margin: auto;display: block;">
+                        <div class="loading-body">
+                            <div></div><div></div><div></div>
                         </div>
                     </div>
 
-                    <div id="card-element" style="padding: 10px 0px 0px 10px;">
-                        <!-- Elements will create input elements here -->
-                    </div>
+                    <table id="cardTable" class="table table-hover" style="width:100%; max-height:40vh; overflow-y:auto">
+                        <tbody>
+                        </tbody>
+                    </table>
+                    <input type="hidden" id="savedCardId" name="PaymentMethodId" />
 
-                    <!-- We'll put the error messages in this element -->
-                    <div id="card-errors" role="alert"></div>
+                    <div class="newCardForm" style="display: none; opacity:0;">
+                        <div id="BillingAddress" style="display:none;">
+                            <div class="form-group">
+                                <label for="CardholderName">Cardholder Name</label>
+                                <input class="form-control" name="CardholderName" id="CardholderName" type="text" />
+                            </div>
+                            <div class="form-group">
+                                <label for="BillingAddress">Billing Address</label>
+                                <input class="form-control" name="BillingAddress" id="BillingAddress" type="text" />
+                            </div>
+                            <div class="form-group">
+                                <label for="BillingCity">Billing City</label>
+                                <input class="form-control" name="BillingCity" id="BillingCity" type="text" />
+                            </div>
+                            <div class="form-group">
+                                <label for="BillingState">Billing State</label>
+                                <input class="form-control" name="BillingState" id="BillingState" type="text" />
+                            </div>
+                            <div class="form-group">
+                                <label for="BillingAddress">Billing ZIP</label>
+                                <input class="form-control" name="BillingZIP" id="BillingZIP" type="text" />
+                            </div>
+                        </div>
 
-                    <div class="form-group">
-                        <div class="custom-control custom-switch">
-                            <input type="checkbox" class="custom-control-input" name="SaveCard" id="SaveCard" checked="" value="true">
-                            <label class="custom-control-label" for="UseAccountAddress">Save Card</label>
+                        <div class="form-group">
+                            <div id="card-element" style="padding: 10px 0px 0px 10px;">
+                                <!-- Elements will create input elements here -->
+                            </div>
+
+                            <!-- We'll put the error messages in this element -->
+                            <div id="card-errors" role="alert"></div>
+                        </div>
+
+                        <div class="form-group">
+                            <div class="custom-control custom-switch">
+                                <input type="checkbox" class="custom-control-input" name="UseAccountAddress" id="UseAccountAddress" checked="" value="true">
+                                <label class="custom-control-label" for="UseAccountAddress">Use Account Billing Info</label>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <div class="custom-control custom-switch">
+                                <input type="checkbox" class="custom-control-input" name="SaveCard" id="SaveCard" checked="" value="true">
+                                <label class="custom-control-label" for="SaveCard">Save Card</label>
+                            </div>
                         </div>
                     </div>
                 </div>
@@ -202,7 +227,8 @@ else if (Model.AuctionModel.DeliveryType == DeliveryTypes.Pickup)
             transition: 'fade',
             idleMode: false
         });
-    }()); //loads galleria
+        buildCardList(); //build card list
+    }); //loads galleria
 
     $("#UseAccountAddress").on("change", function () {
         if ($(this).is(":checked")) {
@@ -234,6 +260,7 @@ else if (Model.AuctionModel.DeliveryType == DeliveryTypes.Pickup)
             else {
                 $(".modal").modal("hide"); //hide other modals
                 $("#purchaseTicketsModal").modal("show");
+                toggleTicket(); //then hide
             }
         });
 
@@ -501,6 +528,8 @@ else if (Model.AuctionModel.DeliveryType == DeliveryTypes.Pickup)
             currentPage = pageNum;
         }
 
+        var card;
+
         $(function () {
         loadBaskets();
         var stripe = Stripe('@ViewData["StripePublicKey"]');
@@ -512,7 +541,7 @@ else if (Model.AuctionModel.DeliveryType == DeliveryTypes.Pickup)
             }
         };
 
-        var card = elements.create("card", { style: style });
+        card = elements.create("card", { style: style });
         card.mount("#card-element");
 
         $("#card-element").on('change', function (event) {
@@ -528,6 +557,13 @@ else if (Model.AuctionModel.DeliveryType == DeliveryTypes.Pickup)
 
         $(form).on('submit', function (ev) {
             ev.preventDefault();
+            var selected = $("#cardTable .selected");
+
+            if (!selected.hasClass("addCard"))
+                $("#savedCardId").val(selected.data().paymentMethod.id); //add id to hidden
+            else
+                $("#savedCardId").val(null); //remove id
+
             $("#PageLoadingModal").css("display", "flex");
             $("#buyTickets").attr("disabled", "");
             $.ajax({
@@ -540,20 +576,30 @@ else if (Model.AuctionModel.DeliveryType == DeliveryTypes.Pickup)
                         xhr.setRequestHeader("Authorization", "Bearer " + token);
                 },
                 success: function (data) {
-                    stripe.confirmCardPayment(data, {
-                        payment_method: {
-                            card: card,
-                            billing_details: {
-                                name: '@Model.UserModel.FirstName @Model.UserModel.LastName'
+                    if (data.paymentMethod) {//paymentMethod given
+                        var paymentConfirmObj = {
+                            payment_method: data.paymentMethodId
+                        }
+                    }
+                    else { //no paymentMethod provided
+                        var paymentConfirmObj = {
+                            payment_method: {
+                                card: card,
+                                billing_details: {
+                                    name: '@Model.UserModel.FirstName @Model.UserModel.LastName'
+                                }
                             }
                         }
-                    }).then(function (result) {
+                    }
+                    stripe.confirmCardPayment(data.clientSecret, paymentConfirmObj)
+                        .then(function (result) {
                         if (result.error) {
                             $("#purchaseTicketsModal .alert, #paymentSuccessAlert2").css("display", "none"); //hide other messages
                             $("#paymentFailedAlert span").html(result.error.message);
                             $("#paymentFailedAlert").css("display", "block");
                             $("#buyTickets").removeAttr("disabled");
                             $("#PageLoadingModal").css("display", "none");
+                            $("#purchaseTicketsModal").scrollTop(0); //scroll to top
                         }
                         else { //check until we get a verdict
                             var intervalId = setInterval(function () {
@@ -573,6 +619,7 @@ else if (Model.AuctionModel.DeliveryType == DeliveryTypes.Pickup)
                                             clearInterval(intervalId); //stop checking
                                             $("#buyTickets").removeAttr("disabled");
                                             $("#PageLoadingModal").css("display", "none");
+                                            $("#purchaseTicketsModal").scrollTop(0); //scroll to top
                                         }
                                         else if (data.result == "Success") {
                                             // The payment has been processed!
@@ -586,7 +633,9 @@ else if (Model.AuctionModel.DeliveryType == DeliveryTypes.Pickup)
                                                 walletBalance = data.numTickets;
                                                 $("#walletBalance").html("<span>" + walletBalance + "</span> Tickets");
                                                 $(".addTicket").removeAttr("disabled"); //enable ticket button
+                                                buildCardList(); //get new card (if there is one)
                                             }
+                                            $("#purchaseTicketsModal").scrollTop(0); //scroll to top
                                         }
                                     }
                                 });
@@ -600,6 +649,7 @@ else if (Model.AuctionModel.DeliveryType == DeliveryTypes.Pickup)
                     $("#paymentFailedAlert").css("display", "block");
                     $("#buyTickets").removeAttr("disabled");
                     $("#PageLoadingModal").css("display", "none");
+                    $("#purchaseTicketsModal").scrollTop(0); //scroll to top
                 }
             });
 
@@ -685,5 +735,72 @@ else if (Model.AuctionModel.DeliveryType == DeliveryTypes.Pickup)
             }
         });
     }
+
+    function buildCardList() {
+        $("#cardsLoading").css("display", "block");
+        var container = $("#cardTable tbody");
+        container.html(""); //clear container
+        $.ajax({
+            url: "/api/payments/methods",
+            type: "GET",
+            beforeSend: function (xhr) { //add token
+                var token = getCookie("BearerToken");
+                if (token != "")
+                    xhr.setRequestHeader("Authorization", "Bearer " + token);
+            },
+            success: function (data) {
+                for (var pm of data) {
+                    var card = pm.card;
+                    var html = `<tr style='cursor:pointer'>`;
+                    html += `<td><img style='height:20px' src='` + pm.iconPath + `'></td>`;
+                    html += `<td>&bull;&bull;&bull;&bull; ` + card.last4 + `</td>`;
+                    html += `<td>Expires ` + card.expMonth + "/" + card.expYear + `</td>`;
+                    html += `<td><div class="deleteButton">&times;</div></td></tr>`;
+                    container.append(html);
+                    container.children("tr").last().data("paymentMethod", pm);
+                }
+                var html = `<tr class='addCard' style="text-align: center; cursor:pointer"></td><td colspan='4'><img src='/Content/CardIcons/generic.svg' style='height:20px; padding-right:5px'>Add Card</td></tr>`;
+                container.append(html);
+                $("#cardTable .addCard").click(); //select new card
+                $("#cardsLoading").css("display", "none");
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                var html = "<tr style='text-align:center'>" + XMLHttpRequest.responseText + "</tr>"
+            }
+        });
+    }
+
+    $(document).on("click", "#cardTable tr", function (e) {
+        if ($(this).hasClass("deleteButton"))
+            return; //do nothing when clicking delete
+        var tr = $(e.currentTarget);
+        $("#cardTable tr").removeClass("selected"); //remove all
+        tr.addClass("selected"); //select
+        var form = $(".newCardForm");
+        if (tr.hasClass("addCard")) {
+            form.css("display", "block").animate({ opacity: 1 }, 500); //show
+        }
+        else {
+            form.animate({ opacity: 0 }, 500, function () { $(this).css("display", "none") }); //hide
+        }
+    });
+
+    $(document).on("click", ".deleteButton", function (e) {
+        var row = $(e.currentTarget).closest("tr");
+        var id = row.data().paymentMethod.id;
+        $.ajax({
+            url: "/api/payments/methods",
+            method: "delete",
+            data: { paymentMethodId: id },
+            beforeSend: function (xhr) { //add token
+                var token = getCookie("BearerToken");
+                if (token != "")
+                    xhr.setRequestHeader("Authorization", "Bearer " + token);
+            },
+            success: function (data) {
+                row.remove(); //remove row in table
+            }
+        });
+    });
 
 </script>

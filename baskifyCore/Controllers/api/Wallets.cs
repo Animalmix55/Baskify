@@ -52,94 +52,117 @@ namespace baskifyCore.Controllers.api
             if (ticketPurchaseDto.NumTickets * auction.TicketCost < auction.MinPurchase) //don't allow users to purchase below the min
                 return BadRequest(string.Format("Purchase must exceed ${0}", auction.MinPurchase));
 
-            if (!ticketPurchaseDto.UseAccountAddress)
+            try
             {
-                var addressDict = accountUtils.validateAddress(ticketPurchaseDto.BillingAddress, ticketPurchaseDto.BillingCity, ticketPurchaseDto.BillingState, ticketPurchaseDto.BillingState);
-                if (addressDict["resultStatus"] == "ADDRESS NOT FOUND")
-                    return BadRequest("Invalid Address");
-                else if(string.IsNullOrEmpty(ticketPurchaseDto.CardholderName))
-                    return BadRequest("Invalid Cardholder Name");
-
-                ticketPurchaseDto.BillingAddress = addressDict["addressLine1"]; //set address
-                ticketPurchaseDto.BillingCity = addressDict["city"];
-                ticketPurchaseDto.BillingState = addressDict["state"];
-                ticketPurchaseDto.BillingZIP = addressDict["zip"];
-            }
-            else
-            {
-                ticketPurchaseDto.BillingAddress = user.Address;
-                ticketPurchaseDto.BillingCity = user.City;
-                ticketPurchaseDto.BillingState = user.State;
-                ticketPurchaseDto.BillingZIP = user.ZIP;
-                ticketPurchaseDto.CardholderName = user.FirstName + " " + user.LastName;
-            }
-
-            if (!ModelState.IsValid)
-                return BadRequest("Invalid Input");
-
-            var wallet = _context.UserAuctionWallet.Find(user.Username, auctionId);
-            if (wallet == null) //make new wallet
-            {
-                wallet = new UserAuctionWalletModel() { AuctionId = auctionId, Username = user.Username, WalletBalance = 0 };
-                _context.UserAuctionWallet.Add(wallet);
-            }
-
-
-            if (user.StripeCustomerId == null)
-            {
-                var custOptions = new CustomerCreateOptions
+                if (!ticketPurchaseDto.UseAccountAddress) //get address from form
                 {
-                    Name = string.Format(ticketPurchaseDto.CardholderName),
-                    Address = new AddressOptions() {
-                        Line1 = user.Address,
-                        City = user.City,
-                        State = user.State,
-                        Country = "USA",
-                        PostalCode = user.ZIP
-                    },
-                    Email = user.Email
+                    var addressDict = accountUtils.validateAddress(ticketPurchaseDto.BillingAddress, ticketPurchaseDto.BillingCity, ticketPurchaseDto.BillingState, ticketPurchaseDto.BillingState);
+                    if (addressDict["resultStatus"] == "ADDRESS NOT FOUND")
+                        return BadRequest("Invalid Address");
+                    else if (string.IsNullOrEmpty(ticketPurchaseDto.CardholderName))
+                        return BadRequest("Invalid Cardholder Name");
+
+                    ticketPurchaseDto.BillingAddress = addressDict["addressLine1"]; //set address
+                    ticketPurchaseDto.BillingCity = addressDict["city"];
+                    ticketPurchaseDto.BillingState = addressDict["state"];
+                    ticketPurchaseDto.BillingZIP = addressDict["zip"];
+                }
+                else if (!string.IsNullOrEmpty(ticketPurchaseDto.PaymentMethodId)) //get address from paymentModel
+                {
+                    var PaymentMethodService = new PaymentMethodService();
+                    var paymentMethod = PaymentMethodService.Get(ticketPurchaseDto.PaymentMethodId);
+                    ticketPurchaseDto.BillingAddress = paymentMethod.BillingDetails.Address.Line1;
+                    ticketPurchaseDto.BillingCity = paymentMethod.BillingDetails.Address.City;
+                    ticketPurchaseDto.BillingState = paymentMethod.BillingDetails.Address.State;
+                    ticketPurchaseDto.BillingZIP = paymentMethod.BillingDetails.Address.PostalCode;
+                    ticketPurchaseDto.CardholderName = paymentMethod.BillingDetails.Name;
+                }
+                else //get address from account
+                {
+                    ticketPurchaseDto.BillingAddress = user.Address;
+                    ticketPurchaseDto.BillingCity = user.City;
+                    ticketPurchaseDto.BillingState = user.State;
+                    ticketPurchaseDto.BillingZIP = user.ZIP;
+                    ticketPurchaseDto.CardholderName = user.FirstName + " " + user.LastName;
+                }
+
+                if (!ModelState.IsValid)
+                    return BadRequest("Invalid Input");
+
+                var wallet = _context.UserAuctionWallet.Find(user.Username, auctionId);
+                if (wallet == null) //make new wallet
+                {
+                    wallet = new UserAuctionWalletModel() { AuctionId = auctionId, Username = user.Username, WalletBalance = 0 };
+                    _context.UserAuctionWallet.Add(wallet);
+                }
+
+
+                if (user.StripeCustomerId == null)
+                {
+                    var custOptions = new CustomerCreateOptions
+                    {
+                        Name = string.Format(ticketPurchaseDto.CardholderName),
+                        Address = new AddressOptions()
+                        {
+                            Line1 = user.Address,
+                            City = user.City,
+                            State = user.State,
+                            Country = "USA",
+                            PostalCode = user.ZIP
+                        },
+                        Email = user.Email
+                    };
+
+                    var custService = new CustomerService();
+                    var customer = custService.Create(custOptions);
+
+                    user.StripeCustomerId = customer.Id; //add new customer
+                }
+
+                var amount = (long?)(ticketPurchaseDto.NumTickets * auction.TicketCost * 100); //amount in cents
+
+                var options = new PaymentIntentCreateOptions
+                {
+                    ReceiptEmail = user.Email,
+                    Customer = user.StripeCustomerId,
+                    CaptureMethod = "automatic",
+                    ConfirmationMethod = "automatic",
+                    Amount = amount, //in cents
+                    Currency = "usd"
+                };
+                if (ticketPurchaseDto.SaveCard) //save if requested
+                    options.SetupFutureUsage = "on_session";
+                if (!string.IsNullOrEmpty(ticketPurchaseDto.PaymentMethodId))
+                    options.PaymentMethod = ticketPurchaseDto.PaymentMethodId;
+
+
+                var service = new PaymentIntentService();
+                var paymentIntent = service.Create(options);
+
+                var PaymentModel = new PaymentModel()
+                {
+                    Amount = (float)amount,
+                    PaymentIntentId = paymentIntent.Id,
+                    Time = paymentIntent.Created,
+                    Username = user.Username,
+                    AuctionId = auction.AuctionId,
+                    BillingAddress = ticketPurchaseDto.BillingAddress,
+                    BillingCity = ticketPurchaseDto.BillingCity,
+                    BillingState = ticketPurchaseDto.BillingState,
+                    BillingZIP = ticketPurchaseDto.BillingZIP,
+                    CardholderName = ticketPurchaseDto.CardholderName
                 };
 
-                var custService = new CustomerService();
-                var customer = custService.Create(custOptions);
+                //create payment in database
+                _context.PaymentModel.Add(PaymentModel);
+                _context.SaveChanges();
 
-                user.StripeCustomerId = customer.Id; //add new customer
+                return Ok(new { ClientSecret = paymentIntent.ClientSecret, PaymentMethod = ticketPurchaseDto.PaymentMethodId }); //method will be null if not provided
             }
-
-            var amount = (long?)(ticketPurchaseDto.NumTickets * auction.TicketCost * 100); //amount in cents
-
-            var options = new PaymentIntentCreateOptions
+            catch (Exception)
             {
-                ReceiptEmail = user.Email,
-                Customer = user.StripeCustomerId,
-                CaptureMethod = "automatic",
-                ConfirmationMethod = "automatic",
-                Amount = amount, //in cents
-                Currency = "usd",
-                SetupFutureUsage = "on_session",
-            };
-            var service = new PaymentIntentService();
-            var paymentIntent = service.Create(options);
-
-            var PaymentModel = new PaymentModel() { 
-                Amount = (float)amount, 
-                PaymentIntentId = paymentIntent.Id, 
-                Time = paymentIntent.Created, 
-                Username = user.Username, 
-                AuctionId = auction.AuctionId,
-                BillingAddress = ticketPurchaseDto.BillingAddress,
-                BillingCity = ticketPurchaseDto.BillingCity,
-                BillingState = ticketPurchaseDto.BillingState,
-                BillingZIP = ticketPurchaseDto.BillingZIP,
-                CardholderName = ticketPurchaseDto.CardholderName
-            };
-            //create payment in database
-            _context.PaymentModel.Add(PaymentModel);
-            _context.SaveChanges();
-
-            return Ok(paymentIntent.ClientSecret);
-
-
+                return BadRequest("There was an error processing this payment");
+            }
         }
 
         // /api/wallets/checkpayment/{id}

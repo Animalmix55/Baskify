@@ -68,7 +68,8 @@ namespace baskifyCore.Controllers.api
             List<PaymentMethodDto> paymentMethodDtos;
 
             var paymentMethodService = new PaymentMethodService();
-            paymentMethodDtos = Mapper.Map<List<PaymentMethodDto>>(paymentMethodService.List(paymentMethodListOpts));
+            var paymentMethods = paymentMethodService.List(paymentMethodListOpts).Where(pm => pm.CustomerId == user.StripeCustomerId).Where(pm => pm.Card != null); //only select pms with cards (jic this happens)
+            paymentMethodDtos = Mapper.Map<List<PaymentMethodDto>>(paymentMethods);
 
             return Ok(paymentMethodDtos);
         }
@@ -89,9 +90,14 @@ namespace baskifyCore.Controllers.api
                 return Unauthorized("Bad login");
 
             var paymentMethodService = new PaymentMethodService();
-            paymentMethodService.Detach(paymentMethodId);
-
-            return Ok();
+            try{
+                paymentMethodService.Detach(paymentMethodId);
+                return Ok();
+            }
+            catch (Exception)
+            {
+                return NotFound("Card already removed");
+            }
             
         }
     }
