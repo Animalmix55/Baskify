@@ -1,23 +1,35 @@
 ﻿@model baskifyCore.Models.UserModel;
 <!DOCTYPE html>
 
+<script src="~/js/moment-with-locales.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.4/css/responsive.dataTables.min.css" />
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.4/js/dataTables.responsive.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css" />
+
 <html>
 <head>
+    <style>
+        #cardTable td{
+            padding: .75rem !important;
+        }
+    </style>
     <meta name="viewport" content="width=device-width" />
     <title>Your Account</title>
 </head>
 <body>
     <div id="accountSettings">
-        <ul class="nav nav-tabs" id="AccountNavTabs">
+        <ul class="nav nav-tabs maxWidthContainer" id="AccountNavTabs">
             <li class="nav-item">
-                <a class="nav-link active" data-toggle="tab" href="#accountInfo">Account Info</a>
+                <a class="nav-link active" data-toggle="tab" href="#account">Account Info</a>
             </li>
             <li class="nav-item">
                 <a class="nav-link" data-toggle="tab" href="#payment">Payment</a>
             </li>
         </ul>
-        <div id="myTabContent" class="tab-content">
-            <div id="accountInfo" class="tab-pane fade active show">
+        <div id="myTabContent" class="tab-content maxWidthContainer">
+            <div id="account" class="tab-pane fade active show">
                 @using (Html.BeginForm("updateValues", "Account", FormMethod.Post, new { @id = "userInfoForm", enctype = "multipart/form-data" }))
                 {
                     @Html.ValidationSummary(true)
@@ -99,13 +111,15 @@
                     </fieldset>
                 }
 
-                </div>
-            <div id="payment" class="tab-content">
+            </div>
+            <div id="payment" class="tab-pane fade">
                 <h2>Your Payment Methods</h2>
                 <table id="cardTable" class="table table-hover" style="width:100%;">
                     <thead>
                         <tr>
                             <th></th>
+                            <th>Last Four</th>
+                            <th>Expiration</th>
                             <th></th>
                         </tr>
                     </thead>
@@ -114,43 +128,101 @@
         </div>
     </div>
     <script>
-            window.history.replaceState(null, "", '/Account');
-            $("#Email, #ContactEmail").on("focusout", function (e) { //autofills contact email if empty
-                var contactEmail = $("#ContactEmail");
-                if (contactEmail.length != 0 && contactEmail.val() == "") {
-                    $("#ContactEmail").val($("#Email").val());
-                }
-            });
+        window.history.replaceState(null, "", '/Account');
+        $("#Email, #ContactEmail").on("focusout", function (e) { //autofills contact email if empty
+            var contactEmail = $("#ContactEmail");
+            if (contactEmail.length != 0 && contactEmail.val() == "") {
+                $("#ContactEmail").val($("#Email").val());
+            }
+        });
 
         cardTable = $("#cardTable");
-    cardTable.dataTable({
-        ajax: {
-            url: "/api/payments/methods",
-            type: "GET",
-            dataSrc: "",
-            beforeSend: function (xhr) { //add token
-                var token = getCookie("BearerToken");
-                if (token != "")
-                    xhr.setRequestHeader("Authorization", "Bearer " + token);
-            }
-        },
-        createdRow: function (row, data, dataIndex) {
-        },
-        columns: [
-            {
-                className: 'cardIcon',
-                orderable: false,
-                defaultContent: "",
-                data: null,
-                targets: 0
+        cardTable.dataTable({
+            ajax: {
+                url: "/api/payments/methods",
+                type: "GET",
+                dataSrc: "",
+                beforeSend: function (xhr) { //add token
+                    var token = getCookie("BearerToken");
+                    if (token != "")
+                        xhr.setRequestHeader("Authorization", "Bearer " + token);
+                }
             },
-            {
-                className: 'data',
-                data: "basketTitle",
-                responsivePriority: 1
+            createdRow: function (row, data, dataIndex) {
+                $(row).css("cursor", "pointer");
+            },
+            columns: [
+                {
+                    className: 'cardIcon',
+                    orderable: false,
+                    render: function (data, type, row) {
+                        return "<img style='height:20px' src='" + data + "'>"
+                    },
+                    data: 'iconPath',
+                },
+                {
+                    className: 'data',
+                    data: "card.last4",
+                    render: function (data, type, row) {
+                        return "&bull;&bull;&bull;&bull; " + data;
+                    },
+                },
+                {
+                    className: 'data',
+                    data: "card.expMonth",
+                    render: function (data, type, row) {
+                        return data + "/" + row.card.expYear;
+                    }
+                },
+                {
+                    data: 'id',
+                    render: function (data, type, row) {
+                        return `<div class="deleteButton">&times;</div>`
+                    }
+                }
+            ]
+        });
+
+        $(document).on("click", ".deleteButton", function (e) {
+            var row = $(e.currentTarget).closest("tr");
+            var id = cardTable.DataTable().row(row).data().id;
+            $.ajax({
+                url: "/api/payments/methods",
+                method: "delete",
+                data: { paymentMethodId: id },
+                beforeSend: function (xhr) { //add token
+                    var token = getCookie("BearerToken");
+                    if (token != "")
+                        xhr.setRequestHeader("Authorization", "Bearer " + token);
+                },
+                success: function (data) {
+                    cardTable.DataTable().row(row).remove().draw(); //remove row in table
+                }
+            });
+        });
+
+        $(document).on("click", "#cardTable tr .data, #cardTable tr .cardIcon", function (e) {
+            var row = cardTable.DataTable().row($(e.currentTarget).closest("tr"));
+
+            if (row.child.isShown()) {
+                // This row is already open - close it
+                row.child.hide();
+                tr.removeClass('shown');
             }
-        ]
-    });
+            else {
+                // Open this row
+                row.child(childRow(row.data())).show();
+                tr.addClass('shown');
+                row.child().css("background-color", "white") //no hover coloring
+            }
+        });
+
+        function childRow(paymentMethod) {
+            var html = `<div><b>Cardholder: </b>` + paymentMethod.billingDetails.name + `</div>`;
+            html += `<div><b>Billing Address: </b>` + paymentMethod.billingDetails.address.line1 + ", " + paymentMethod.billingDetails.address.city + ", " + paymentMethod.billingDetails.address.state + " " + paymentMethod.billingDetails.address.postalCode + `</div>`;
+            return html;
+        }
+
     </script>
 </body>
 

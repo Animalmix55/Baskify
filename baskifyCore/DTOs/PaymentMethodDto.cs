@@ -37,5 +37,42 @@ namespace baskifyCore.DTOs
         public BillingDetailsDto BillingDetails { get; set; }
         public CardDto Card { get; set; }
         public DateTime Created { get; set; }
+        public string IconPath
+        {
+            get
+            {
+                switch (Card.Brand.ToLower())
+                {
+                    case CardBrands.AmEx:
+                        return "/Content/CardIcons/amex.svg";
+                    case CardBrands.DC:
+                        return "/Content/CardIcons/diners.svg";
+                    case CardBrands.Disc:
+                        return "/Content/CardIcons/discover.svg";
+                    case CardBrands.JCB:
+                        return "/Content/CardIcons/jcb.svg";
+                    case CardBrands.MC:
+                        return "/Content/CardIcons/mastercard.svg";
+                    case CardBrands.UP:
+                        return "/Content/CardIcons/unionpay.svg";
+                    case CardBrands.Visa:
+                        return "/Content/CardIcons/visa.svg";
+                    default:
+                        return "/Content/CardIcons/generic.svg";
+                }
+            }
+        }
+    }
+
+    public static class CardBrands
+    {
+        public const string AmEx = "amex";
+        public const string DC = "diners";
+        public const string Disc = "discover";
+        public const string JCB = "jcb";
+        public const string MC = "mastercard";
+        public const string UP = "unionpay";
+        public const string Visa = "visa";
+        public const string Unknown = "unknown";
     }
 }

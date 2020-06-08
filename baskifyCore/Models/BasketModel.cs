@@ -1,15 +1,38 @@
-﻿using System;
+﻿using baskifyCore.Controllers;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.ComponentModel.DataAnnotations.Schema;
 using System.Linq;
+using System.Runtime.Serialization;
 using System.Text.Json;
 
 
 namespace baskifyCore.Models
 {
+    public enum BasketStates
+    {
+        Delivered,
+        Shipped,
+        [Display(Name = "In Transit")]
+        [EnumMember(Value="In Transit")]
+        InTransit,
+        [Display(Name = "Pending Shipment")]
+        [EnumMember(Value = "Pending Shipment")]
+        PendingShipment,
+        Drawn,
+        [EnumMember(Value = "Not Drawn")]
+        [Display(Name = "Not Drawn")]
+        NotYetDrawn
+    }
+
     public class BasketModel : IValidatableObject
     {
+        public BasketModel()
+        {
+            Status = BasketStates.NotYetDrawn;
+        }
+
         public List<BasketPhotoModel> photos { get; set; }
 
         [Key]
@@ -68,6 +91,9 @@ namespace baskifyCore.Models
         /// </summary>
         [Required]
         public bool Draft { get; set; }
+
+        [Required]
+        public BasketStates Status { get; set; }
 
         //--------------------------------------------UNMAPPED ATTRIBUTES---------------------------------
 

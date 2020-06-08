@@ -48,6 +48,7 @@
                     <th scope="col">Auction Name</th>
                     <th scope="col">Organization</th>
                     <th scope="col">Submission Date</th>
+                    <th scope="col">Status</th>
                     <th></th>
                 </tr>
             </thead>
@@ -176,6 +177,11 @@
                 className: 'data'
             },
             {
+                data: "status",
+                responsivePriority: 2,
+                className: 'data'
+            },
+            {
                 data: "acceptedByOrg",
                 render: function (data, type, row) {
                     if (!data) {
@@ -187,7 +193,7 @@
                     else return "";
                 },
                 orderable: false,
-                responsivePriority: 2
+                responsivePriority: 3
             }
         ]
      });
@@ -288,8 +294,8 @@
 
     function winnerInfoFormat(winner) {
         // `d` is the original data object for the row
-        return '<h2>Winner Info</h2>' +
-            '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">' +
+        return '<h2 style="text-align:center">Winner Info</h2>' +
+            '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;left:0;right:0;margin:auto; text-align:center;">' +
             '<tr>' +
             '<td>Full name:</td>' +
             '<td>' + winner.firstName + " " + winner.lastName + '</td>' +
