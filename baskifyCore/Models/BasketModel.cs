@@ -10,29 +10,15 @@ using System.Text.Json;
 
 namespace baskifyCore.Models
 {
-    public enum BasketStates
+    public enum PostalCarrier
     {
-        Delivered,
-        Shipped,
-        [Display(Name = "In Transit")]
-        [EnumMember(Value="In Transit")]
-        InTransit,
-        [Display(Name = "Pending Shipment")]
-        [EnumMember(Value = "Pending Shipment")]
-        PendingShipment,
-        Drawn,
-        [EnumMember(Value = "Not Drawn")]
-        [Display(Name = "Not Drawn")]
-        NotYetDrawn
+        UPS,
+        USPS,
+        FedEx
     }
 
     public class BasketModel : IValidatableObject
     {
-        public BasketModel()
-        {
-            Status = BasketStates.NotYetDrawn;
-        }
-
         public List<BasketPhotoModel> photos { get; set; }
 
         [Key]
@@ -93,7 +79,11 @@ namespace baskifyCore.Models
         public bool Draft { get; set; }
 
         [Required]
-        public BasketStates Status { get; set; }
+        public bool Delivered { get; set; }
+
+        public string TrackingNumber { get; set; }
+
+        public PostalCarrier? Carrier { get; set; }
 
         //--------------------------------------------UNMAPPED ATTRIBUTES---------------------------------
 
@@ -118,6 +108,9 @@ namespace baskifyCore.Models
         {
             if (BasketContents.Any(b => string.IsNullOrWhiteSpace(b)))
                 yield return new ValidationResult("No content rows can be empty!", new[] { "BasketContentString" }); //no empty indeces allowed
+
+            if (!string.IsNullOrWhiteSpace(TrackingNumber) && Carrier == null)
+                yield return new ValidationResult("A postal carrier must be specified!");
         }
     }
 }

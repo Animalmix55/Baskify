@@ -1,0 +1,214 @@
+﻿@{
+    Layout = null;
+}
+
+<head>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="~/css/site.css" />
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.lux.min.css" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Sign Up</title>
+</head>
+<body>
+    <nav class="navigationBar">
+        <a class="navigationBarBrand navBarElement" href="/">Baskify</a>
+    </nav>
+    <div style="height:100%; width:100%; display:flex; align-items:center; justify-content:center">
+        <div class="signUpModal maxWidthContainer" style="overflow:hidden">
+            <div style="display:flex; justify-content:center; align-items:center; flex-direction:column" data-slide="1" data-user="both">
+                <h3 style="text-align:center">What Kind of User are You?</h3>
+                <button class="btn btn-secondary userType" data-type="organization">
+                    <img style="padding-right:20px; height:40px" src="data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIj8+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBpZD0iTGF5ZXJfMSIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgNDgwLjAzNyA0ODAuMDM3IiBoZWlnaHQ9IjUxMnB4IiB2aWV3Qm94PSIwIDAgNDgwLjAzNyA0ODAuMDM3IiB3aWR0aD0iNTEycHgiPjxwYXRoIGQ9Im0zMTMuMDM3IDMyOS4wMTl2MTUxaC02NXYtMTQyYzAtNC40MTgtMy41ODItOC04LThzLTggMy41ODItOCA4djE0MmgtNjV2LTE1MWMwLTEzLjIzMyAxMC43NjYtMjQgMjQtMjRoOThjMTMuMjM0IDAgMjQgMTAuNzY2IDI0IDI0em0xMzEuOTk1LTc1LjQ3Yy0yNy43MzkgMTEuMzYyLTYwLjEyNCA2Ljc2LTgzLjc3OC0xMy4yMDItMy4wMjctMi41NTQtNy40MDItMi41Ni0xMC40MjctLjAwNC0zMC40NiAyNS43MjItNzUuMDggMjUuNzMzLTEwNS41NTIuMDIzLTMuMDQtMi41NjUtNy40MzUtMi41NjUtMTAuNDc1IDAtMzAuNDg2IDI1LjcyMS03NS4xMzEgMjUuNjkyLTEwNS41NjktLjAzNS0zLjAyNy0yLjU1OC03LjQwNS0yLjU1NC0xMC40MzMuMDAzLTIzLjY2MyAxOS45ODItNTYuMDQ5IDI0LjU4My04My43NDcgMTMuMjE1LTUuMjU1LTIuMTU3LTExLjAxMyAxLjcyMy0xMS4wMTMgNy40MDN2MTc5LjA2OGMwIDIyLjA5MSAxNy45MDkgNDAgNDAgNDBoODd2LTE1MWMwLTIyLjA1NiAxNy45NDQtNDAgNDAtNDBoOThjMjIuMDU2IDAgNDAgMTcuOTQ0IDQwIDQwdjE1MWg4N2MyMi4wOTEgMCA0MC0xNy45MDkgNDAtNDB2LTE3OS4wNjVjLS4wMDEtNS42NzYtNS43NTMtOS41NTctMTEuMDA2LTcuNDA2em0tMzg0Ljk5NS0xMTcuNTNjLTQuNTk1IDAtOC4yODQtMy44NzMtNy45ODMtOC41MzIuMjc1LTQuMjUyIDMuOTk2LTcuNDY4IDguMjU3LTcuNDY4aDQwNC43OTJjNS43NTcgMCA5LjYzLTUuODk4IDcuMzQtMTEuMTgxbC00NS4wNjYtMTAzLjk5OWMtMS4yNy0yLjkzLTQuMTUtNC44Mi03LjM0LTQuODJoLTM2MGMtMy4xOSAwLTYuMDcgMS44OS03LjM0IDQuODJsLTUyIDEyMGMtLjkzMyAyLjEyLS42Ni0xLjEwMi0uNjYgNTIuODEuMDYgMzYuMzkgMjkuNjcgNjUuOTkgNjYgNjUuOTkgMjIuNjkgMCA0Mi43NTYtMTEuNTQyIDU0LjYzOC0yOS4wNzQgMS42MTQtMi4zODIgNS4wNjktMi4zODIgNi42ODMuMDAxIDI2LjI3MSAzOC43OCA4My4xMDEgMzguNjk0IDEwOS4zNC4wMjggMS42MTQtMi4zNzkgNS4wNjUtMi4zNzkgNi42NzkgMCAyNi4yNTkgMzguNjk3IDgzLjA0OSAzOC43MTcgMTA5LjMyMS0uMDAxIDEuNTkxLTIuMzQ1IDUuMDM3LTIuNDI3IDYuNjI0LS4wOCAxMi4wMjMgMTcuNzc0IDMyLjQ3NCAyOS40MTQgNTUuNTY4IDI5LjEyIDM2LjI4NC0uNDYxIDY1LjE0Ny0zMC43MiA2NS4xNDctNjcuMDA3di0zMi42MDhjMC00LjQxOC0zLjU4Mi04LTgtOGgtNDEyeiIgZmlsbD0iIzAwMDAwMCIvPjwvc3ZnPgo=" />
+                    <span style="font-size:200%;">Organization</span>
+                    <div class="text-muted">I plan on making auctions</div>
+                </button>
+                <button class="btn btn-secondary userType" data-type="user">
+                    <img style="padding-right:20px; height:20px" src="data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIj8+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSItNDIgMCA1MTIgNTEyLjAwMiIgd2lkdGg9IjUxMnB4IiBoZWlnaHQ9IjUxMnB4Ij48cGF0aCBkPSJtMjEwLjM1MTU2MiAyNDYuNjMyODEyYzMzLjg4MjgxMyAwIDYzLjIyMjY1Ny0xMi4xNTIzNDMgODcuMTk1MzEzLTM2LjEyODkwNiAyMy45NzI2NTYtMjMuOTcyNjU2IDM2LjEyNS01My4zMDQ2ODcgMzYuMTI1LTg3LjE5MTQwNiAwLTMzLjg3NS0xMi4xNTIzNDQtNjMuMjEwOTM4LTM2LjEyODkwNi04Ny4xOTE0MDYtMjMuOTc2NTYzLTIzLjk2ODc1LTUzLjMxMjUtMzYuMTIxMDk0LTg3LjE5MTQwNy0zNi4xMjEwOTQtMzMuODg2NzE4IDAtNjMuMjE4NzUgMTIuMTUyMzQ0LTg3LjE5MTQwNiAzNi4xMjVzLTM2LjEyODkwNiA1My4zMDg1OTQtMzYuMTI4OTA2IDg3LjE4NzVjMCAzMy44ODY3MTkgMTIuMTU2MjUgNjMuMjIyNjU2IDM2LjEzMjgxMiA4Ny4xOTUzMTIgMjMuOTc2NTYzIDIzLjk2ODc1IDUzLjMxMjUgMzYuMTI1IDg3LjE4NzUgMzYuMTI1em0wIDAiIGZpbGw9IiMwMDAwMDAiLz48cGF0aCBkPSJtNDI2LjEyODkwNiAzOTMuNzAzMTI1Yy0uNjkxNDA2LTkuOTc2NTYzLTIuMDg5ODQ0LTIwLjg1OTM3NS00LjE0ODQzNy0zMi4zNTE1NjMtMi4wNzgxMjUtMTEuNTc4MTI0LTQuNzUzOTA3LTIyLjUyMzQzNy03Ljk1NzAzMS0zMi41MjczNDMtMy4zMDg1OTQtMTAuMzM5ODQ0LTcuODA4NTk0LTIwLjU1MDc4MS0xMy4zNzEwOTQtMzAuMzM1OTM4LTUuNzczNDM4LTEwLjE1NjI1LTEyLjU1NDY4OC0xOS0yMC4xNjQwNjMtMjYuMjc3MzQzLTcuOTU3MDMxLTcuNjEzMjgyLTE3LjY5OTIxOS0xMy43MzQzNzYtMjguOTY0ODQzLTE4LjE5OTIxOS0xMS4yMjY1NjMtNC40NDE0MDctMjMuNjY3OTY5LTYuNjkxNDA3LTM2Ljk3NjU2My02LjY5MTQwNy01LjIyNjU2MyAwLTEwLjI4MTI1IDIuMTQ0NTMyLTIwLjA0Mjk2OSA4LjUtNi4wMDc4MTIgMy45MTc5NjktMTMuMDM1MTU2IDguNDQ5MjE5LTIwLjg3ODkwNiAxMy40NjA5MzgtNi43MDcwMzEgNC4yNzM0MzgtMTUuNzkyOTY5IDguMjc3MzQ0LTI3LjAxNTYyNSAxMS45MDIzNDQtMTAuOTQ5MjE5IDMuNTQyOTY4LTIyLjA2NjQwNiA1LjMzOTg0NC0zMy4wMzkwNjMgNS4zMzk4NDQtMTAuOTcyNjU2IDAtMjIuMDg1OTM3LTEuNzk2ODc2LTMzLjA0Njg3NC01LjMzOTg0NC0xMS4yMTA5MzgtMy42MjEwOTQtMjAuMjk2ODc2LTcuNjI1LTI2Ljk5NjA5NC0xMS44OTg0MzgtNy43Njk1MzItNC45NjQ4NDQtMTQuODAwNzgyLTkuNDk2MDk0LTIwLjg5ODQzOC0xMy40Njg3NS05Ljc1LTYuMzU1NDY4LTE0LjgwODU5NC04LjUtMjAuMDM1MTU2LTguNS0xMy4zMTI1IDAtMjUuNzUgMi4yNTM5MDYtMzYuOTcyNjU2IDYuNjk5MjE5LTExLjI1NzgxMyA0LjQ1NzAzMS0yMS4wMDM5MDYgMTAuNTc4MTI1LTI4Ljk2ODc1IDE4LjE5OTIxOS03LjYwNTQ2OSA3LjI4MTI1LTE0LjM5MDYyNSAxNi4xMjEwOTQtMjAuMTU2MjUgMjYuMjczNDM3LTUuNTU4NTk0IDkuNzg1MTU3LTEwLjA1ODU5NCAxOS45OTIxODgtMTMuMzcxMDk0IDMwLjMzOTg0NC0zLjE5OTIxOSAxMC4wMDM5MDYtNS44NzUgMjAuOTQ1MzEzLTcuOTUzMTI1IDMyLjUyMzQzNy0yLjA1ODU5NCAxMS40NzY1NjMtMy40NTcwMzEgMjIuMzYzMjgyLTQuMTQ4NDM3IDMyLjM2MzI4Mi0uNjc5Njg4IDkuNzk2ODc1LTEuMDIzNDM4IDE5Ljk2NDg0NC0xLjAyMzQzOCAzMC4yMzQzNzUgMCAyNi43MjY1NjIgOC40OTYwOTQgNDguMzYzMjgxIDI1LjI1IDY0LjMyMDMxMiAxNi41NDY4NzUgMTUuNzQ2MDk0IDM4LjQ0MTQwNiAyMy43MzQzNzUgNjUuMDY2NDA2IDIzLjczNDM3NWgyNDYuNTMxMjVjMjYuNjI1IDAgNDguNTExNzE5LTcuOTg0Mzc1IDY1LjA2MjUtMjMuNzM0Mzc1IDE2Ljc1NzgxMy0xNS45NDUzMTIgMjUuMjUzOTA2LTM3LjU4NTkzNyAyNS4yNTM5MDYtNjQuMzI0MjE5LS4wMDM5MDYtMTAuMzE2NDA2LS4zNTE1NjItMjAuNDkyMTg3LTEuMDM1MTU2LTMwLjI0MjE4N3ptMCAwIiBmaWxsPSIjMDAwMDAwIi8+PC9zdmc+Cg==" />
+                    <span style="font-size:200%;">Customer</span>
+                    <div class="text-muted">I plan on participating in auctions</div>
+                </button>
+            </div>
+            <!---------------START SLIDE 2 ORG------------------>
+            <div style="display:none; opacity:0; justify-content:center; align-items:center; flex-direction:column" data-slide="2" data-user="organization">
+                <h3 style="text-align:center">Find Your Organization</h3>
+                <div class="text-muted">We only allow non-profits 501(c)(#) or 4947(a)(1)</div>
+                <input id="EIN" name="EIN" type="hidden" />
+                <div id="searchBarParent" class="form-inline my-2 my-lg-0" style="display: block; width:80%;">
+                    <div style="position:relative">
+                        <input class="form-control mr-sm-2 searchBar" style="width: 100%;" id="searchOrg" placeholder="Search by Organization Name or EIN" type="text" value="">
+                        <div id="searchOrgLoader" style="height: 66px; width: 45px; visibility: visible; position: absolute;top: 0;right: 14px;bottom: 0;margin: auto; display:none">
+                            <div class="loading-body">
+                                <div></div><div></div><div></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <div id="searchResults" style="z-index:10;border-right: 1px solid rgba(155, 155, 155, 0.3); border-bottom: 1px solid rgba(155, 155, 155, 0.3);border-left: 1px solid rgba(155, 155, 155, 0.3);
+                        border-image: initial; position: absolute;text-align: center; display: none;background: white;width: 535.188px;">
+                        </div>
+                    </div>
+                </div>
+                <div style="cursor:pointer; color:#1F9BCF;" onclick="loadProofOfNonProf()">Can't find your organization?</div>
+
+                <div style="padding-top:30px; width:80%; display:none; opacity: 0" id="uploadOrgDocsContainer">
+                    <h3 style="text-align:center">Upload Proof of Non-Profit Status</h3>
+                    <div class="text-muted" style="padding-bottom: 10px;">Official IRS documents can be uploaded here (ex: an IRS determination letter or any other document proving non-profit status and providing an EIN)</div>
+                    <div class="form-group" id="nonprofitFilesCont">
+                        <div class="input-group mb-3">
+                            <div class="custom-file" style="flex: unset;">
+                                <input type="file" class="custom-file-input" accept=".pdf,image/*" name="proofofnonprofit" multiple>
+                                <label class="custom-file-label" for="proofofnonprofit">Choose files</label>
+                            </div>
+                            <table class="table table-hover">
+                                <tbody class="fileList"></tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+                <button class="btn btn-success nextSlide" style="width:80%" disabled>Next</button>
+            </div>
+        </div>
+    </div>
+    <script>
+        var currentSlide = 1;
+        var userType = "both";
+        function nextSlide(onNext) {
+            if (currentSlide == 1) //first slide is not typed
+                var currentType = "both"
+            else
+                var currentType = userType;
+
+            var $currentSlide = $("[data-slide=" + currentSlide + "][data-user=" + currentType + "]");
+            var $nextSlide = $("[data-slide=" + (currentSlide + 1) + "][data-user=" + userType + "]");
+            var slideWidth = $(".signUpModal").first().width();
+            $currentSlide.animate({
+                opacity: 0
+            }, 600, function () {
+                $(this).css("display", "none");
+                $nextSlide.css("display", "flex");
+                $nextSlide.animate({
+                    opacity: 1
+                }, 600);
+                currentSlide += 1;
+            });
+            if (onNext != null) //runs function on slide change
+                onNext()
+            
+        }
+
+        $("#searchResults").on("click", ".orgResultLine", function (e) {
+            $("#EIN").val($(e.currentTarget).attr("data-ein")); //set ein field to button value
+            $("#searchOrg").val($(e.currentTarget).attr("data-orgname")); //put org name in field
+            $("[data-slide=" + currentSlide + "]").find(".nextSlide").removeAttr("disabled");
+        });
+
+        $(window).resize(function () {
+            $("#searchResults").css("width", $("#searchOrg").outerWidth() + "px");
+        });
+
+        $(".userType").on("click", function (e) {
+            var type = $(e.currentTarget).attr("data-type"); //sets user or company
+            userType = type;
+            nextSlide();
+        });
+
+        $("#searchBarParent").focusout(function (e) { //removes search results on focus out
+            $("#searchResults").delay(300).queue(function (next) {
+                $(this).css("display", "none");
+                next();
+            });
+        });
+        $("#searchBarParent").focusin(function () {
+            $("#searchResults").css("display", "block");
+            hideProofOfNonProf(); //hide proof upload if necessary
+        });
+
+        var delayTimer;
+        var searchRequest;
+        $("#searchOrg").on("input",function (e) {
+            $("#searchOrgLoader").css("display", "block");
+            if ($(e.currentTarget).val() == "") {
+                resultContainer.html("");
+                clearTimeout(delayTimer);
+                $("#searchOrgLoader").css("display", "none");
+                return;
+            }
+
+            $("#EIN").val(""); //make sure nothing is in it
+            $("[data-slide=" + currentSlide + "]").find(".nextSlide").attr("disabled", "");
+                
+            resultContainer = $("#searchResults");
+            clearTimeout(delayTimer);
+            delayTimer = setTimeout(function () {
+                if (searchRequest != null)
+                    searchRequest.abort(); //kill previous request
+                $("#searchResults").css("width", $("#searchOrg").outerWidth() + "px"); //set size
+                searchRequest = $.ajax({
+                    url: "/api/nonprofit/search?query=" + encodeURIComponent($(e.currentTarget).val()),
+                    method: "get",
+                    success: function (data) {
+                        resultContainer.html("");
+                        for (var org of data) {
+                            resultContainer.append(createResult(org));
+                        }
+                        $("#searchOrgLoader").css("display", "none");
+                    }
+                });
+            }, 500);
+        });
+
+        function createResult(org) {
+            var html = `<div class="orgResultLine" data-ein="` + org.ein + `" data-orgname="` + org.organizationName +`">\
+                <div style="font-weight:bold">`+ org.organizationName +`</div>\
+                <div class="text-muted">`+ org.city + ", " + org.state + `</div>\
+                <div class="text-muted"> EIN: `+ org.ein + `</div>\
+            </div>`;
+
+            return html;
+        }
+
+        function loadProofOfNonProf() {
+            $("#EIN").val("");
+            $("#searchOrg").val(""); //clear searchbar and ein field
+            $("#uploadOrgDocsContainer").css("display", "block").animate({ opacity: 1 }, 500);
+            $("[data-slide=" + currentSlide + "]").find(".nextSlide").attr("disabled", ""); //disable button
+        }
+
+        function hideProofOfNonProf() { //hides upload files
+            if ($("#uploadOrgDocsContainer").css("opacity") == 0)
+                return; //do nothing if hidden
+            $("#uploadOrgDocsContainer").animate({ opacity: 0 }, 500, function () { $(this).css("display", "none") });
+            $("#nonprofitFilesCont input[type=file]").remove(); //clears any saved files
+            $("#nonprofitFilesCont .custom-file").prepend(`<input type="file" class="custom-file-input" accept=".pdf,image/*" name="proofofnonprofit" multiple>`); //read select
+            $("#nonprofitFilesCont .fileList").html(""); //clear list
+            $("[data-slide=" + currentSlide + "]").find(".nextSlide").attr("disabled", ""); //disable button
+        }
+
+        $("#uploadOrgDocsContainer").on("change", "input[name=proofofnonprofit]", function (e) {//when a file is selected
+            var domElement = $(this);
+            var files = domElement[0].files;
+            if (files.length == 0) {
+                $("[data-slide=" + currentSlide + "]").find(".nextSlide").attr("disabled", "");
+                return; //do nothing but make sure button is disabled
+            }
+            var fileList = $("#nonprofitFilesCont .fileList");
+            fileList.html("");
+            var html = "";
+            for (var i = 0; i < files.length; i++) {
+                html += `<tr class="fileListItem"><td style="padding:0.75rem">` + files[i].name + `</td></tr>`;
+            }
+            fileList.append(html); //add files to list
+            $("[data-slide=" + currentSlide + "]").find(".nextSlide").removeAttr("disabled");
+        });
+
+        //SLIDE 3 ORG ----------------------------------
+
+        function tryLoadOrgAddress() {
+            if ($("#EIN").val() == "")
+                return;
+
+            $.ajax({});
+        }
+    </script>
+</body>

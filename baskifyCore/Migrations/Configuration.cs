@@ -10,6 +10,7 @@
         public Configuration()
         {
             AutomaticMigrationsEnabled = false;
+            CommandTimeout = 0;
         }
 
         protected override void Seed(baskifyCore.Models.ApplicationDbContext context)

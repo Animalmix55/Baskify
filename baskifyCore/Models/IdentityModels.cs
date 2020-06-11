@@ -1,6 +1,7 @@
 ﻿using System.Data.Entity;
 using System.Configuration;
-
+using System.Data.Entity.Migrations;
+using Stripe;
 
 namespace baskifyCore.Models
 {
@@ -20,5 +21,8 @@ namespace baskifyCore.Models
         public DbSet<PendingImageModel> PendingImageModel { get; set; }
         public DbSet<PaymentModel> PaymentModel { get; set; }
         public DbSet<AuctionLinkModel> AuctionLinkModel { get; set; }
+
+        public DbSet<IRSNonProfitDocument> IRSNonProfitDocument { get; set; }
+        public DbSet<IRSNonProfit> IRSNonProfit { get; set; }
     }
 }

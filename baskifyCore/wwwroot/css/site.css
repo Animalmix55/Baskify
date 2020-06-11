@@ -632,3 +632,27 @@ tr.shown td.details-control {
 #cardTable .selected {
     background-color: #cdedd8
 }
+
+.signUpModal{
+    height:60%;
+    min-height:500px;
+}
+.orgResultLine:hover {
+    background: rgba(0, 0, 0, 0.1)
+}
+.orgResultLine {
+    cursor: pointer;
+    display: flex;
+    justify-content: space-around;
+    flex-wrap: wrap;
+    border-bottom: solid rgba(155,155,155,.2) 1px;
+    padding:10px;
+    z-index:10;
+    pointer-events:all;
+}
+
+@media (max-width: 790px) {
+    .signUpModal{
+        height:80%;
+    }
+}
