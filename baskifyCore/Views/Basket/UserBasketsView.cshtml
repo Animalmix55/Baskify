@@ -177,8 +177,14 @@
                 className: 'data'
             },
             {
-                data: "status",
+                data: "delivered",
                 responsivePriority: 2,
+                render: function (data, type, row) {
+                    if (data)
+                        return "Delivered";
+                    else
+                        return "Not Delivered"
+                },
                 className: 'data'
             },
             {

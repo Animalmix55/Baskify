@@ -27,6 +27,7 @@ namespace baskifyCore
             Mapper.CreateMap<Address, AddressDto>().ReverseMap();
             Mapper.CreateMap<PaymentMethod, PaymentMethodDto>().ReverseMap();
             Mapper.CreateMap<BillingDetails, BillingDetailsDto>().ReverseMap();
+            Mapper.CreateMap<IRSNonProfit, NonProfitDto>();
         }
     }
 }
