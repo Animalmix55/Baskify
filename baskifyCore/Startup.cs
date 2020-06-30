@@ -1,24 +1,30 @@
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Data.Entity.Migrations;
 using System.Linq;
 using System.Text;
 using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 using AutoMapper;
+using baskifyCore.Attributes;
 using baskifyCore.Controllers.api;
 using baskifyCore.Models;
 using baskifyCore.Utilities;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
+using Microsoft.AspNetCore.Mvc.Infrastructure;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.DependencyInjection.Extensions;
 using Microsoft.Extensions.Hosting;
 using Microsoft.IdentityModel.Tokens;
 using Newtonsoft.Json.Serialization;
 using Stripe;
+using Twilio;
 using IConfiguration = Microsoft.Extensions.Configuration.IConfiguration;
 
 namespace baskifyCore
@@ -64,11 +70,24 @@ namespace baskifyCore
                     ValidAudience = authority
                 };
             });
+
+            services.AddAuthorization(options =>
+            {
+                options.AddPolicy("Admin",
+                                  policy => policy.Requirements.Add(new AdminRequirement()));
+            }); //creates admin policy
+
+            services.AddTransient<IAuthorizationHandler, AdminHandler>(); //adds handler, transient allows for updating context
+
+            services.AddHttpContextAccessor(); //injects ips into app
+            services.TryAddSingleton<IActionContextAccessor, ActionContextAccessor>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+            TwilioClient.Init(ConfigurationManager.AppSettings["TwilioAccountSID"], ConfigurationManager.AppSettings["TwilioAuth"]);
+
             Mapper.Initialize(c => c.AddProfile<MappingProfile>()); //add mapper
 
             StripeConfiguration.ApiKey = StripeConsts.secretKey;

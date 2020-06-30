@@ -1,0 +1,718 @@
+﻿
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+
+<html>
+<head>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/js/moment-with-locales.js"></script>
+    <script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+    <script type="text/javascript" charset="utf-8" src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+    <script src="https://cdn.datatables.net/responsive/2.2.4/js/dataTables.responsive.min.js"></script>
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css" />
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.4/css/responsive.dataTables.min.css" />
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.lux.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+
+</head>
+<body>
+    <div id="editUser" class="modal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Edit User</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="editUserForm">
+                        <fieldset>
+                            <legend>Update User Information</legend>
+                            <div class="form-group">
+                                <label for="FirstName">First Name</label>
+                                <input type="text" name="FirstName" id="FirstName" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label for="LastName">Last Name</label>
+                                <input type="text" name="LastName" id="LastName" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label for="OrganizationName">Organization Name</label>
+                                <input type="text" name="OrganizationName" id="OrganizationName" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label for="EIN">EIN</label>
+                                <input type="text" name="EIN" id="EIN" class="form-control" readonly />
+                            </div>
+                            <input type="hidden" name="Username" id="Username" />
+                            <div class="form-group">
+                                <label for="Email">Email</label>
+                                <input type="text" name="Email" id="Email" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label for="ContactEmail">Contact Email</label>
+                                <input type="text" name="ContactEmail" id="ContactEmail" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label for="Address">Address</label>
+                                <input type="text" name="Address" id="Address" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label for="City">City</label>
+                                <input type="text" name="City" id="City" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label for="State">State</label>
+                                <input type="text" name="State" id="State" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label for="ZIP">ZIP</label>
+                                <input type="text" name="ZIP" id="ZIP" class="form-control" />
+                            </div>
+                            <div class="form-group">
+                                <label for="UserRole">Role</label>
+                                <select class="form-control" name="UserRole" id="UserRole">
+                                    <option value="@Roles.USER">User</option>
+                                    <option value="@Roles.COMPANY">Organization</option>
+                                </select>
+                            </div>
+                            <div class="form-group">
+                                <label>Multi-Factor Authentification</label>
+                                <div class="custom-control custom-switch">
+                                    <input type="checkbox" id="isMFA" name="isMFA" class="custom-control-input" value="true" />
+                                    <label class="custom-control-label" for="isMFA">Toggle MFA</label>
+                                </div>
+                                <input type="tel" class="form-control" placeholder="Phone Number" id="PhoneNumber" name="PhoneNumber" />
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="saveUser()">Save changes</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="lockUserModal" class="modal">
+        <div class="modal-dialog" role="document">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title">Lock User</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body">
+                    <form id="lockForm">
+                        <fieldset>
+                            <legend>Lock Account</legend>
+                            <input type="hidden" id="LockUser" name="Username" />
+                            <div class="form-group">
+                                <label for="LockReason">Lock Reason</label>
+                                @Html.DropDownList("LockReason", Html.GetEnumSelectList(typeof(LockReason)), new { @class = "form-control" })
+                            </div>
+                            <div class="form-group" id="LockDetailsContainer">
+                                <label for="LockDetails">Lock Details</label>
+                                <textarea name="LockDetails" id="LockDetails" class="form-control"></textarea>
+                            </div>
+                        </fieldset>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button type="button" class="btn btn-primary" onclick="lockUser()">Lock Account</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="documentModal" class="modal">
+        <div class="modal-dialog" role="document" style="width: 80%; max-width: unset; height:80%;">
+            <div class="modal-content" style="width:100%; height:100%;">
+                <div class="modal-header">
+                    <h5 class="modal-title">Documents</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                        <span aria-hidden="true">&times;</span>
+                    </button>
+                </div>
+                <div class="modal-body" style="display: flex; overflow:hidden">
+                    <div style="display: flex; flex-basis: 70%; flex-direction: column">
+                        <ul class="nav nav-tabs" id="documentTabs">
+                        </ul>
+                        <div id="documentTabBody" class="tab-content" style="width:100%; height: 100%">
+                        </div>
+                    </div>
+                    <form id="verifyOrgForm" style="flex-basis: 30%; padding: 20px">
+                        <h3>Organization Info</h3>
+                        <input type="hidden" id="VerifyUsername" name="Username" />
+                        <div style="display: flex;align-items:flex-end" class="form-group">
+                            <div style="flex:1">
+                                <label for="EIN">EIN</label>
+                                <input type="text" name="EIN" id="OrgEIN" class="form-control" />
+                            </div>
+                            <button type="button" class="btn btn-success" onclick="checkEIN()" id="checkEINButton" style="height: 45px;">Check</button>
+                        </div>
+                        <div class="form-group">
+                            <label for="OrgName">Organization Name</label>
+                            <input type="text" name="OrganizationName" id="OrgName" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label for="OrgCity">City</label>
+                            <input type="text" name="City" id="OrgCity" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label for="OrgState">State</label>
+                            <input type="text" name="State" id="OrgState" class="form-control" />
+                        </div>
+                        <div class="form-group">
+                            <label for="OrgCountry">Country</label>
+                            <input type="text" name="Country" id="OrgCountry" class="form-control" />
+                        </div>
+                    </form>
+                </div>
+                <div class="modal-footer">
+                    <button id="verifyButton" type="button" class="btn btn-secondary" onclick="verifyOrg()">Verify Organization</button>
+                    <button type="button" class="btn btn-secondary">Request Additional Documents</button>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="contextMenu" style="display:none; position:absolute; z-index:100000; border: 1px solid rgba(85, 89, 92, 0.52); background: white">
+        <table class="contextMenu table table-hover">
+            <tbody>
+                <tr class="edit" onclick="editUser()"><td>Edit User</td></tr>
+                <tr class="lock" onclick="lockUserDialog()"><td>Lock</td></tr>
+                <tr class="unlock" onclick="unlockUser()"><td>Unlock</td></tr>
+                <tr class="reqDocs" onclick="openDocRequestDialog()"><td>Request Documents</td></tr>
+                <tr class="viewDocs" onclick="viewDocs()"><td>View Documents</td></tr>
+            </tbody>
+        </table>
+    </div>
+
+    <nav class="navigationBar">
+        <a class="navigationBarBrand navBarElement" href="/">Baskify</a>
+    </nav>
+    <ul class="nav nav-tabs">
+        <li class="nav-item">
+            <a class="nav-link active" data-toggle="tab" href="#users">Accounts</a>
+        </li>
+    </ul>
+    <div id="myTabContent" class="tab-content" style="width:100%">
+        <div id="users" class="tab-pane fade active show">
+            <table id="userTable" class="table table-hover" style="width:100%;">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Username</th>
+                        <th>Email</th>
+                        <th>User Type</th>
+                        <th>Display Name</th>
+                        <th>Account Creation</th>
+                        <th>Last Login</th>
+                        <th>Locked</th>
+                        <th>Pending</th>
+                        <th></th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
+    </div>
+    <script>
+        function getCookie(cname) {
+            var name = cname + "=";
+            var decodedCookie;
+            try {
+                decodedCookie = decodeURIComponent(document.cookie);
+            }
+            catch (Exception) {
+                decodedCookie = document.cookie;
+            }
+            var ca = decodedCookie.split(';');
+            for (var i = 0; i < ca.length; i++) {
+                var c = ca[i];
+                while (c.charAt(0) == ' ') {
+                    c = c.substring(1);
+                }
+                if (c.indexOf(name) == 0) {
+                    return c.substring(name.length, c.length);
+                }
+            }
+            return "";
+        }
+
+        $("#PhoneNumber").on("input", function (e) {
+            var caretPos = e.target.selectionStart;
+            var val = $(this).val();
+            var justNums = "";
+            for (var j = 0; j < val.length; j++) {
+                if (!isNaN(val.charAt(j)) && val.charAt(j) != " ")
+                    justNums += val.charAt(j);
+            }
+
+            var formatted = "";
+            var charNum = 0;
+            for (var i = 0; i < justNums.length; i++) {
+                var addedChars = 0;
+                var initChar = charNum;
+                switch (charNum) {
+                    case 0:
+                        formatted += "+";
+                        charNum++;
+                        addedChars = 1;
+                        break;
+                    case 2:
+                        formatted += " (";
+                        charNum += 2;
+                        addedChars = 2;
+                        break;
+                    case 7:
+                        formatted += ") ";
+                        charNum += 2;
+                        addedChars = 2;
+                        break;
+                    case 12:
+                        formatted += "-"
+                        charNum += 1;
+                        addedChars = 1;
+                        break;
+                }
+                if (initChar == caretPos - 1) {
+                    caretPos += addedChars;
+                }
+
+                formatted += justNums.charAt(i);
+                charNum++;
+            }
+            $(this).val(formatted.slice(0, 17));
+            caretPos = (caretPos < formatted.length ? caretPos : formatted.length);
+            e.target.setSelectionRange(caretPos, caretPos);
+        });
+
+        $("#PhoneNumber").on("keyup", function (e) {
+            var key = e.which || e.keyCode;
+            var caretStart = e.target.selectionStart;
+            var caretEnd = e.target.selectionStart;
+            var val = $(this).val();
+            if (key == 8 || key == 46) {
+                for (var i = caretStart - 1; i >= 0; i--) //character before caret now
+                {
+                    if (!isNaN(val.charAt(i)) && val.charAt(i) != " ") {
+                        e.target.setSelectionRange(i + 1, i + 1);
+                        return;
+                    }
+                }
+            }
+        });
+
+        $("#userTable").dataTable({
+        serverSide: true,
+        ajax: {
+            url: "/api/AccountDetails",
+            type: "POST",
+            contentType: "application/json",
+            data: function (d) {
+                return JSON.stringify(d);
+            },
+            dataSrc: "data",
+            beforeSend: function (xhr) { //add token
+                var token = getCookie("Admin");
+                if (token != "")
+                    xhr.setRequestHeader("Authorization", token);
+            }
+        },
+        responsive: {
+            details: {
+                type: 'column'
+            }
+        },
+        createdRow: function (row, data, dataIndex) {
+        },
+        columns: [
+            {
+                className: 'control',
+                orderable: false,
+                defaultContent: "",
+                data: null
+            },
+            {
+                name: "Username",
+                data: "username",
+                className: 'data',
+                responsivePriority: 1
+            },
+            {
+                name: "Email",
+                data: "email",
+                responsivePriority: 3,
+                className: 'data'
+            },
+            {
+                name: "UserRole",
+                data: "userRole",
+                render: function (data, type, row) {
+                    if (data == @Roles.COMPANY)
+                        return "Org"
+                    else
+                        return "User"
+                },
+                responsivePriority: 4,
+                className: 'data'
+            },
+            {
+                name: "DisplayName",
+                data: "firstName",
+                render: function (data, type, row) {
+                    return row.firstName == "" ? row.organizationName : row.firstName + " " + row.lastName;
+                },
+                responsivePriority: 5,
+                className: 'data'
+            },
+            {
+                name: "CreationDate",
+                data: "creationDate",
+                render: function (data, type, row) {
+                    return moment(data).format("MM/DD/YYYY hh:mm");
+                },
+                type: "date",
+                responsivePriority: 6,
+                className: 'data'
+            },
+            {
+                name: "LastLogin",
+                data: "lastLogin",
+                render: function (data, type, row) {
+                    return moment(data).format("MM/DD/YYYY hh:mm");
+                },
+                type: "date",
+                responsivePriority: 7,
+                className: 'data'
+            },
+            {
+                name: "Locked",
+                data: "locked",
+                render: function (data, type, row) {
+                    if (data)
+                        return "&#10004;";
+                    else
+                        return ""
+                },
+                responsivePriority: 5,
+                className: 'data'
+            },
+            {
+                name: "PendingOrg",
+                data: "lockReason",
+                render: function (data, type, row) {
+                    if (data == @((int)LockReason.OrgPending) && row.locked)
+                        return "&#10004;";
+                    else
+                        return ""
+                },
+                responsivePriority: 5,
+                className: 'data'
+            },
+        ]
+        });
+
+        $("#contextMenu").on("click", function (e) {
+            setTimeout(() => { $(this).css("display", "none") }, 500); //hide after .5 secs
+        });
+
+        $(document).on("contextmenu", "#userTable tr", function (e) {
+            var x = e.pageX;
+            var y = e.pageY;
+
+            var user = $("#userTable").DataTable().row(this).data();
+
+            var menu = $("#contextMenu");
+            menu.data("targetUser", user); //add user to data
+            menu.find("tr").removeAttr("style"); //destyle all (make visible)
+
+            if (user.userRole != @Roles.COMPANY) {
+                menu.find(".reqDocs").css("display", "none");
+                menu.find(".viewDocs").css("display", "none");
+            }
+
+            if (user.locked) {
+                menu.find(".lock").css("display", "none");
+            }
+            else {
+                menu.find(".unlock").css("display", "none");
+            }
+
+            menu.css({ top: y, left: x, display: "block" });
+            const handler = (e) => {
+                var $box = $('#contextMenu');
+                if (e.target.id !== 'contextMenu' && !$.contains($box[0], e.target)) {
+                    menu.css({ display: "none" });
+                    $(document).off("click", handler);
+                }
+            }
+            $(document.body).on("click", handler); //adds and removes menu
+
+            return false; //stop propogation
+        });
+
+        function editUser() {
+
+            //set fields
+            var user = $("#contextMenu").data()["targetUser"];
+            $("#FirstName").val(user.firstName);
+            $("#LastName").val(user.lastName);
+            $("#OrganizationName").val(user.organizationName);
+            $("#EIN").val(user.ein);
+            $("#Username").val(user.username);
+            $("#Email").val(user.email);
+            $("#ContactEmail").val(user.contactEmail);
+            $("#Address").val(user.address);
+            $("#City").val(user.city);
+            $("#State").val(user.state);
+            $("#ZIP").val(user.zip);
+            $("#UserRole option").removeAttr("selected");
+            $("#UserRole [value=" + user.userRole + "]").attr("selected", true); //select role
+            if (user.isMFA)
+                $("#isMFA").attr("checked", ""); //check if MFA
+            $("#PhoneNumber").val(user.phoneNumber);
+            $("#PhoneNumber").trigger("input"); //update phone formatting
+
+            //make visible
+            $("#editUser").modal("show");
+        }
+
+        function saveUser() {
+            var data = new FormData($("#editUserForm")[0]);
+            $.ajax({
+                url: "/api/admin/user",
+                method: "put",
+                data: data,
+                contentType: false,
+                processData: false,
+                dataType: false,
+                beforeSend: function (xhr) {
+                    var token = getCookie("BearerToken");
+                    if (token != "")
+                        xhr.setRequestHeader("Authorization", "Bearer " + token);
+                },
+                success: function (data) {
+                    $("#editUser").modal("hide");
+                    $("#userTable").DataTable().ajax.reload(); //reload table
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert(xhr.responseText); //alert error
+                }
+            });
+        }
+
+        function lockUserDialog() {
+            $("#LockUser").val($("#contextMenu").data()["targetUser"].username);
+            $("#LockReason").trigger("change"); //update phone formatting
+            $('#lockUserModal').modal('show');
+        }
+
+        $("#LockReason").on("change", function (e) {
+            if ($(this).val() != @((int)LockReason.Other))
+                $("#LockDetailsContainer").css("display", "none"); //hide details unless necessary
+            else
+                $("#LockDetailsContainer").css("display", "block");
+        });
+
+        function lockUser() {
+            var data = new FormData($("#lockForm")[0]);
+            $.ajax({
+                url: "/api/admin/lock",
+                method: "post",
+                data: data,
+                contentType: false,
+                processData: false,
+                dataType: false,
+                beforeSend: function (xhr) {
+                    var token = getCookie("BearerToken");
+                    if (token != "")
+                        xhr.setRequestHeader("Authorization", "Bearer " + token);
+                },
+                success: function (data) {
+                    $("#lockUserModal").modal("hide");
+                    $("#userTable").DataTable().ajax.reload(); //reload table
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert(xhr.responseText); //alert error
+                }
+            });
+        }
+
+        function unlockUser() {
+            var user = $("#contextMenu").data()["targetUser"];
+            $.ajax({
+                url: "/api/admin/unlock",
+                method: "delete",
+                data: { Username: user.username },
+                dataType: false,
+                beforeSend: function (xhr) {
+                    var token = getCookie("BearerToken");
+                    if (token != "")
+                        xhr.setRequestHeader("Authorization", "Bearer " + token);
+                },
+                success: function (data) {
+                    $("#lockUserModal").modal("hide");
+                    $("#userTable").DataTable().ajax.reload(); //reload table
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert(xhr.responseText); //alert error
+                }
+            });
+        }
+
+        function verifyOrg() {
+            var user = $("#contextMenu").data()["targetUser"];
+            var data = new FormData($("#verifyOrgForm")[0]);
+            $.ajax({
+                url: "/api/admin/verifyOrg",
+                method: "put",
+                data: data,
+                processData: false,
+                contentType: false,
+                dataType: false,
+                beforeSend: function (xhr) {
+                    var token = getCookie("BearerToken");
+                    if (token != "")
+                        xhr.setRequestHeader("Authorization", "Bearer " + token);
+                },
+                success: function (data) {
+                    $("#documentModal").modal("hide");
+                    $("#userTable").DataTable().ajax.reload(); //reload table
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert(xhr.responseText); //alert error
+                }
+            });
+        }
+
+        function checkEIN() {
+            var ein = $("#OrgEIN").val();
+            if (ein == null) {
+                alert("Input an EIN");
+                return;
+            }
+            $.ajax({
+                url: "/api/admin/getOrg/" + ein,
+                method: "get",
+                beforeSend: function (xhr) {
+                    var token = getCookie("BearerToken");
+                    if (token != "")
+                        xhr.setRequestHeader("Authorization", "Bearer " + token);
+                },
+                success: function (data) {
+                    $("#verifyOrgForm [name=OrganizationName]").attr("readonly", true).val(data["organizationName"]); //add val and disable
+                    $("#verifyOrgForm [name=City]").attr("readonly", true).val(data["city"]); //add val and disable
+                    $("#verifyOrgForm [name=State]").attr("readonly", true).val(data["state"]); //add val and disable
+                    $("#verifyOrgForm [name=Country]").attr("readonly", true).val(data["country"]); //add val and disable
+                    $("#documentModal").modal("show"); //open modal
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert(xhr.responseText);
+                    $("#verifyOrgForm input").removeAttr("readonly");
+                }
+            });
+        }
+
+        $("#OrgEIN").on("change", function (e) { //make uneditable until checked again
+            $("#verifyOrgForm [name]").attr("readonly", true);
+            $("#verifyOrgForm [name=EIN]").removeAttr("readonly");
+        });
+
+        function viewDocs() {
+            var user = $("#contextMenu").data()["targetUser"];
+            $.ajax({
+                url: "/api/admin/getDocumentLinks",
+                method: "get",
+                data: { Username: user.username },
+                beforeSend: function (xhr) {
+                    var token = getCookie("BearerToken");
+                    if (token != "")
+                        xhr.setRequestHeader("Authorization", "Bearer " + token);
+                },
+                success: function (data) {
+                    var tabhtml = "";
+                    var bodyhtml = "";
+                    var i = 0;
+
+                    if (data.length == 0) {
+                        alert("No documents");
+                        return;
+                    }
+
+                    for (var link of data) {
+                        tabhtml += `<li class="nav-item">\
+                            <a class="nav-link `+ (i == 0 ? `active` : "") + `" data-toggle="tab" href="#Document`+i+`">Document `+i+`</a>\
+                        </li>`;
+
+                        bodyhtml += ` <iframe src="`+link+`" id="Document`+i+`" class="tab-pane fade `+ (i == 0? `active show` : "") + `" style='width: 100%; height:100%;'>\
+                        </iframe>`;
+                        i++;
+                    }
+
+                    $("#documentTabs").html(tabhtml);
+                    $("#documentTabBody").html(bodyhtml);
+
+                    if (user.locked && user.lockReason == @((int)LockReason.OrgPending)) {
+                        $("#verifyButton").css("display", "inline-block");
+                        $("#checkEINButton").css("display", "inline-block"); //show check button
+                        $("#verifyOrgForm [name=EIN]").removeAttr("readonly");
+                    }
+                    else {//hide any change buttons and disable EIN field if not pending
+                        $("#verifyButton").css("display", "none");
+                        $("#verifyOrgForm [name=EIN]").attr("readonly", true);
+                        $("#checkEINButton").css("display", "none"); //hide check button
+                    }
+
+                    $("#VerifyUsername").val(user.username); //add username
+                    if (user.ein !== "" && user.ein !== null) //hide form if org already exists
+                    {
+                        $.ajax({
+                            url: "/api/admin/getOrg/" + user.ein,
+                            method: "get",
+                            beforeSend: function (xhr) {
+                                var token = getCookie("BearerToken");
+                                if (token != "")
+                                    xhr.setRequestHeader("Authorization", "Bearer " + token);
+                            },
+                            success: function (data) {
+                                $("#verifyOrgForm [name=OrganizationName]").attr("readonly", true).val(data["organizationName"]); //add val and disable
+                                $("#verifyOrgForm [name=EIN]").val(data["ein"]); //add val and ENABLE
+                                $("#verifyOrgForm [name=City]").attr("readonly", true).val(data["city"]); //add val and disable
+                                $("#verifyOrgForm [name=State]").attr("readonly", true).val(data["state"]); //add val and disable
+                                $("#verifyOrgForm [name=Country]").attr("readonly", true).val(data["country"]); //add val and disable
+
+                                $("#documentModal").modal("show"); //open modal
+                            },
+                            error: function (xhr, textStatus, errorThrown) {
+                                alert(xhr.responseText);
+                                if (user.locked && user.lockReason == @((int)LockReason.OrgPending)) //if IS pending, allow editing
+                                    $("#verifyOrgForm [name]").removeAttr("readonly");
+                                $("#verifyOrgForm [name]").not("[type=hidden]").val(""); //empty vals EXCEPT username
+                                $("#documentModal").modal("show"); //open modal
+                            }
+                        });
+                    }
+                    else {
+                        if (user.locked && user.lockReason == @((int)LockReason.OrgPending)) //if IS pending, allow editing
+                            $("#verifyOrgForm [name]").removeAttr("readonly"); //make editable
+                        $("#verifyOrgForm [name]").not("[type=hidden]").val(""); //empty vals
+                        $("#documentModal").modal("show"); //open modal
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert(xhr.responseText); //alert error
+                }
+            });
+
+        }
+    </script>
+</body>
+</html>

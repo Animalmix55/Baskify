@@ -41,7 +41,7 @@
             },
             dataSrc: "data",
             beforeSend: function (xhr) { //add token
-                var token = getCookie("BearerToken");
+                var token = getCookie("Admin");
                 if (token != "")
                     xhr.setRequestHeader("Authorization", "Bearer " + token);
             }

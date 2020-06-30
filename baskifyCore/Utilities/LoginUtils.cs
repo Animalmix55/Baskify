@@ -26,6 +26,38 @@ namespace baskifyCore.Utilities
 
     public static class LoginUtils
     {
+        public static Guid getAnonymousId(ApplicationDbContext _context, HttpRequest request, IHttpContextAccessor _accessor, HttpResponse response)
+        {
+            AnonymousClientModel model;
+            var ip = _accessor.HttpContext.Connection.RemoteIpAddress.ToString();
+            if (request.Cookies["SessionId"] != null)
+            {
+                Guid guid;
+                if (Guid.TryParse(request.Cookies["SessionId"], out guid))
+                {
+                    if((model = _context.AnonymousClientModel.Find(guid)) != null && model.IPAddress == ip)
+                        return guid;
+                }
+            }
+
+            //look for a model with ip
+            model = _context.AnonymousClientModel.Where(m => m.IPAddress == ip).FirstOrDefault();
+            if (model == null) //make a new model
+            {
+                model = new AnonymousClientModel()
+                {
+                    ClientId = Guid.NewGuid(),
+                    Created = DateTime.UtcNow,
+                    IPAddress = ip
+                };
+                _context.AnonymousClientModel.Add(model);
+                _context.SaveChanges();
+            }
+
+            response.Cookies.Append("SessionId", model.ClientId.ToString()); //add session cookie
+            return model.ClientId;
+        }
+
         /// <summary>
         /// Looks at claims to see if this is a valid reset token... DOES NOT CHECK AGAINST DB, MUST DO THAT BEFOREHAND
         /// </summary>
@@ -58,6 +90,7 @@ namespace baskifyCore.Utilities
         }
         /// <summary>
         /// Gets a logged in user if they exist, otherwise throws an exception. Automatically builds a new bearer token into the UserModel.
+        /// Ignore lock will allow access if locked for 30 minutes after account creation (for MFA).
         /// </summary>
         /// <param name="username"></param>
         /// <param name="password"></param>
@@ -65,17 +98,50 @@ namespace baskifyCore.Utilities
         public static async Task<UserModel> getUserAsync(string username, string password, ApplicationDbContext _context)
         {
             var user = _context.UserModel.Find(username);
-            _context.Entry(user).Collection("UserAlerts").Load(); //bring in any alerts as well
+
+            if(user == null)
+                throw new InvalidUsernameException();
+
+            _context.Entry(user).Collection(u => u.UserAlerts).Load(); //bring in any alerts as well
             var hash = hashPassword(password);
             if (user.PasswordHash != hash)
             {
-                throw new InvalidPasswordException("Invalid password");
+                throw new InvalidPasswordException();
             }
             else
             {
-                user.bearerToken = await buildToken(user, _context); //give the user a token
+                if (user.Locked)
+                {
+                    throw new UserLockedException(user.LockDetails, user.LockReason.GetValueOrDefault()); //lock reason should never be null if locked
+                }
+
                 return user;
             }
+        }
+
+        /// <summary>
+        /// Embeds the token into the user's cookies and returns the token
+        /// </summary>
+        /// <param name="user"></param>
+        /// <param name="Response"></param>
+        /// <param name="_context"></param>
+        /// <returns></returns>
+        public static string GrantToken(UserModel user, HttpResponse Response, ApplicationDbContext _context)
+        {
+            var tokenPromise = buildToken(user, _context);
+
+            var cookieOptions = new CookieOptions()
+            {//session token for now
+                IsEssential = true,
+                SameSite = SameSiteMode.Lax,
+                Secure = true
+            };
+
+            var token = tokenPromise.Result;
+            //add cookie to response
+            Response.Cookies.Append("BearerToken", token, cookieOptions);
+
+            return token;
         }
 
         public static string hashPassword(string password)
@@ -355,10 +421,28 @@ namespace baskifyCore.Utilities
     }
     public class InvalidPasswordException : Exception
     {
-        public InvalidPasswordException(string name)
-        : base(String.Format("Invalid Student Name: {0}", name))
+        public InvalidPasswordException()
+        : base("Invalid password")
         {
         }
     }
-    
+    public class InvalidUsernameException : Exception
+    {
+        public InvalidUsernameException()
+        : base("Invalid username")
+        {
+        }
+    }
+
+    public class UserLockedException : Exception
+    {
+        public UserLockedException(string LockDescription, LockReason _Reason)
+        : base(LockDescription)
+        {
+            Reason = _Reason;
+        }
+
+        public LockReason Reason { get; set; }
+    }
+
 }

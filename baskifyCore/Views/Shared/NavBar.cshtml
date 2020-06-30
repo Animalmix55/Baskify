@@ -1,4 +1,10 @@
 ﻿@model baskifyCore.Models.UserModel;
+
+@{
+    var LoggedIn = !(Model.UserRole == baskifyCore.Models.Roles.NONE);
+    var isUser = Model.UserRole == baskifyCore.Models.Roles.USER;
+    var isOrg = Model.UserRole == baskifyCore.Models.Roles.COMPANY;
+}
 <nav class="navigationBar">
     <a class="navigationBarBrand navBarElement" href="/">Baskify</a>
 
@@ -14,42 +20,39 @@
         <div id="userAccount">
             @if (Model.UserRole == 1)
             {
-                <div>@Html.DisplayName(Model.FirstName + " " + Model.LastName)</div>
-                <div style="font-size:60%; color:gray">
+                <div id="bannerName">@(Model.FirstName + " " + Model.LastName)</div>
+                <div id="bannerRole" style="font-size:60%; color:gray">
                     User
                 </div>
             }
             else if (Model.UserRole == 2)
             {
-                <div>@Html.DisplayName(Model.OrganizationName)</div>
-                <div style="font-size:60%; color:gray">
+                <div id="bannerName">@Model.OrganizationName</div>
+                <div id="bannerRole" style="font-size:60%; color:gray">
                     Organization
                 </div>
             }
+            else
+            {
+                <div id="bannerName"></div>
+                <div id="bannerRole" style="font-size:60%; color:gray">
+                </div>
+            }
         </div>
-        <img class="userIcon" src="@Model.iconUrl" />
+        <img id="bannerIcon" class="userIcon" src="@Model.iconUrl" />
 
     </div>
     <div class="userDropdown">
         <table style="width: inherit">
-            @if (Model.UserRole == baskifyCore.Models.Roles.USER)
-            {
-                <tr><td onclick="redirect('/account')">My Account</td></tr>
-                <tr><td onclick="redirect('/basket/userbaskets')">My Submitted Baskets</td></tr>
-                <tr><td onclick="redirect('/auctions/results')">Raffle Results</td></tr>
-                <tr><td onclick="redirect('/transactions')">Transactions</td></tr>
-                <tr><td onclick="redirect('/login/signout')">Sign Out</td></tr>
-            }
-            else if (Model.UserRole == baskifyCore.Models.Roles.COMPANY)
-            {
-                <tr><td onclick="redirect('/account')">My Account</td></tr>
-                <tr><td onclick="redirect('/auctions')">My Auctions</td></tr>
-                <tr><td onclick="redirect('/login/signout')">Sign Out</td></tr>
-            }
-            else
-            {
-                <tr><td onclick="openSignOnModal()">Sign in</td></tr>
-            }
+            <tr class="dropDownLogged" style="display: @(LoggedIn? "table-row" : "none")"><td onclick="redirect('/account')">My Account</td></tr>
+            <tr class="dropDownUser" style="display: @(isUser? "table-row" : "none")"><td onclick="redirect('/basket/userbaskets')">My Submitted Baskets</td></tr>
+            <tr class="dropDownUser" style="display: @(isUser? "table-row" : "none")"><td onclick="redirect('/auctions/results')">Raffle Results</td></tr>
+            <tr class="dropDownUser" style="display: @(isUser? "table-row" : "none")"><td onclick="redirect('/transactions')">Transactions</td></tr>
+            <tr class="dropDownOrg" style="display: @(isOrg? "table-row" : "none")"><td onclick="redirect('/auctions')">My Auctions</td></tr>
+            <tr class="dropDownLogged" style="display: @(LoggedIn? "table-row" : "none")"><td onclick="redirect('/login/signout')">Sign Out</td></tr>
+
+            <tr class="dropDownNotLogged" style="display: @(!LoggedIn? "table-row" : "none")"><td onclick="openSignOnModal()">Sign In</td></tr>
+            <tr class="dropDownNotLogged" style="display: @(!LoggedIn? "table-row" : "none")"><td onclick="redirect('/signup')">Sign Up</td></tr>
         </table>
     </div>
 </nav>

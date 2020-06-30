@@ -24,5 +24,10 @@ namespace baskifyCore.Models
 
         public DbSet<IRSNonProfitDocument> IRSNonProfitDocument { get; set; }
         public DbSet<IRSNonProfit> IRSNonProfit { get; set; }
+        public DbSet<TempImageModel> TempImage { get; set; }
+        public DbSet<VerificationCodeModel> VerificationCodeModel { get; set; }
+
+        public DbSet<AnonymousClientModel> AnonymousClientModel { get; set; }
+        public DbSet<AccountDocumentsModel> AccountDocumentsModel { get; set; }
     }
 }

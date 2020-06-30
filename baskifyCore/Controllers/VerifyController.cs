@@ -27,12 +27,15 @@ namespace baskifyCore.Controllers
             if (VerifyId == null)//if accidentally navigated here, go home
                 return Redirect("/");
 
-            var user = LoginUtils.getUserFromToken(Request.Cookies["BearerToken"], _context, Response);
-            if (user == null)//invalid login state, redirect to login
-                return Redirect("/login?redirectBack=" + Request.GetDisplayUrl());
-
-            //now for the magic
             var verification = _context.EmailVerification.Find(ChangeId);
+
+            var user = LoginUtils.getUserFromToken(Request.Cookies["BearerToken"], _context, Response);
+
+            if (verification?.ChangeType == ChangeTypes.VERIFYEMAIL) //get user for email verification
+                user = _context.UserModel.Find(verification.Username);
+
+            if (user == null)//invalid login state, redirect to login if not verifying email
+                return Redirect("/login?redirectBack=" + Request.GetDisplayUrl());
 
 
             if (verification == null) //reverted changes are deleted or...
@@ -50,24 +53,44 @@ namespace baskifyCore.Controllers
                 ViewData["Alert"] = "This requested change does not belong to the current account!";
                 return View("~/Views/Home/Index.cshtml", user);
             }
-            
-            //the change is legit
 
-            switch (verification.ChangeType)
+            if (verification.ChangeType != ChangeTypes.MFA)
             {
-                case ChangeTypes.EMAIL:
-                    ViewData["Alert"] = EmailUtils.VerifyEmailChange(VerifyId, verification, user, _context);
-                    break;
+                //the change is legit
 
-                case ChangeTypes.AUCTIONDELETION:
-                    ViewData["Alert"] = AuctionUtilities.VerifyDeletion(VerifyId, verification, user, _context, _env.WebRootPath);
-                    break;
+                switch (verification.ChangeType)
+                {
+                    case ChangeTypes.EMAIL:
+                        ViewData["Alert"] = EmailUtils.VerifyEmailChange(VerifyId, verification, user, _context);
+                        break;
+
+                    case ChangeTypes.AUCTIONDELETION:
+                        ViewData["Alert"] = AuctionUtilities.VerifyDeletion(VerifyId, verification, user, _context, _env.WebRootPath);
+                        break;
+                    case ChangeTypes.VERIFYEMAIL:
+                        ViewData["Alert"] = EmailUtils.VerifyEmail(VerifyId, verification, user, _context);
+                        _context.SaveChanges();
+                        return View("~/Views/Home/Index.cshtml", new UserModel()); //redirect home, NOT logged in
+                }
+
+                _context.SaveChanges();
+                return View("~/Views/Home/Index.cshtml", user); //redirect home
             }
-
-            _context.SaveChanges();
-            _context.Entry(user).Reload(); //update everything
-
-            return View("~/Views/Home/Index.cshtml", user); //redirect home
+            else //MFA change
+            {
+                if (verification.Payload != null) { //this is an MFA enable script
+                    //the payload of an MFA enable email verification is the phone number, send the verification code
+                    var verificationMFAModel = VerificationCodeUtils.CreateVerification(null, VerificationType.EnableMFA, null, user.Username, long.Parse(verification.Payload), _context);
+                    PhoneUtils.SendValidationMessage("+" + long.Parse(verification.Payload), verificationMFAModel.Secret); //send text
+                    ViewData["NavBarOverride"] = user;
+                    return View("~/Views/VerificationCode/Index.cshtml", verificationMFAModel); //return view of page where user can validate MFA
+                }
+                else {
+                    ViewData["Alert"] = VerificationCodeUtils.VerifyDisable(VerifyId, verification, user, _context);
+                    _context.SaveChanges();
+                    return View("~/Views/Home/Index.cshtml", user); //redirect home
+                }
+            }
         }
     }
 }

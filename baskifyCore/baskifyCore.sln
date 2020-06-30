@@ -5,7 +5,7 @@ VisualStudioVersion = 16.0.29911.84
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "baskifyCore", "baskifyCore.csproj", "{DF7F67E0-0121-49D2-B133-14AD58C0A0AD}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "BaskifyTests", "..\BaskifyTests\BaskifyTests.csproj", "{B12A68EB-C18B-4318-9C33-8C54B12CE45F}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "BaskifyTests", "..\BaskifyTests\BaskifyTests.csproj", "{B12A68EB-C18B-4318-9C33-8C54B12CE45F}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

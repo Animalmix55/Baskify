@@ -1,4 +1,5 @@
 ﻿@model UserModel;
+    <script src="~/js/MFAValidator.js"></script>
     <div class="modal-dialog" role="document">
         <div class="modal-content">
             <div class="modal-header">
@@ -8,26 +9,37 @@
                 </button>
             </div>
             <div class="modal-body">
+                <div class="alert alert-dismissible alert-danger" id="loginAlert" style="display:none">
+                    <button type="button" class="close" data-hide="alert">&times;</button>
+                    <h4 class="alert-heading">Error!</h4>
+                    <p class="mb-0">
+                        Please sign in before accessing personal content.
+                    </p>
+                </div>
                 @if (!string.IsNullOrWhiteSpace(Model.Username))
                 {
                     <div class="alert alert-dismissible alert-danger">
                         Your login expired, please sign in again!
                     </div>
                 }
-                <form id="SignOnForm">
-                    <label for="inputUsername">Username:</label>
-                    @if (!string.IsNullOrWhiteSpace(Model.Username))
-                    {
-                        <input id="inputUsername" readonly type="text" value="@Model.Username" placeholder="Username" class="form-control" />
-                    }
-                    else
-                    {
-                        <input id="inputUsername" type="text" placeholder="Username" class="form-control" />
-                    }
+                <form id="LoginForm">
+                    @Html.AntiForgeryToken()
                     <div class="form-group has-danger">
-                        <label for="inputPassword">Password:</label>
-                        <input id="inputPassword" type="password" placeholder="Password" class="form-control">
-                        <div id="passwordFeedback" class="invalid-feedback"></div>
+                        <label for="Username">Username</label>
+                        @if (!string.IsNullOrWhiteSpace(Model.Username))
+                        {
+                            <input type="text" readonly value="@Model.Username" name="Username" id="Username" placeholder="Username" class="form-control" />
+                        }
+                        else
+                        {
+                            <input type="text" name="Username" id="Username" placeholder="Username" class="form-control" />
+                        }
+                        <span class="invalid-feedback" data-valmsg-for="Username" data-valmsg-replace="true"></span>
+                    </div>
+                    <div class="form-group has-danger">
+                        <label for="Password">Password</label>
+                        <input type="password" name="Password" id="Password" placeholder="Password" class="form-control" />
+                        <span class="invalid-feedback" data-valmsg-for="Password" data-valmsg-replace="true"></span>
                     </div>
                     <div style="display: flex;">
                         <button id="loginButton" type="submit" class="btn btn-primary">Sign In</button>
@@ -38,6 +50,12 @@
                         </div>
                     </div>
                 </form>
+                <div id="MFAContainer" style="opacity:0; display: none; width: 100%">
+                    <div onclick="backToCredentials()" style="color: #1F9BCF; cursor: pointer; width:100%;">Go Back</div>
+                    <h5>Please enter the code sent to your phone number ending in <span id="MFAPhoneNumber"></span></h5>
+                    <div id="LoginMFA">
+                    </div>
+                </div>
             </div>
             <div class="modal-footer">
                 <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
@@ -47,30 +65,128 @@
     </div>
 
     <script>
+    var MFAField = null;
+
+    function backToCredentials() {
+        $("#MFAContainer").animate({ //hide login form
+            opacity: 0
+        }, 500, function (e) {
+                $(this).css("display", "none");
+                $("#LoginForm").css("display", "block").animate({ //hide login form
+                    opacity: 0
+                }, 500);
+                MFAField = null;
+                $("#LoginMFA").html("");
+        });
+    }
+
     $(document).ready(function () {
-        $("#SignOnForm").submit(function (e) {
+        $("#LoginForm").submit(function (e) {
             e.preventDefault();
-            $("#loginButton").prop('disabled', true);
             $("#loginLoader").css("visibility", "visible");
-            $.post("/login", { username: $("#inputUsername").val(), password: $("#inputPassword").val() },
-                function (data) { //post will return the new, logged in header
-                    $("#loginButton").prop('disabled', false);
-                    if (!data.startsWith("ERROR:")) {
-                        @if ((bool)(ViewData["RefreshAfterLogin"] ?? false))
-                        {
-                            <text>window.location.reload();</text>
-                        }
-                        $("#SignOnModal").modal('toggle'); //close modal
-                        $("header").html(data); //reload the nav bar
-                        $("#inputPassword").removeClass("is-invalid")
+            $.ajax({
+                url: "/api/login",
+                data: new FormData($("#LoginForm")[0]),
+                processData: false,
+                contentType: false,
+                method: "post",
+                success: function (data) {
+
+                    @if (ViewData["RefreshAfterLogin"] != null && (bool)ViewData["RefreshAfterLogin"])
+                    {
+                        <text>window.location.reload()</text>
+                    }
+
+                    $("#loginAlert").css("display", "none"); //hide alert
+                    $("#loginLoader").css("visibility", "hidden");
+                    $("#SignOnModal").modal("hide"); //hide modal
+                    $("#Password").val(""); //clear password
+
+                    $("#bannerIcon").attr("src", data.icon); //set icon
+                    $("#bannerName").html(data.displayName);
+                    $("#bannerRole").html(data.role);
+
+                    //update menu
+                    $(".dropDownNotLogged").css("display", "none"); //hide sign in
+                    $(".dropDownLogged").css("display", "table-row"); //show account
+
+                    if (data.role == "User") {
+                        $(".dropDownUser").css("display", "table-row");
+                        $(".dropDownOrg").css("display", "none"); //hide org stuff jic
+                    }
+                    else if (data.role == "Organization") {
+                        $(".dropDownUser").css("display", "none");
+                        $(".dropDownOrg").css("display", "table-row"); //hide org stuff jic
+                    }
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    statusCode = xhr.status;
+                    if (statusCode == 404) {//user not found
+                        $("[data-valmsg-for=Username]").html("Invalid username");
+                        $("#Username").addClass("is-invalid").removeClass("is-valid");
                     }
                     else {
-                        $("#inputPassword").addClass("is-invalid")
-                        $("#passwordFeedback").html(data);
-                        $("#loginLoader").css("visibility", "hidden");
+                        $("[data-valmsg-for=Username]").html("");
+                        $("#Username").addClass("is-valid").removeClass("is-invalid");
                     }
-                });
-            return false;
+
+                    if (statusCode == 401) {//bad password, unauthorized
+                        $("[data-valmsg-for=Password]").html("Invalid password");
+                        $("#Password").addClass("is-invalid");
+                    }
+                    if (statusCode == 449) { //mfa
+                        $("#loginLoader").css("visibility", "hidden");
+                        data = JSON.parse(xhr.responseText);
+                        $("#loginAlert").css("display", "none"); //hide alert
+                        $("#LoginForm").animate({ //hide login form
+                            opacity: 0
+                        }, 500, function (e) { $(this).css("display", "none"); 
+                            MFAField = new MFAValidator(data.verificationId, 0 + @((int)VerificationType.LoginMFA), $("#Username").val(), "#LoginMFA", null, (data) => {
+                                //on valid
+
+                                //data will be the login object
+                                $("#loginAlert").css("display", "none"); //hide alert
+                                $("#SignOnModal").modal("hide"); //hide modal
+                                $("#LoginForm").css({ display: "block", opacity: 1 }); //bring back login form
+                                $("#MFAContainer").css({ display: "none", opacity: 0 })
+                                $("#LoginMFA").html(""); //destroy MFA field
+                                MFAField = null; //unset reference
+                                $("#Password").val(""); //clear password
+
+                                $("#bannerIcon").attr("src", data.icon); //set icon
+                                $("#bannerName").html(data.displayName);
+                                $("#bannerRole").html(data.role);
+
+                                //update menu, cookie will be handed to the browser automatically
+                                $(".dropDownNotLogged").css("display", "none"); //hide sign in
+                                $(".dropDownLogged").css("display", "table-row"); //show account
+
+                                if (data.role == "User") {
+                                    $(".dropDownUser").css("display", "table-row");
+                                    $(".dropDownOrg").css("display", "none"); //hide org stuff jic
+                                }
+                                else if (data.role == "Organization") {
+                                    $(".dropDownUser").css("display", "none");
+                                    $(".dropDownOrg").css("display", "table-row"); //hide org stuff jic
+                                }
+
+                            }, null, "LoginValId", "LoginSecret");
+                            $("#MFAPhoneNumber").html(data.last4); //set last 4 digits of phone
+                            //make mfa visible
+                            $("#MFAContainer").css("display", "block").animate({ opacity: 1 }, 500); //make MFA visible
+                        });
+                        return;
+                    }
+                    else {
+                        $("[data-valmsg-for=Password]").html("");
+                        $("#Password").removeClass("is-invalid");
+                    }
+
+                    $("#loginAlert").css("display", "block");
+                    $("#loginAlert p").html(xhr.responseText);
+                    $("#loginLoader").css("visibility", "hidden");
+                }
+            });
         });
     })
     </script>

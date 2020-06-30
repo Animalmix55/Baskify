@@ -9,8 +9,8 @@
 <head>
     <script src="~/lib/jquery/dist/jquery.min.js"></script>
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" href="~/css/site.css" />
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.lux.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
     <meta name="viewport" content="width=device-width" />
     <title>Login</title>
 </head>
@@ -18,19 +18,11 @@
     <nav class="navigationBar">
         <a class="navigationBarBrand navBarElement" href="/">Baskify</a>
     </nav>
-    <div class="alert alert-dismissible alert-warning">
+    <div class="alert alert-dismissible alert-warning" id="loginAlert">
         <button type="button" class="close" data-hide="alert">&times;</button>
         <h4 class="alert-heading">Please login here!</h4>
         <p class="mb-0">
-        @if (ViewData["Alert"] == null)
-        {
-            <text>Please sign in before accessing personal content.</text>
-        }
-        else
-        {
-            <text>@ViewData["Alert"]</text>
-        }
-
+            Please sign in before accessing personal content.
         </p>
     </div>
 
@@ -40,19 +32,18 @@
                 <h5 class="modal-title">Sign In</h5>
             </div>
             <div class="modal-body">
-                @using (Html.BeginForm("loginRedirect", "login", FormMethod.Post, new { @id = "LoginForm" }))
-                {
+                <form method="post" id="LoginForm">
                     @Html.AntiForgeryToken()
                     @Html.HiddenFor(Model => Model.redirectUrl)
                     <div class="form-group has-danger">
-                        @Html.LabelFor(Model => Model.Username)
-                        @Html.TextBoxFor(Model => Model.Username, new { @placeholder = "Username", @class="form-control" })
-                        @Html.ValidationMessageFor(Model => Model.Username)
+                        <label for="Username">Username</label>
+                        <input type="text" name="Username" id="Username" placeholder="Username" class="form-control" />
+                        <span class="invalid-feedback" data-valmsg-for="Username" data-valmsg-replace="true"></span>
                     </div>
                     <div class="form-group has-danger">
-                        @Html.LabelFor(Model => Model.Password)
-                        @Html.TextBoxFor(Model => Model.Password, new { @placeholder = "Password", @class = "form-control", @type="password" })
-                        @Html.ValidationMessageFor(Model => Model.Password)
+                        <label for="Password">Password</label>
+                        <input type="password" name="Password" id="Password" placeholder="Password" class="form-control" />
+                        <span class="invalid-feedback" data-valmsg-for="Password" data-valmsg-replace="true"></span>
                     </div>
                     <div style="display: flex;">
                         <button id="loginButton" type="submit" class="btn btn-primary">Sign In</button>
@@ -63,20 +54,96 @@
                             </div>
                         </div>
                     </div>
-                }
+                </form>
+                <div id="MFAContainer" style="opacity:0; display: none; width: 100%">
+                    <div onclick="backToCredentials()" style="color: #1F9BCF; cursor: pointer; width:100%;">Go Back</div>
+                    <h5>Please enter the code sent to your phone number ending in <span id="MFAPhoneNumber"></span></h5>
+                    <div id="LoginMFA">
+                    </div>
+                </div>
             </div>
         </div>
     </div>
-
+    <script src="~/js/MFAValidator.js"></script>
     <script>
 
+        function backToCredentials() {
+            $("#MFAContainer").animate({ //hide MFA form
+                opacity: 0
+            }, 500, function (e) {
+                $(this).css("display", "none");
+                $("#LoginForm").css("display", "block").animate({ //show login form
+                    opacity: 1
+                }, 500);
+                MFAField = null;
+                $("#LoginMFA").html("");
+            });
+        }
+
         $(function () { $("#SignOnModal").modal("show"); });
-        $("#LoginForm").on("submit", function () {
-            $("#loginLoader").css("visibility", "visible")
+        $("#LoginForm").on("submit", function (e) {
+            e.preventDefault();
+            $("#loginLoader").css("visibility", "visible");
+            $.ajax({
+                url: "/api/login",
+                data: new FormData($("#LoginForm")[0]),
+                processData: false,
+                contentType: false,
+                method: "post",
+                success: function (data) {
+                    $("#loginAlert p").html("Login Succeeded!");
+                    $("#loginAlert").addClass("alert-success").removeClass("alert-danger").removeClass("alert-warning");
+                    $("#loginLoader").css("visibility", "hidden");
+                    window.location.href = data.redirect ?? "/"; //redirect
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    statusCode = xhr.status;
+                    if (statusCode == 404) {//user not found
+                        $("[data-valmsg-for=Username]").html("Invalid username");
+                        $("#Username").addClass("is-invalid").removeClass("is-valid");
+                    }
+                    else {
+                        $("[data-valmsg-for=Username]").html("");
+                        $("#Username").addClass("is-valid").removeClass("is-invalid");
+                    }
+
+                    if (statusCode == 401) {//bad password, unauthorized
+                        $("[data-valmsg-for=Password]").html("Invalid password");
+                        $("#Password").addClass("is-invalid");
+                    }
+                    if (statusCode == 449) { //mfa
+                        $("#loginLoader").css("visibility", "hidden");
+                        data = JSON.parse(xhr.responseText);
+                        $("#loginAlert").css("display", "none"); //hide alert
+                        $("#LoginForm").animate({ //hide login form
+                            opacity: 0
+                        }, 500, function (e) { $(this).css("display", "none");
+                            MFAField = new MFAValidator(data.verificationId, 0 + @((int)VerificationType.LoginMFA), $("#Username").val(), "#LoginMFA", null, (data) => {
+                                //on valid
+                                window.location.href = data.Redirect ?? "/"; //redirect
+                                $("#loginAlert p").html("Login Succeeded!");
+                                $("#loginAlert").addClass("alert-success").removeClass("alert-danger").removeClass("alert-warning");
+                            }, null, "LoginValId", "LoginSecret");
+                            $("#MFAPhoneNumber").html(data.last4); //set last 4 digits of phone
+                            //make mfa visible
+                            $("#MFAContainer").css("display", "block").animate({ opacity: 1 }, 500); //make MFA visible
+                        });
+                        return;
+                    }
+                    else {
+                        $("[data-valmsg-for=Password]").html("");
+                        $("#Password").removeClass("is-invalid");
+                    }
+
+                    $("#loginAlert").addClass("alert-danger").removeClass("alert-warning").removeClass("alert-success");
+                    $("#loginAlert p").html(xhr.responseText);
+                    $("#loginLoader").css("visibility", "hidden");
+                }
+            })
         });
         window.history.replaceState(null, "", '/login');
 
-    </script>
+        </script>
 </body>
 
 </html>

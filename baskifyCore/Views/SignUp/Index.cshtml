@@ -2,86 +2,339 @@
     Layout = null;
 }
 
-<head>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" href="~/css/site.css" />
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.lux.min.css" />
-    <meta name="viewport" content="width=device-width" />
-    <title>Sign Up</title>
-</head>
-<body>
-    <nav class="navigationBar">
-        <a class="navigationBarBrand navBarElement" href="/">Baskify</a>
-    </nav>
-    <div style="height:100%; width:100%; display:flex; align-items:center; justify-content:center">
-        <div class="signUpModal maxWidthContainer" style="overflow:hidden">
-            <div style="display:flex; justify-content:center; align-items:center; flex-direction:column" data-slide="1" data-user="both">
-                <h3 style="text-align:center">What Kind of User are You?</h3>
-                <button class="btn btn-secondary userType" data-type="organization">
-                    <img style="padding-right:20px; height:40px" src="data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIj8+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBpZD0iTGF5ZXJfMSIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgNDgwLjAzNyA0ODAuMDM3IiBoZWlnaHQ9IjUxMnB4IiB2aWV3Qm94PSIwIDAgNDgwLjAzNyA0ODAuMDM3IiB3aWR0aD0iNTEycHgiPjxwYXRoIGQ9Im0zMTMuMDM3IDMyOS4wMTl2MTUxaC02NXYtMTQyYzAtNC40MTgtMy41ODItOC04LThzLTggMy41ODItOCA4djE0MmgtNjV2LTE1MWMwLTEzLjIzMyAxMC43NjYtMjQgMjQtMjRoOThjMTMuMjM0IDAgMjQgMTAuNzY2IDI0IDI0em0xMzEuOTk1LTc1LjQ3Yy0yNy43MzkgMTEuMzYyLTYwLjEyNCA2Ljc2LTgzLjc3OC0xMy4yMDItMy4wMjctMi41NTQtNy40MDItMi41Ni0xMC40MjctLjAwNC0zMC40NiAyNS43MjItNzUuMDggMjUuNzMzLTEwNS41NTIuMDIzLTMuMDQtMi41NjUtNy40MzUtMi41NjUtMTAuNDc1IDAtMzAuNDg2IDI1LjcyMS03NS4xMzEgMjUuNjkyLTEwNS41NjktLjAzNS0zLjAyNy0yLjU1OC03LjQwNS0yLjU1NC0xMC40MzMuMDAzLTIzLjY2MyAxOS45ODItNTYuMDQ5IDI0LjU4My04My43NDcgMTMuMjE1LTUuMjU1LTIuMTU3LTExLjAxMyAxLjcyMy0xMS4wMTMgNy40MDN2MTc5LjA2OGMwIDIyLjA5MSAxNy45MDkgNDAgNDAgNDBoODd2LTE1MWMwLTIyLjA1NiAxNy45NDQtNDAgNDAtNDBoOThjMjIuMDU2IDAgNDAgMTcuOTQ0IDQwIDQwdjE1MWg4N2MyMi4wOTEgMCA0MC0xNy45MDkgNDAtNDB2LTE3OS4wNjVjLS4wMDEtNS42NzYtNS43NTMtOS41NTctMTEuMDA2LTcuNDA2em0tMzg0Ljk5NS0xMTcuNTNjLTQuNTk1IDAtOC4yODQtMy44NzMtNy45ODMtOC41MzIuMjc1LTQuMjUyIDMuOTk2LTcuNDY4IDguMjU3LTcuNDY4aDQwNC43OTJjNS43NTcgMCA5LjYzLTUuODk4IDcuMzQtMTEuMTgxbC00NS4wNjYtMTAzLjk5OWMtMS4yNy0yLjkzLTQuMTUtNC44Mi03LjM0LTQuODJoLTM2MGMtMy4xOSAwLTYuMDcgMS44OS03LjM0IDQuODJsLTUyIDEyMGMtLjkzMyAyLjEyLS42Ni0xLjEwMi0uNjYgNTIuODEuMDYgMzYuMzkgMjkuNjcgNjUuOTkgNjYgNjUuOTkgMjIuNjkgMCA0Mi43NTYtMTEuNTQyIDU0LjYzOC0yOS4wNzQgMS42MTQtMi4zODIgNS4wNjktMi4zODIgNi42ODMuMDAxIDI2LjI3MSAzOC43OCA4My4xMDEgMzguNjk0IDEwOS4zNC4wMjggMS42MTQtMi4zNzkgNS4wNjUtMi4zNzkgNi42NzkgMCAyNi4yNTkgMzguNjk3IDgzLjA0OSAzOC43MTcgMTA5LjMyMS0uMDAxIDEuNTkxLTIuMzQ1IDUuMDM3LTIuNDI3IDYuNjI0LS4wOCAxMi4wMjMgMTcuNzc0IDMyLjQ3NCAyOS40MTQgNTUuNTY4IDI5LjEyIDM2LjI4NC0uNDYxIDY1LjE0Ny0zMC43MiA2NS4xNDctNjcuMDA3di0zMi42MDhjMC00LjQxOC0zLjU4Mi04LTgtOGgtNDEyeiIgZmlsbD0iIzAwMDAwMCIvPjwvc3ZnPgo=" />
-                    <span style="font-size:200%;">Organization</span>
-                    <div class="text-muted">I plan on making auctions</div>
-                </button>
-                <button class="btn btn-secondary userType" data-type="user">
-                    <img style="padding-right:20px; height:20px" src="data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIj8+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSItNDIgMCA1MTIgNTEyLjAwMiIgd2lkdGg9IjUxMnB4IiBoZWlnaHQ9IjUxMnB4Ij48cGF0aCBkPSJtMjEwLjM1MTU2MiAyNDYuNjMyODEyYzMzLjg4MjgxMyAwIDYzLjIyMjY1Ny0xMi4xNTIzNDMgODcuMTk1MzEzLTM2LjEyODkwNiAyMy45NzI2NTYtMjMuOTcyNjU2IDM2LjEyNS01My4zMDQ2ODcgMzYuMTI1LTg3LjE5MTQwNiAwLTMzLjg3NS0xMi4xNTIzNDQtNjMuMjEwOTM4LTM2LjEyODkwNi04Ny4xOTE0MDYtMjMuOTc2NTYzLTIzLjk2ODc1LTUzLjMxMjUtMzYuMTIxMDk0LTg3LjE5MTQwNy0zNi4xMjEwOTQtMzMuODg2NzE4IDAtNjMuMjE4NzUgMTIuMTUyMzQ0LTg3LjE5MTQwNiAzNi4xMjVzLTM2LjEyODkwNiA1My4zMDg1OTQtMzYuMTI4OTA2IDg3LjE4NzVjMCAzMy44ODY3MTkgMTIuMTU2MjUgNjMuMjIyNjU2IDM2LjEzMjgxMiA4Ny4xOTUzMTIgMjMuOTc2NTYzIDIzLjk2ODc1IDUzLjMxMjUgMzYuMTI1IDg3LjE4NzUgMzYuMTI1em0wIDAiIGZpbGw9IiMwMDAwMDAiLz48cGF0aCBkPSJtNDI2LjEyODkwNiAzOTMuNzAzMTI1Yy0uNjkxNDA2LTkuOTc2NTYzLTIuMDg5ODQ0LTIwLjg1OTM3NS00LjE0ODQzNy0zMi4zNTE1NjMtMi4wNzgxMjUtMTEuNTc4MTI0LTQuNzUzOTA3LTIyLjUyMzQzNy03Ljk1NzAzMS0zMi41MjczNDMtMy4zMDg1OTQtMTAuMzM5ODQ0LTcuODA4NTk0LTIwLjU1MDc4MS0xMy4zNzEwOTQtMzAuMzM1OTM4LTUuNzczNDM4LTEwLjE1NjI1LTEyLjU1NDY4OC0xOS0yMC4xNjQwNjMtMjYuMjc3MzQzLTcuOTU3MDMxLTcuNjEzMjgyLTE3LjY5OTIxOS0xMy43MzQzNzYtMjguOTY0ODQzLTE4LjE5OTIxOS0xMS4yMjY1NjMtNC40NDE0MDctMjMuNjY3OTY5LTYuNjkxNDA3LTM2Ljk3NjU2My02LjY5MTQwNy01LjIyNjU2MyAwLTEwLjI4MTI1IDIuMTQ0NTMyLTIwLjA0Mjk2OSA4LjUtNi4wMDc4MTIgMy45MTc5NjktMTMuMDM1MTU2IDguNDQ5MjE5LTIwLjg3ODkwNiAxMy40NjA5MzgtNi43MDcwMzEgNC4yNzM0MzgtMTUuNzkyOTY5IDguMjc3MzQ0LTI3LjAxNTYyNSAxMS45MDIzNDQtMTAuOTQ5MjE5IDMuNTQyOTY4LTIyLjA2NjQwNiA1LjMzOTg0NC0zMy4wMzkwNjMgNS4zMzk4NDQtMTAuOTcyNjU2IDAtMjIuMDg1OTM3LTEuNzk2ODc2LTMzLjA0Njg3NC01LjMzOTg0NC0xMS4yMTA5MzgtMy42MjEwOTQtMjAuMjk2ODc2LTcuNjI1LTI2Ljk5NjA5NC0xMS44OTg0MzgtNy43Njk1MzItNC45NjQ4NDQtMTQuODAwNzgyLTkuNDk2MDk0LTIwLjg5ODQzOC0xMy40Njg3NS05Ljc1LTYuMzU1NDY4LTE0LjgwODU5NC04LjUtMjAuMDM1MTU2LTguNS0xMy4zMTI1IDAtMjUuNzUgMi4yNTM5MDYtMzYuOTcyNjU2IDYuNjk5MjE5LTExLjI1NzgxMyA0LjQ1NzAzMS0yMS4wMDM5MDYgMTAuNTc4MTI1LTI4Ljk2ODc1IDE4LjE5OTIxOS03LjYwNTQ2OSA3LjI4MTI1LTE0LjM5MDYyNSAxNi4xMjEwOTQtMjAuMTU2MjUgMjYuMjczNDM3LTUuNTU4NTk0IDkuNzg1MTU3LTEwLjA1ODU5NCAxOS45OTIxODgtMTMuMzcxMDk0IDMwLjMzOTg0NC0zLjE5OTIxOSAxMC4wMDM5MDYtNS44NzUgMjAuOTQ1MzEzLTcuOTUzMTI1IDMyLjUyMzQzNy0yLjA1ODU5NCAxMS40NzY1NjMtMy40NTcwMzEgMjIuMzYzMjgyLTQuMTQ4NDM3IDMyLjM2MzI4Mi0uNjc5Njg4IDkuNzk2ODc1LTEuMDIzNDM4IDE5Ljk2NDg0NC0xLjAyMzQzOCAzMC4yMzQzNzUgMCAyNi43MjY1NjIgOC40OTYwOTQgNDguMzYzMjgxIDI1LjI1IDY0LjMyMDMxMiAxNi41NDY4NzUgMTUuNzQ2MDk0IDM4LjQ0MTQwNiAyMy43MzQzNzUgNjUuMDY2NDA2IDIzLjczNDM3NWgyNDYuNTMxMjVjMjYuNjI1IDAgNDguNTExNzE5LTcuOTg0Mzc1IDY1LjA2MjUtMjMuNzM0Mzc1IDE2Ljc1NzgxMy0xNS45NDUzMTIgMjUuMjUzOTA2LTM3LjU4NTkzNyAyNS4yNTM5MDYtNjQuMzI0MjE5LS4wMDM5MDYtMTAuMzE2NDA2LS4zNTE1NjItMjAuNDkyMTg3LTEuMDM1MTU2LTMwLjI0MjE4N3ptMCAwIiBmaWxsPSIjMDAwMDAwIi8+PC9zdmc+Cg==" />
-                    <span style="font-size:200%;">Customer</span>
-                    <div class="text-muted">I plan on participating in auctions</div>
-                </button>
+    <head>
+        <script src="~/lib/jquery/dist/jquery.min.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.lux.min.css" />
+        <link rel="stylesheet" href="~/css/site.css" />
+        <meta name="viewport" content="width=device-width" />
+        <title>Sign Up</title>
+    </head>
+    <body>
+        <nav class="navigationBar">
+            <a class="navigationBarBrand navBarElement" href="/">Baskify</a>
+        </nav>
+        <div id="PageLoadingModal" style="z-index:999999; display:none">
+            <div class="loading-spinner" style="height: 100px; width: 100px; display: block; visibility: visible;overflow:unset">
+                <div class="loading-body">
+                    <div></div><div></div><div></div>
+                </div>
+                <div style="color: black;text-align: center;transform: translateY(-25px);">This may take a while...</div>
             </div>
-            <!---------------START SLIDE 2 ORG------------------>
-            <div style="display:none; opacity:0; justify-content:center; align-items:center; flex-direction:column" data-slide="2" data-user="organization">
-                <h3 style="text-align:center">Find Your Organization</h3>
-                <div class="text-muted">We only allow non-profits 501(c)(#) or 4947(a)(1)</div>
-                <input id="EIN" name="EIN" type="hidden" />
-                <div id="searchBarParent" class="form-inline my-2 my-lg-0" style="display: block; width:80%;">
-                    <div style="position:relative">
-                        <input class="form-control mr-sm-2 searchBar" style="width: 100%;" id="searchOrg" placeholder="Search by Organization Name or EIN" type="text" value="">
-                        <div id="searchOrgLoader" style="height: 66px; width: 45px; visibility: visible; position: absolute;top: 0;right: 14px;bottom: 0;margin: auto; display:none">
+        </div>
+        <div style="padding-top: 20px; width:100%; display:flex; align-items:center; justify-content:center">
+            <div class="signUpModal maxWidthContainer" style="overflow:hidden">
+                <div id="signUpErrorAlert" class="alert alert-dismissible alert-danger" style="display:none; width:80%;margin: auto;">
+                    <button type="button" class="close" data-hide="alert">×</button>
+                    <p></p>
+                </div>
+                <form id="signUpForm" style="overflow:hidden; width:100%;">
+                    <div style="display:flex; justify-content:center; align-items:center; flex-direction:column" data-slide="1" data-user="both">
+                        <h3 style="text-align:center">What Kind of User are You?</h3>
+                        <button type="button" class="btn btn-secondary userType" data-type="organization">
+                            <img style="padding-right:20px; height:40px" src="data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIj8+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBpZD0iTGF5ZXJfMSIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgNDgwLjAzNyA0ODAuMDM3IiBoZWlnaHQ9IjUxMnB4IiB2aWV3Qm94PSIwIDAgNDgwLjAzNyA0ODAuMDM3IiB3aWR0aD0iNTEycHgiPjxwYXRoIGQ9Im0zMTMuMDM3IDMyOS4wMTl2MTUxaC02NXYtMTQyYzAtNC40MTgtMy41ODItOC04LThzLTggMy41ODItOCA4djE0MmgtNjV2LTE1MWMwLTEzLjIzMyAxMC43NjYtMjQgMjQtMjRoOThjMTMuMjM0IDAgMjQgMTAuNzY2IDI0IDI0em0xMzEuOTk1LTc1LjQ3Yy0yNy43MzkgMTEuMzYyLTYwLjEyNCA2Ljc2LTgzLjc3OC0xMy4yMDItMy4wMjctMi41NTQtNy40MDItMi41Ni0xMC40MjctLjAwNC0zMC40NiAyNS43MjItNzUuMDggMjUuNzMzLTEwNS41NTIuMDIzLTMuMDQtMi41NjUtNy40MzUtMi41NjUtMTAuNDc1IDAtMzAuNDg2IDI1LjcyMS03NS4xMzEgMjUuNjkyLTEwNS41NjktLjAzNS0zLjAyNy0yLjU1OC03LjQwNS0yLjU1NC0xMC40MzMuMDAzLTIzLjY2MyAxOS45ODItNTYuMDQ5IDI0LjU4My04My43NDcgMTMuMjE1LTUuMjU1LTIuMTU3LTExLjAxMyAxLjcyMy0xMS4wMTMgNy40MDN2MTc5LjA2OGMwIDIyLjA5MSAxNy45MDkgNDAgNDAgNDBoODd2LTE1MWMwLTIyLjA1NiAxNy45NDQtNDAgNDAtNDBoOThjMjIuMDU2IDAgNDAgMTcuOTQ0IDQwIDQwdjE1MWg4N2MyMi4wOTEgMCA0MC0xNy45MDkgNDAtNDB2LTE3OS4wNjVjLS4wMDEtNS42NzYtNS43NTMtOS41NTctMTEuMDA2LTcuNDA2em0tMzg0Ljk5NS0xMTcuNTNjLTQuNTk1IDAtOC4yODQtMy44NzMtNy45ODMtOC41MzIuMjc1LTQuMjUyIDMuOTk2LTcuNDY4IDguMjU3LTcuNDY4aDQwNC43OTJjNS43NTcgMCA5LjYzLTUuODk4IDcuMzQtMTEuMTgxbC00NS4wNjYtMTAzLjk5OWMtMS4yNy0yLjkzLTQuMTUtNC44Mi03LjM0LTQuODJoLTM2MGMtMy4xOSAwLTYuMDcgMS44OS03LjM0IDQuODJsLTUyIDEyMGMtLjkzMyAyLjEyLS42Ni0xLjEwMi0uNjYgNTIuODEuMDYgMzYuMzkgMjkuNjcgNjUuOTkgNjYgNjUuOTkgMjIuNjkgMCA0Mi43NTYtMTEuNTQyIDU0LjYzOC0yOS4wNzQgMS42MTQtMi4zODIgNS4wNjktMi4zODIgNi42ODMuMDAxIDI2LjI3MSAzOC43OCA4My4xMDEgMzguNjk0IDEwOS4zNC4wMjggMS42MTQtMi4zNzkgNS4wNjUtMi4zNzkgNi42NzkgMCAyNi4yNTkgMzguNjk3IDgzLjA0OSAzOC43MTcgMTA5LjMyMS0uMDAxIDEuNTkxLTIuMzQ1IDUuMDM3LTIuNDI3IDYuNjI0LS4wOCAxMi4wMjMgMTcuNzc0IDMyLjQ3NCAyOS40MTQgNTUuNTY4IDI5LjEyIDM2LjI4NC0uNDYxIDY1LjE0Ny0zMC43MiA2NS4xNDctNjcuMDA3di0zMi42MDhjMC00LjQxOC0zLjU4Mi04LTgtOGgtNDEyeiIgZmlsbD0iIzAwMDAwMCIvPjwvc3ZnPgo=" />
+                            <span style="font-size:200%;">Organization</span>
+                            <div class="text-muted">I plan on making auctions</div>
+                        </button>
+                        <button type="button" class="btn btn-secondary userType" data-type="user">
+                            <img style="padding-right: 20px;
+        height: 20px" src="data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIj8+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSItNDIgMCA1MTIgNTEyLjAwMiIgd2lkdGg9IjUxMnB4IiBoZWlnaHQ9IjUxMnB4Ij48cGF0aCBkPSJtMjEwLjM1MTU2MiAyNDYuNjMyODEyYzMzLjg4MjgxMyAwIDYzLjIyMjY1Ny0xMi4xNTIzNDMgODcuMTk1MzEzLTM2LjEyODkwNiAyMy45NzI2NTYtMjMuOTcyNjU2IDM2LjEyNS01My4zMDQ2ODcgMzYuMTI1LTg3LjE5MTQwNiAwLTMzLjg3NS0xMi4xNTIzNDQtNjMuMjEwOTM4LTM2LjEyODkwNi04Ny4xOTE0MDYtMjMuOTc2NTYzLTIzLjk2ODc1LTUzLjMxMjUtMzYuMTIxMDk0LTg3LjE5MTQwNy0zNi4xMjEwOTQtMzMuODg2NzE4IDAtNjMuMjE4NzUgMTIuMTUyMzQ0LTg3LjE5MTQwNiAzNi4xMjVzLTM2LjEyODkwNiA1My4zMDg1OTQtMzYuMTI4OTA2IDg3LjE4NzVjMCAzMy44ODY3MTkgMTIuMTU2MjUgNjMuMjIyNjU2IDM2LjEzMjgxMiA4Ny4xOTUzMTIgMjMuOTc2NTYzIDIzLjk2ODc1IDUzLjMxMjUgMzYuMTI1IDg3LjE4NzUgMzYuMTI1em0wIDAiIGZpbGw9IiMwMDAwMDAiLz48cGF0aCBkPSJtNDI2LjEyODkwNiAzOTMuNzAzMTI1Yy0uNjkxNDA2LTkuOTc2NTYzLTIuMDg5ODQ0LTIwLjg1OTM3NS00LjE0ODQzNy0zMi4zNTE1NjMtMi4wNzgxMjUtMTEuNTc4MTI0LTQuNzUzOTA3LTIyLjUyMzQzNy03Ljk1NzAzMS0zMi41MjczNDMtMy4zMDg1OTQtMTAuMzM5ODQ0LTcuODA4NTk0LTIwLjU1MDc4MS0xMy4zNzEwOTQtMzAuMzM1OTM4LTUuNzczNDM4LTEwLjE1NjI1LTEyLjU1NDY4OC0xOS0yMC4xNjQwNjMtMjYuMjc3MzQzLTcuOTU3MDMxLTcuNjEzMjgyLTE3LjY5OTIxOS0xMy43MzQzNzYtMjguOTY0ODQzLTE4LjE5OTIxOS0xMS4yMjY1NjMtNC40NDE0MDctMjMuNjY3OTY5LTYuNjkxNDA3LTM2Ljk3NjU2My02LjY5MTQwNy01LjIyNjU2MyAwLTEwLjI4MTI1IDIuMTQ0NTMyLTIwLjA0Mjk2OSA4LjUtNi4wMDc4MTIgMy45MTc5NjktMTMuMDM1MTU2IDguNDQ5MjE5LTIwLjg3ODkwNiAxMy40NjA5MzgtNi43MDcwMzEgNC4yNzM0MzgtMTUuNzkyOTY5IDguMjc3MzQ0LTI3LjAxNTYyNSAxMS45MDIzNDQtMTAuOTQ5MjE5IDMuNTQyOTY4LTIyLjA2NjQwNiA1LjMzOTg0NC0zMy4wMzkwNjMgNS4zMzk4NDQtMTAuOTcyNjU2IDAtMjIuMDg1OTM3LTEuNzk2ODc2LTMzLjA0Njg3NC01LjMzOTg0NC0xMS4yMTA5MzgtMy42MjEwOTQtMjAuMjk2ODc2LTcuNjI1LTI2Ljk5NjA5NC0xMS44OTg0MzgtNy43Njk1MzItNC45NjQ4NDQtMTQuODAwNzgyLTkuNDk2MDk0LTIwLjg5ODQzOC0xMy40Njg3NS05Ljc1LTYuMzU1NDY4LTE0LjgwODU5NC04LjUtMjAuMDM1MTU2LTguNS0xMy4zMTI1IDAtMjUuNzUgMi4yNTM5MDYtMzYuOTcyNjU2IDYuNjk5MjE5LTExLjI1NzgxMyA0LjQ1NzAzMS0yMS4wMDM5MDYgMTAuNTc4MTI1LTI4Ljk2ODc1IDE4LjE5OTIxOS03LjYwNTQ2OSA3LjI4MTI1LTE0LjM5MDYyNSAxNi4xMjEwOTQtMjAuMTU2MjUgMjYuMjczNDM3LTUuNTU4NTk0IDkuNzg1MTU3LTEwLjA1ODU5NCAxOS45OTIxODgtMTMuMzcxMDk0IDMwLjMzOTg0NC0zLjE5OTIxOSAxMC4wMDM5MDYtNS44NzUgMjAuOTQ1MzEzLTcuOTUzMTI1IDMyLjUyMzQzNy0yLjA1ODU5NCAxMS40NzY1NjMtMy40NTcwMzEgMjIuMzYzMjgyLTQuMTQ4NDM3IDMyLjM2MzI4Mi0uNjc5Njg4IDkuNzk2ODc1LTEuMDIzNDM4IDE5Ljk2NDg0NC0xLjAyMzQzOCAzMC4yMzQzNzUgMCAyNi43MjY1NjIgOC40OTYwOTQgNDguMzYzMjgxIDI1LjI1IDY0LjMyMDMxMiAxNi41NDY4NzUgMTUuNzQ2MDk0IDM4LjQ0MTQwNiAyMy43MzQzNzUgNjUuMDY2NDA2IDIzLjczNDM3NWgyNDYuNTMxMjVjMjYuNjI1IDAgNDguNTExNzE5LTcuOTg0Mzc1IDY1LjA2MjUtMjMuNzM0Mzc1IDE2Ljc1NzgxMy0xNS45NDUzMTIgMjUuMjUzOTA2LTM3LjU4NTkzNyAyNS4yNTM5MDYtNjQuMzI0MjE5LS4wMDM5MDYtMTAuMzE2NDA2LS4zNTE1NjItMjAuNDkyMTg3LTEuMDM1MTU2LTMwLjI0MjE4N3ptMCAwIiBmaWxsPSIjMDAwMDAwIi8+PC9zdmc+Cg==" />
+                            <span style="font-size:200%;">Customer</span>
+                            <div class="text-muted">I plan on participating in auctions</div>
+                        </button>
+                        <input type="hidden" name="Type" id="Type" />
+                    </div>
+                    <!-----------------START SLIDE 2 USER (FIRST AND LAST)------------------->
+                    <div style="display:none; opacity:0; justify-content:center; align-items:center; flex-direction:column" data-slide="2" data-user="user">
+                        <div onclick="previousSlide()" style="color: #1F9BCF; cursor: pointer; width:80%;">Go Back</div>
+                        <div style="width:80%">
+                            <h3 style="text-align:center">What is your name?</h3>
+                            <div class="text-muted">This will be shared with organizations looking to deliver your baskets.</div>
+                            <div class="form-group" style="width:100%">
+                                <label for="FirstName">First Name</label>
+                                <input type="text" name="FirstName" id="FirstName" placeholder="First Name" class="form-control" />
+                                <span class="invalid-feedback" data-valmsg-for="FirstName" data-valmsg-replace="true"></span>
+                            </div>
+                            <div class="form-group" style="width:100%">
+                                <label for="FirstName">Last Name</label>
+                                <input type="text" name="LastName" id="LastName" placeholder="Last Name" class="form-control" />
+                                <span class="invalid-feedback" data-valmsg-for="LastName" data-valmsg-replace="true"></span>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-success nextSlide" onclick="validateName()" style="width:80%">Next</button>
+                    </div>
+                    <!---------------START SLIDE 2 ORG (PROOF ON NONPROFIT)------------------>
+                    <div style="display:none; opacity:0; justify-content:center; align-items:center; flex-direction:column" data-slide="2" data-user="organization">
+                        <div onclick="previousSlide()" style="color: #1F9BCF; cursor: pointer; width:80%;">Go Back</div>
+                        <h3 style="text-align:center">Find Your Organization</h3>
+                        <div class="text-muted">We only allow non-profits 501(c)(#) or 4947(a)(1)</div>
+                        <input id="EIN" name="EIN" type="hidden" />
+                        <div id="searchBarParent" class="form-inline my-2 my-lg-0" style="display: block; width:80%;">
+                            <div style="position:relative">
+                                <input class="form-control mr-sm-2 searchBar" style="width: 100%;" id="searchOrg" placeholder="Search by Organization Name or EIN" type="text" value="">
+                                <div id="searchOrgLoader" style="height: 66px; width: 45px; visibility: visible; position: absolute;top: 0;right: 14px;bottom: 0;margin: auto; display:none">
+                                    <div class="loading-body">
+                                        <div></div><div></div><div></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div id="searchResults" style="z-index:10;border-right: 1px solid rgba(155, 155, 155, 0.3); border-bottom: 1px solid rgba(155, 155, 155, 0.3);border-left: 1px solid rgba(155, 155, 155, 0.3);
+                        border-image: initial; position: absolute;text-align: center; display: none;background: white;width: 535.188px;">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="invalid-feedback" style="display:inline" data-valmsg-for="EIN" data-valmsg-replace="true"></div>
+                        <div style="cursor:pointer; color:#1F9BCF;" onclick="loadProofOfNonProf()">Can't find your organization?</div>
+
+                        <div style="padding-top:30px; width:80%; display:none; opacity: 0" id="uploadOrgDocsContainer">
+                            <h3 style="text-align:center">Upload Proof of Non-Profit Status</h3>
+                            <div class="text-muted" style="padding-bottom: 10px;">Official IRS documents can be uploaded here (ex: an IRS determination letter or any other document proving non-profit status and providing an EIN)</div>
+                            <div class="form-group" id="nonprofitFilesCont">
+                                <div class="input-group mb-3">
+                                    <div class="custom-file" style="flex: unset;">
+                                        <input type="file" class="custom-file-input" accept=".pdf,image/*" name="ProofOfNonProfit" multiple>
+                                        <label class="custom-file-label" for="ProofOfNonProfit">Choose files</label>
+                                    </div>
+                                    <span class="invalid-feedback" style="display:inline" data-valmsg-for="ProofOfNonProfit" data-valmsg-replace="true"></span>
+                                    <table class="table table-hover">
+                                        <tbody class="fileList"></tbody>
+                                    </table>
+                                </div>
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-success nextSlide" onclick="nextSlide(tryLoadOrg)" style="width:80%" disabled>Next</button>
+                    </div>
+                    <!---------------------START SLIDE 3 ORG (VERYIFY USER)----------------------->
+                    <div style="display:none; opacity:0; justify-content:center; align-items:center; flex-direction:column" data-slide="3" data-user="organization">
+                        <div onclick="previousSlide()" style="color: #1F9BCF; cursor: pointer; width:80%;">Go Back</div>
+                        <div id="verificationAlert" class="alert alert-dismissible alert-danger" style="display:none; width:80%;">
+                            <button type="button" class="close" data-hide="alert">&times;</button>
+                            <p></p>
+                        </div>
+                        <h3 style="text-align:center">Verify Your Membership</h3>
+                        <div class="text-muted" style="padding-bottom: 10px;text-align:center">We need to ensure that you are a permissioned member of the host organization.</div>
+                        <hr style="width:80%" />
+                        <div id="validationLoader" style="height: 200px; width: 200px; visibility: visible; position: relative;display:none">
                             <div class="loading-body">
                                 <div></div><div></div><div></div>
                             </div>
                         </div>
-                    </div>
-                    <div>
-                        <div id="searchResults" style="z-index:10;border-right: 1px solid rgba(155, 155, 155, 0.3); border-bottom: 1px solid rgba(155, 155, 155, 0.3);border-left: 1px solid rgba(155, 155, 155, 0.3);
-                        border-image: initial; position: absolute;text-align: center; display: none;background: white;width: 535.188px;">
-                        </div>
-                    </div>
-                </div>
-                <div style="cursor:pointer; color:#1F9BCF;" onclick="loadProofOfNonProf()">Can't find your organization?</div>
-
-                <div style="padding-top:30px; width:80%; display:none; opacity: 0" id="uploadOrgDocsContainer">
-                    <h3 style="text-align:center">Upload Proof of Non-Profit Status</h3>
-                    <div class="text-muted" style="padding-bottom: 10px;">Official IRS documents can be uploaded here (ex: an IRS determination letter or any other document proving non-profit status and providing an EIN)</div>
-                    <div class="form-group" id="nonprofitFilesCont">
-                        <div class="input-group mb-3">
-                            <div class="custom-file" style="flex: unset;">
-                                <input type="file" class="custom-file-input" accept=".pdf,image/*" name="proofofnonprofit" multiple>
-                                <label class="custom-file-label" for="proofofnonprofit">Choose files</label>
+                        <div id="allValidationItems" style="display:none; flex-wrap:wrap; justify-content:center">
+                            <div style="width:80%; max-width:500px">
+                                <h4 style="width:100%">Send a validation code</h4>
+                                <div class="text-muted">These numbers were pulled from your IRS records.</div>
+                                <div id="validationNumbers" style="width:100%">
+                                </div>
                             </div>
-                            <table class="table table-hover">
-                                <tbody class="fileList"></tbody>
-                            </table>
+                            <div id="numberEditWindow" style="display:none; position: absolute; align-items: center; border: 2px solid;background: lightseagreen; height:45px; overflow:hidden">
+                                <div style="display:inline-flex; display: flex; align-items: center;">
+                                    <div class="input-group" style="height: inherit;">
+                                        <div style="height:inherit">
+                                            <span class="input-group-text" style="font-size: 30px;padding: 0 10px 0px 10px; height:inherit">+</span>
+                                        </div>
+                                        <input type="number" min="1" max="999" value="1" class="form-control countryCode" style="width:55px; height:inherit;text-align: center; padding: 0 10px 0 10px;" aria-label="Country code">
+                                        <div style="height:inherit">
+                                            <span class="input-group-text phoneNumber" style="font-size: 14px;padding: 0 10px 0 10px;height:100%"></span>
+                                        </div>
+                                    </div>
+                                </div>
+                                <img src="~/Content/save.svg" onclick="saveCountryCode()" style="height: 20px; padding-left:13px; padding-right: 13px;cursor:pointer" />
+                            </div>
+                            <div id="ValidationPopup" style="width:80%">
+
+                            </div>
+                            <div style="cursor:pointer; color:#1F9BCF; text-align:center; width:100%" onclick="showAltVerification()">Do these not work for you?</div>
+                        </div>
+
+                        <div id="uploadProof" style="padding-top:20px; width:80%; display: none; opacity: 0">
+                            <hr />
+                            <h4 style="text-align:center">Upload ID</h4>
+                            <div class="text-muted" style="text-align:center">Upload a license, non-drivers id, passport, or other photo ID (front and back)</div>
+                            <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:center;">
+                                <img src="~/Content/driving-license.svg" style="height:175px" />
+                                <div style="width:320px">
+                                    <div class="custom-file" style="flex: unset; width:100%">
+                                        <input type="file" class="custom-file-input" accept=".pdf,image/*" name="IdFront" id="IdFront">
+                                        <label class="custom-file-label" for="IdFront">Upload ID <b>FRONT</b></label>
+                                    </div>
+                                    <span class="invalid-feedback" style="display:inline" data-valmsg-for="IdFront" data-valmsg-replace="true"></span>
+                                    <div class="custom-file" style="flex: unset;width:100%">
+                                        <input type="file" class="custom-file-input" accept=".pdf,image/*" name="IdBack" id="IdBack">
+                                        <label class="custom-file-label" for="IdBack">Upload ID <b>BACK <span class="text-muted">(opt.)</span></b></label>
+                                    </div>
+                                    <span class="invalid-feedback" style="display:inline" data-valmsg-for="IdBack" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <hr />
+
+                            <h4 style="text-align:center; padding-top:20px">Upload Proof of Authority</h4>
+                            <div class="text-muted" style="text-align:center">
+                                Upload a federal or state form connecting you to the organization; official, signed organization letterhead permitting
+                                you to host on behalf of the organization; or another form validating your authority.
+                            </div>
+                            <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:center;">
+                                <div style="width:320px">
+                                    <div class="custom-file" style="flex: unset;width:100%">
+                                        <input type="file" class="custom-file-input" accept=".pdf,image/*" name="MembershipForm" id="MembershipForm" multiple>
+                                        <label class="custom-file-label" for="MembershipForm">Upload Form</label>
+                                        <span class="invalid-feedback" style="display:inline" data-valmsg-for="MembershipForm" data-valmsg-replace="true"></span>
+                                    </div>
+                                </div>
+                                <img src="~/Content/irs.svg" style="height:175px" />
+                            </div>
+                        </div>
+                        <button type="button" class="btn btn-success nextSlide" onclick="tryNext()" style="left: 0; right: 0; width: 80%; margin: auto; display: block; padding-top:20px">Next</button>
+                    </div>
+                    <!---------------------START SLIDE 4 ORG/USER (ADDRESS)----------------------->
+                    <div style="display:none; opacity:0; justify-content:center; align-items:center; flex-direction:column" data-slide="4" data-user="both">
+                        <div onclick="previousSlide()" style="color: #1F9BCF; cursor: pointer; width:80%;">Go Back</div>
+                        <div id="invalidAddressAlert" class="alert alert-dismissible alert-danger" style="display:none; width:80%;">
+                            <button type="button" class="close" data-hide="alert">&times;</button>
+                            <strong>Oh snap!</strong> The address you entered is invalid!
+                        </div>
+                        <div id="addressAlert" style="display:none; width:80%" class="alert alert-dismissible alert-warning">
+                            <button type="button" class="close" data-hide="alert">&times;</button>
+                            <h4 class="alert-heading">Warning!</h4>
+                            <p class="mb-0"></p>
+                        </div>
+
+                        <div id="addressLoader" style="height: 200px; width: 300px; visibility: visible; position: relative;top: 0;right: 14px;bottom: 0;margin: auto; display:none">
+                            <div class="loading-body">
+                                <div></div><div></div><div></div>
+                            </div>
+                        </div>
+
+                        <div id="addressContainer" style="display:flex; flex-direction:inherit; align-items:inherit; justify-content:inherit; width:80%">
+                            <h3 style="text-align:center">Where are You Located?</h3>
+                            <div class="text-muted">Currently, we only allow accounts to have US-based addresses.</div>
+                            <div class="form-group" style="width:100%">
+                                <label for="Address">Address</label>
+                                <input type="text" name="Address" id="Address" placeholder="Address" class="form-control" />
+                                <span class="invalid-feedback" data-valmsg-for="Address" data-valmsg-replace="true"></span>
+                            </div>
+                            <div class="form-group" style="width:100%">
+                                <label for="City">City</label>
+                                <input type="text" name="City" id="City" placeholder="City" class="form-control" />
+                                <span class="invalid-feedback" data-valmsg-for="City" data-valmsg-replace="true"></span>
+                            </div>
+                            <div class="form-group" style="width:100%">
+                                <label for="State">State</label>
+                                <input type="text" name="State" id="State" placeholder="State" class="form-control" />
+                                <span class="invalid-feedback" data-valmsg-for="State" data-valmsg-replace="true"></span>
+                            </div>
+                            <div class="form-group" style="width:100%">
+                                <label for="ZIP">ZIP</label>
+                                <input type="text" name="ZIP" id="ZIP" placeholder="ZIP Code" class="form-control" />
+                                <span class="invalid-feedback" data-valmsg-for="ZIP" data-valmsg-replace="true"></span>
+                            </div>
+                            <button type="button" class="btn btn-success nextSlide" onclick="validateAddress()" style="width:100%">Next</button>
+                        </div>
+
+                    </div>
+                    <!---------------------START SLIDE 5 ORG/USER (ICON)-------------------------->
+                    <div style="display:none; opacity:0; justify-content:center; align-items:center; flex-direction:column" data-slide="5" data-user="both">
+                        <div onclick="previousSlide()" style="color: #1F9BCF; cursor: pointer; width:80%;">Go Back</div>
+                        <div id="invalidPersonalization" class="alert alert-dismissible alert-danger" style="display:none; width:80%">
+                            <button type="button" class="close" data-hide="alert">&times;</button>
+                            <p></p>
+                        </div>
+                        <h3 style="text-align:center">Make it Personal</h3>
+                        <div id="iconUploadContainer" onclick="getIcon()">
+                            <p style="transform: translateY(45px);">Choose an Icon</p>
+                            <div id="iconLoader" style="height: 100px; width: 100px; visibility: visible; position: relative;display:none">
+                                <div class="loading-body">
+                                    <div></div><div></div><div></div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="invalid-feedback" style="display:inline; text-align:center" data-valmsg-for="Icon" data-valmsg-replace="true"></div>
+                        <input type="file" accept="image/*" id="Icon" name="Icon" style="display:none;" />
+                        <input type="hidden" name="IconUrl" id="IconUrl" />
+                        <div class="form-group" style="width:80%">
+                            <label for="Username">Username</label>
+                            <input type="text" name="Username" id="Username" placeholder="Username" class="form-control" />
+                            <span class="invalid-feedback" data-valmsg-for="Username" data-valmsg-replace="true"></span>
+                        </div>
+                        <div class="form-group" style="width:80%">
+                            <label for="Email">Email</label>
+                            <input type="email" name="Email" id="Email" placeholder="Email" class="form-control" />
+                            <span class="invalid-feedback" data-valmsg-for="Email" data-valmsg-replace="true"></span>
+                        </div>
+                        <div class="form-group" style="width:80%">
+                            <label for="Password">Password</label>
+                            <input type="password" name="Password" id="Password" placeholder="Password" class="form-control" />
+                            <span class="invalid-feedback" data-valmsg-for="Password" data-valmsg-replace="true"></span>
+                        </div>
+                        <div class="form-group" style="width:80%">
+                            <label for="ConfirmPassword">Confirm Password</label>
+                            <input type="password" name="ConfirmPassword" id="ConfirmPassword" placeholder="Confirm Password" class="form-control" />
+                            <span class="invalid-feedback" data-valmsg-for="ConfirmPassword" data-valmsg-replace="true"></span>
+                        </div>
+                        <button type="button" class="btn btn-success nextSlide" onclick="verifyLoginInfo()" style="width:80%">Next</button>
+                    </div>
+                    <!--------------SLIDE 6 (both) MFA----------->
+                    <div style="display:none; opacity:0; justify-content:center; align-items:center; flex-direction:column" data-slide="6" data-user="both">
+                        <div onclick="previousSlide()" style="color: #1F9BCF; cursor: pointer; width:80%;">Go Back</div>
+                        <h4 style="text-align:center">Enable Multi-factor Authentification?</h4>
+                        <div style="padding-bottom:20px" class="text-muted">This will allow us to send you verification texts for login and various other secure actions on your account.</div>
+                        <div style="width: 100%;display: flex;justify-content: center;flex-wrap:wrap">
+                            <div id="MFAVerificationAlert" class="alert alert-dismissible alert-danger" style="display:none; width:80%">
+                                <button type="button" class="close" data-hide="alert">&times;</button>
+                                <p></p>
+                            </div>
+                            <div class="form-group" style="width:80%">
+                                <label for="Phone">Phone Number</label>
+                                <div style="display:flex">
+                                    <input style="flex:.8" type="tel" id="Phone" placeholder="+# (###) ###-####" class="form-control" />
+                                    <button type="button" onclick="sendMFAMessage()" class="btn btn-success" style="flex: .2">Send</button>
+                                </div>
+                                <span class="invalid-feedback" data-valmsg-for="Phone" data-valmsg-replace="true"></span>
+                            </div>
+                            <div id="MFAPopup" style="width:80%">
+
+                            </div>
+                            <button type="button" class="btn btn-success nextSlide" onclick="createAccount()" style="width:80%">Skip and Create Account</button>
                         </div>
                     </div>
-                </div>
-                <button class="btn btn-success nextSlide" style="width:80%" disabled>Next</button>
+                </form>
+                <!--------ACCOUNT CREATED--------------------------------------->
+                <div style="display:none; opacity:0; justify-content:center; align-items:center; flex-direction:column" data-slide="7" data-user="both">
+                    <div class="alert alert-success">
+                        <h3 style="text-align:center">Account Created!</h3>
+                        <div class="text-muted">A verification email has been sent to your email.</div>
+                    </div>
+                 </div>
             </div>
         </div>
-    </div>
-    <script>
+
+            <script src="~/js/MFAValidator.js"></script>
+            <script>
+        $(document).on("click", "[data-hide]", function () {
+            $(this).closest("." + $(this).attr("data-hide")).css("display", "none"); //hide all alerts rather than remove
+        });
+
         var currentSlide = 1;
         var userType = "both";
+        function userAborted(xhr) {
+            return !xhr.getAllResponseHeaders();
+        }
         function nextSlide(onNext) {
-            if (currentSlide == 1) //first slide is not typed
-                var currentType = "both"
-            else
-                var currentType = userType;
+            var $currentSlide = $("[data-slide=" + currentSlide + "][data-user=" + userType + "]");
 
-            var $currentSlide = $("[data-slide=" + currentSlide + "][data-user=" + currentType + "]");
+            if ($currentSlide.length == 0) {
+                $currentSlide = $("[data-slide=" + (currentSlide) + "][data-user=both]"); //if a specific slide doesn't exist, try for both
+            }
+
+            if (userType == "user" && currentSlide == 2) //skip the missing slide 3
+                currentSlide = 3;
+
             var $nextSlide = $("[data-slide=" + (currentSlide + 1) + "][data-user=" + userType + "]");
-            var slideWidth = $(".signUpModal").first().width();
+
+            if ($nextSlide.length == 0) {
+                $nextSlide = $("[data-slide=" + (currentSlide + 1) + "][data-user=both]"); //if a specific slide doesn't exist, try for both
+            }
+
             $currentSlide.animate({
                 opacity: 0
             }, 600, function () {
@@ -94,7 +347,39 @@
             });
             if (onNext != null) //runs function on slide change
                 onNext()
-            
+
+        }
+
+        function previousSlide(slideOverride) {
+            var prevSlideNum;
+            if (currentSlide == 4 && userType == "user") //skip 3 for users
+                prevSlideNum = 2;
+            else
+                prevSlideNum = currentSlide - 1;
+
+            prevSlideNum = slideOverride ?? prevSlideNum; //override
+
+            var $currentSlide = $("[data-slide=" + currentSlide + "][data-user=" + userType + "]");
+            var $prevSlide = $("[data-slide=" + (prevSlideNum) + "][data-user=" + userType + "]");
+
+            if ($prevSlide.length == 0) {
+                $prevSlide = $("[data-slide=" + (prevSlideNum) + "][data-user=both]"); //if a specific slide doesn't exist, try for both
+            }
+
+            if ($currentSlide.length == 0) {
+                $currentSlide = $("[data-slide=" + (currentSlide) + "][data-user=both]"); //if a specific slide doesn't exist, try for both
+            }
+
+            $currentSlide.animate({
+                opacity: 0
+            }, 600, function () {
+                $(this).css("display", "none");
+                $prevSlide.css("display", "flex");
+                $prevSlide.animate({
+                    opacity: 1
+                }, 600);
+                currentSlide = prevSlideNum;
+            });
         }
 
         $("#searchResults").on("click", ".orgResultLine", function (e) {
@@ -105,11 +390,17 @@
 
         $(window).resize(function () {
             $("#searchResults").css("width", $("#searchOrg").outerWidth() + "px");
+            var targetLine = $("#numberEditWindow").data("target");
+            $("#numberEditWindow").css({
+                "top": targetLine.offset().top + targetLine.outerHeight(true),
+                "left": targetLine.offset().left
+            }); //sets top
         });
 
         $(".userType").on("click", function (e) {
             var type = $(e.currentTarget).attr("data-type"); //sets user or company
             userType = type;
+            $("#Type").val(type); //organization or user
             nextSlide();
         });
 
@@ -137,7 +428,7 @@
 
             $("#EIN").val(""); //make sure nothing is in it
             $("[data-slide=" + currentSlide + "]").find(".nextSlide").attr("disabled", "");
-                
+
             resultContainer = $("#searchResults");
             clearTimeout(delayTimer);
             delayTimer = setTimeout(function () {
@@ -153,9 +444,13 @@
                             resultContainer.append(createResult(org));
                         }
                         $("#searchOrgLoader").css("display", "none");
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        if (!userAborted(xhr))
+                            $("#searchOrgLoader").css("display", "none");
                     }
                 });
-            }, 500);
+            }, 1000);
         });
 
         function createResult(org) {
@@ -180,12 +475,12 @@
                 return; //do nothing if hidden
             $("#uploadOrgDocsContainer").animate({ opacity: 0 }, 500, function () { $(this).css("display", "none") });
             $("#nonprofitFilesCont input[type=file]").remove(); //clears any saved files
-            $("#nonprofitFilesCont .custom-file").prepend(`<input type="file" class="custom-file-input" accept=".pdf,image/*" name="proofofnonprofit" multiple>`); //read select
+            $("#nonprofitFilesCont .custom-file").prepend(`<input type="file" class="custom-file-input" accept=".pdf,image/*" name="ProofOfNonProfit" multiple>`); //read select
             $("#nonprofitFilesCont .fileList").html(""); //clear list
             $("[data-slide=" + currentSlide + "]").find(".nextSlide").attr("disabled", ""); //disable button
         }
 
-        $("#uploadOrgDocsContainer").on("change", "input[name=proofofnonprofit]", function (e) {//when a file is selected
+        $("#uploadOrgDocsContainer").on("change", "input[name=ProofOfNonProfit]", function (e) {//when a file is selected
             var domElement = $(this);
             var files = domElement[0].files;
             if (files.length == 0) {
@@ -202,13 +497,590 @@
             $("[data-slide=" + currentSlide + "]").find(".nextSlide").removeAttr("disabled");
         });
 
-        //SLIDE 3 ORG ----------------------------------
+        //SLIDE 2 USER (NAME)-------------------------------------------------------------------
+        function validateName() {
+            var isValid = true;
+            var regex = new RegExp("^[-\.A-Za-z]+(\s[-\.A-Za-z]+)*$");
+            if (!regex.test($("#FirstName").val())) {
+                isValid = false;
+                $("#FirstName").addClass("is-invalid").removeClass("is-valid");
+                $("[data-valmsg-for=FirstName]").html("Names must only contain alphabetical characters, spaces, or hyphens");
+            }
+            else {
+                $("#FirstName").addClass("is-valid").removeClass("is-invalid");
+                $("[data-valmsg-for=FirstName]").html("");
+            }
+            if (!regex.test($("#LastName").val())) {
+                isValid = false;
+                $("#LastName").addClass("is-invalid").removeClass("is-valid");
+                $("[data-valmsg-for=LastName]").html("Names must only contain alphabetical characters, spaces, or hyphens");
+            }
+            else {
+                $("#LastName").addClass("is-valid").removeClass("is-invalid");
+                $("[data-valmsg-for=LastName]").html("");
+            }
 
-        function tryLoadOrgAddress() {
-            if ($("#EIN").val() == "")
-                return;
-
-            $.ajax({});
+            if (isValid) {
+                nextSlide();
+            }
         }
-    </script>
-</body>
+
+        //SLIDE 3 ORG (verify user is member of org) -------------------------------------------
+            var organizationDto;
+            function tryLoadOrg() { //loads in address and members
+                var ein = $("#EIN").val();
+                if (organizationDto != null && ein == organizationDto.ein) //if that org is already loaded, do nothing
+                    return;
+                else if (ein == "") {
+                    showAltVerification(); //open upload stuffs
+                    $("[data-slide=3][data-user=organization] hr").first().css("display", "none"); //hide first hr for looks
+                }
+
+
+                $("#validationLoader").css("display", "block");
+                $.ajax({
+                    url: "https://localhost:44331/api/nonprofit/select/" + encodeURIComponent(ein),
+                    method: "get",
+                    success: function (org) {
+                        organizationDto = org;
+                        if ($("#Address").val() == "") { //in case they navigated back to avoid clobbering
+                            $("#Address").val(org.address);
+                            $("#City").val(org.city);
+                            $("#State").val(org.state);
+                            $("#ZIP").val(org.zip);
+                            if (org.address == null) {
+                                $("#addressAlert p").html("We were unable to pull an address for your organization from IRS records, this may be due to a foreign address");
+                                $("#addressAlert").css("display", "block");
+                            }
+                        }
+                        $("#validationLoader").css("display", "none");
+                        populateVerificationNumbers(org); //populate phone numbers
+                        $("#allValidationItems").css("display", "flex"); //display validation stuff if there's something to display
+                        $("[data-slide=3][data-user=organization] hr").first().css("display", "block"); //show first hr for looks
+                        hideAltVerification(); //make sure alt stuff is hidden
+                    },
+                    error: function () {//documents not found
+                        $("#validationLoader").css("display", "none");
+                        $("#allValidationItems").css("display", "none");
+                        showAltVerification(); //open upload stuffs
+                        $("[data-slide=3][data-user=organization] hr").first().css("display", "none"); //hide first hr for looks
+                    }
+                });
+            }
+            function createNumberLine(member) {
+                return `<div class="memberNumber">\
+                        <div style="display:flex; align-items:center">\
+                            <img class='editNumber' src="/Content/edit.svg" style="height:16px; padding-right:10px; cursor:pointer">\
+                            <div>\
+                                <span style="font-weight:bolder; font-size:150%">`+ member.name +`</span>\
+                                <div class="text-muted"><span class="countryCode" stle="padding-right:3px;">+` + member.countryCode.toString() + "</span>" + member.phoneNumber.toString() +`</div>\
+                            </div>\
+                            <img src="/Content/phone.svg" class="callButton" style="cursor:pointer; height:33px; padding-left: 15px;" />\
+                            <img src="/Content/chat.svg" class="textButton" style="cursor:pointer; height: 33px; padding-left: 15px;" />\
+                        </div>\
+                    </div>`
+            }
+
+            $(document).on("click", ".editNumber", function (e) {
+                var targetLine = $(e.currentTarget).closest(".memberNumber");
+                var editWindow = $("#numberEditWindow");
+                editWindow.css("top", targetLine.offset().top + targetLine.outerHeight(true)); //sets top
+                editWindow.css("left", targetLine.offset().left);
+                editWindow.css("display", "flex");
+                editWindow.data("target", targetLine); //sets edit to target that line
+                editWindow.find(".countryCode").css("background-color", "white").val(targetLine.data("member").countryCode); //set editor country code
+                editWindow.find(".phoneNumber").html(targetLine.data("member").phoneNumber); //set displayed phone number
+            });
+
+            function saveCountryCode() {
+                var editWindow = $("#numberEditWindow");
+                var countryCode = parseInt(editWindow.find(".countryCode").val());
+                if (countryCode >= 1000 || countryCode < 1) {
+                    editWindow.find(".countryCode").css("background-color", "#f7dddc");
+                    return;
+                }
+                else
+                    editWindow.find(".countryCode").css("background-color", "white");
+
+                editWindow.data("target").find(".countryCode").html("+"+countryCode); //sets the list item's country code display
+                editWindow.data("target").data("member").countryCode = countryCode; //set data structure's country code
+                editWindow.css("display", "none"); //hide
+            }
+
+            function populateVerificationNumbers(org) {
+                var added = true;
+                var container = $("#validationNumbers");
+                if (org == null)
+                    added = false;
+                else {
+                    container.html(""); //clear
+                    for (var member of org.members) {
+                        container.append(createNumberLine(member));
+                        container.children(".memberNumber").last().data("member", member); //add member to data
+                    }
+                    if (org.members.length == 0)
+                        added = false;
+                }
+
+                if (!added) {
+                    container.append("<span class='text-muted' style='text-align:center'>We were unable to retrieve any verification phone numbers from the IRS.</span>")
+                }
+
+                return added;
+            }
+
+            var verifyId = null;
+            var memberProofMFA  = null;
+            $(document).on("click", ".callButton,.textButton", function (e) { //calls or texts
+                var isCall = $(e.currentTarget).hasClass("callButton");
+                var memberObj = $(e.currentTarget).closest(".memberNumber").data("member");
+                var ein = organizationDto.ein;
+                $.ajax({
+                    url: "/api/signup/verifyOrg/" + ein,
+                    method: "post",
+                    data: {
+                        name: memberObj.name,
+                        phoneNumber: memberObj.phoneNumber,
+                        currentId: verifyId,
+                        countryCode: memberObj.countryCode,
+                        isCall: isCall
+                    },
+                    success: function (verificationId) {
+                        verifyId = verificationId;
+                        $("#VerifyId").val(verifyId);
+                        $("#verificationAlert").css("display", "none");
+                        memberProofMFA = new MFAValidator(verifyId, @((int)VerificationType.EIN), organizationDto.ein, "#ValidationPopup", null, (data) => { nextSlide() }, hideAltVerification, null, null, null); //create valCode instance
+                        hideAltVerification(); //hide upload form
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        $("#ValidationPopup").html(""); //empty popup
+                        $("#verificationAlert p").html("Error sending verification code to +" + memberObj.countryCode.toString() + memberObj.phoneNumber.toString() + ":<br>" + xhr.responseText);
+                        $("#verificationAlert").css("display", "flex");
+                    }
+                });
+            });
+
+            /*
+            function openValidationWindow(windowSelector) {
+                var window = $(windowSelector);
+                window.css("display", "flex").animate({
+                    opacity: 1
+                }, 500);
+            }
+
+            function closeValidationWindow(selector) {
+                var window = $(selector);
+                window.animate({
+                    opacity: 0
+                }, 500, function () { $(this).css("display", "none") });
+            }
+
+            $.fn.selectRange = function (start, end) {
+                if (end === undefined) {
+                    end = start;
+                }
+                return this.each(function () {
+                    if ('selectionStart' in this) {
+                        this.selectionStart = start;
+                        this.selectionEnd = end;
+                    } else if (this.setSelectionRange) {
+                        this.setSelectionRange(start, end);
+                    } else if (this.createTextRange) {
+                        var range = this.createTextRange();
+                        range.collapse(true);
+                        range.moveEnd('character', end);
+                        range.moveStart('character', start);
+                        range.select();
+                    }
+                });
+            };
+
+            $(document).on("input", "#verificationCodeContainer .verificationCharacter", function (e) {
+                var element = $(e.currentTarget);
+                var parent = element.parent();
+                element.val(element.val().toUpperCase());
+
+                if (element.val().length >= 1) {
+                    element.val(element.val().slice(0, 1));
+                    var nextEl = element.next("span").next("input");
+                    nextEl.focus().selectRange(0);
+                    element.parent().removeClass("invalid valid");
+                }
+                else if (element.val().length == 0) {
+                    var lastEl = element.prev("span").prev("input");
+                    lastEl.focus().selectRange(1);
+                    element.parent().removeClass("invalid valid");
+                }
+
+                hideAltVerification();
+                validateCode();
+                //verify if all fields are full
+            });
+
+            function validateCode() {
+                var verificationCode = getVerificationCode("#verificationCodeContainer");
+                if (!verificationCode) //empty cell
+                {
+                    $("#ValidationCode").val(""); //empty val
+                    return;
+                }
+                $.ajax({
+                    url: "/api/mfa/verify/" + verifyId,
+                    method: "get",
+                    data: {
+                        secret: verificationCode,
+                        payload: organizationDto.ein,
+                        type: //((int)VerificationType.EIN)
+                    },
+                    success: function (data) {
+                        $("#verificationCodeContainer").addClass("valid").removeClass("invalid");
+                        $("#validationCodeError").html("");
+                        var verString = "";
+                        $("#verificationCodeContainer .verificationCharacter").each(function () {
+                            verString += $(this).val();
+                        });
+                        $("#ValidationCode").val(verString); //set hidden code input
+                        nextSlide();
+                        return true;
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        var error = xhr.responseText;
+                        $("#verificationCodeContainer").addClass("invalid").removeClass("valid");
+                        $("#validationCodeError").html(error);
+                        $("#ValidationCode").val(""); //empty val
+                        return false;
+                    }
+                });
+            }
+
+            $(document).on("keydown", ".verificationCharacter", function (e) {
+                var element = $(e.currentTarget);
+                if (e.which == 8 && element.val().length == 0) //backspace
+                {
+                    element.parent().removeClass("invalid valid");
+                    var lastEl = element.prev("span").prev("input");
+                    lastEl.focus().selectRange(1);
+                }
+            });
+
+            function getVerificationCode(parent) {
+                var returnVar = "";
+                var valid = true;
+                $(parent).find(".verificationCharacter").each(function () {
+                    if ($(this).val() == "") //no empty blocks
+                        valid = false;
+                    returnVar += $(this).val().slice(0,1);
+                });
+
+                if (valid)
+                    return returnVar;
+                else
+                    return false;
+            }
+            */
+
+            function showAltVerification() {
+                var window = $("#uploadProof");
+                window.css("display", "block").animate({
+                    opacity: 1
+                }, 500);
+                $("#verificationCodeContainer input").val("");
+                $("#verificationCodeContainer").removeClass("valid invalid"); //empty input fields
+                $("#validationCodeError").html(""); //clear errors
+            }
+            function hideAltVerification() {
+                var window = $("#uploadProof");
+                window.animate({
+                    opacity: 0
+                }, 500, function () { $(this).css("display", "none") });
+            }
+
+            function tryNext() {
+
+                if (memberProofMFA && memberProofMFA.valid) {
+                    nextSlide();
+                    return;
+                }
+
+                var valid = true;
+                if ($("#IdFront")[0].files.length == 0) {
+                    valid = false;
+                    $("[data-valmsg-for=IdFront]").html("REQUIRED");
+                }
+                else
+                    $("[data-valmsg-for=IdFront]").html("");
+
+                if ($("#MembershipForm")[0].files.length == 0) {
+                    valid = false;
+                    $("[data-valmsg-for=MembershipForm]").html("REQUIRED");
+                }
+                else
+                    $("[data-valmsg-for=MembershipForm]").html("");
+
+                if (!valid) {
+                    $("#verificationAlert p").html("Neither all required files nor valid authorization code provided"); //set error
+                    $("#verificationAlert").css("display", "flex");
+                }
+                else {
+                    $("#verificationAlert").css("display", "none"); //hide error
+                    nextSlide();
+                }
+
+            }
+
+        //SLIDE 4 ORG/USER ---------------------------------
+
+        function validateAddress() { //validate address
+            if ($("#Address").val() == "" || $("#City").val() == "" || $("#State").val() == "" || $("#ZIP").val() == "") {
+                $("#invalidAddressAlert").css("display", "block");
+                return false;
+            }
+
+            $("#addressContainer").css("display", "none");
+            $("#addressLoader").css("display", "block");
+            $.ajax({
+                url: "/api/signup/validateAddress",
+                method: "post",
+                contentType: "application/json",
+                data: JSON.stringify({
+                    Line1: $("#Address").val(),
+                    City: $("#City").val(),
+                    State: $("#State").val(),
+                    PostalCode: $("#ZIP").val()
+                }),
+                success: function (dataObject) {
+                    $("#Address").val(dataObject["line1"]);
+                    $("#City").val(dataObject["city"]);
+                    $("#State").val(dataObject["state"]);
+                    $("#ZIP").val(dataObject["postalCode"]);
+
+                    $("#invalidAddressAlert").css("display", "none");
+                    $("#addressContainer").css("display", "flex");
+                    $("#addressLoader").css("display", "none");
+                    nextSlide();
+                },
+                error: function () {
+                    $("#invalidAddressAlert").css("display", "block");
+                    $("#addressContainer").css("display", "flex");
+                    $("#addressLoader").css("display", "none");
+                    return false;
+                }
+            });
+        }
+        //SLIDE 5 BOTH, get icon and username
+        function getIcon() {
+            var fileUploader = $("#Icon");
+            fileUploader.click();
+        }
+
+        function uploadIcon() {
+            var file = $("#Icon")[0].files[0];
+            var formData = new FormData();
+            formData.append("image", file);
+            $("#iconLoader").css("display", "block");
+            $("#iconUploadContainer p").html("");
+            $.ajax({
+                url: "/api/tempimage/icon",
+                method: "post",
+                processData: false, // important
+                contentType: false, // important
+                data: formData,
+                success: function (data) { //set image
+                    $("#iconUploadContainer").css("background-image", "url(" + data + ")").css("background-size", "contain");
+                    $("#invalidPersonalization").css("display", "none");
+                    $("#iconLoader").css("display", "none");
+                },
+                error: function () {
+                    $("#invalidPersonalization p").html("Error uploading icon");
+                    $("#invalidPersonalization").css("display", "flex");
+                    $("#iconLoader").css("display", "none");
+                }
+            });
+        }
+
+        $("#Icon").on("change", function () {
+            uploadIcon(); //upload icon once added
+        });
+
+
+
+        function verifyLoginInfo() {
+            var username = $("#Username").val();
+            if (username == "") {
+                $("#Username").addClass("is-invalid");
+                $("[data-valmsg-for=Username]").html("Username cannot be empty.");
+                return;
+            }
+            else {
+                $.ajax({
+                    url: "/api/signup/checkusername/" + username,
+                    success: function () {
+                        //username formatting
+                        var userNameRegex = new RegExp("^[a-zA-Z0-9]+$");
+                        if (!userNameRegex.test($("#Username").val())) {
+                            $("#Username").addClass("is-invalid");
+                            $("[data-valmsg-for=Username]").html("Usernames must only be alphanumerical!");
+                            return;
+                        }
+
+                        $("#Username").addClass("is-valid").removeClass("is-invalid");
+                        $("[data-valmsg-for=Username]").html("");
+
+
+                        //email formatting
+                        var emailRegex = new RegExp("[a-z0-9!#$%&'*+/=?^_`{|}~-]+(?:\.[a-z0-9!#$%&'*+/=?^_`{|}~-]+)*@@(?:[a-z0-9](?:[a-z0-9-]*[a-z0-9])?\.)+[a-z0-9](?:[a-z0-9-]*[a-z0-9])?");
+                        if (!emailRegex.test($("#Email").val())) {
+                            $("#Email").addClass("is-invalid");
+                            $("[data-valmsg-for=Email]").html("Invalid email format");
+                            return;
+                        }
+                        $("#Email").addClass("is-valid").removeClass("is-invalid");
+                        if ($("#Email").val() == "") {
+                            $("#Email").addClass("is-invalid");
+                            $("[data-valmsg-for=Email]").html("Email cannot be empty");
+                            return;
+                        }
+
+                        $("#Email").addClass("is-valid").removeClass("is-invalid");
+                        $("[data-valmsg-for=Email]").html("");
+
+
+                        //password formatting
+                        if ($("#Password").val() != $("#ConfirmPassword").val()) {
+                            $("#Password").addClass("is-invalid");
+                            $("#ConfirmPassword").addClass("is-invalid");
+                            $("[data-valmsg-for=Password]").html("Passwords do not match!");
+                            return;
+                        }
+                        else {
+                            var regex = new RegExp(`^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[#?!@@$%^&*-]).{8,}$`);
+                            if (!regex.test($("#ConfirmPassword").val())) { //check password strength
+                                usernamepassvalid = false;
+                                $("#Password").addClass("is-invalid");
+                                $("#ConfirmPassword").addClass("is-invalid");
+                                $("[data-valmsg-for=Password]").html("Password must be 8 characters long and contain at least 1 uppercase, 1 lowercase, and a special character!");
+                                return;
+                            }
+                            else {
+                                $("#Password").addClass("is-valid").removeClass("is-invalid");
+                                $("#ConfirmPassword").addClass("is-valid").removeClass("is-invalid");
+                                $("[data-valmsg-for=Password]").html("");
+                            }
+                        }
+                        nextSlide();
+                    },
+                    error: function () {
+                        $("#Username").addClass("is-invalid");
+                        $("[data-valmsg-for=Username]").html("Username already taken.");
+                        return;
+                    }
+                });
+            }
+        }
+
+        var username;
+        var password;
+        function createAccount() {
+            data = new FormData($("#signUpForm")[0]);
+            $("#PageLoadingModal").css("display", "flex");
+            $.ajax({
+                url: "/api/signup/createAccount",
+                method: "post",
+                processData: false,  // tell jQuery not to process the data
+                contentType: false,  // tell jQuery not to set contentType
+                data: data,
+                success: function (data) {
+                    $("[data-valmsg-for]").html(""); //clear errors
+                    $("#signUpErrorAlert").css("display", "none");
+                    nextSlide();
+                    $("#PageLoadingModal").css("display", "none");
+                    username = $("#Username").val(); //set for MFA
+                    password = $("#Password").val();
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    var regex = new RegExp(`\[[0-9]+\]`);
+                    console.log(xhr.responseText);
+                    var errors = JSON.parse(xhr.responseText).errors;
+                    var errorList = "Errors:";
+                    $("#PageLoadingModal").css("display", "none");
+                    for (var inputField in errors) { //inputfield is a key
+                        $("[data-valmsg-for=" + inputField.replace(regex, "") + "]").html(errors[inputField][0]); //accounts for array locs
+                        errorList += "<br>&bull; " + errors[inputField][0];
+                    }
+                    $("#signUpErrorAlert p").html(errorList);
+                    $("#signUpErrorAlert").css("display", "flex");
+                    return false;
+                }
+            });
+        }
+
+        $("#signUpForm").on("submit", function (e) {
+            e.preventDefault();
+        });
+
+        //SLIDE 6 MFA (BOTH)-------------------------------------------------------------
+            $("#Phone").on("keydown", function (e) {
+                var val = $(this).val();
+                var key = event.keyCode || event.charCode;
+                if (key == 8) {
+                    val = val.slice(0, val.length - 1); //remove char
+                    while (isNaN(val.charAt(val.length - 1)) || val.charAt(val.length - 1) == " ") {
+                        val = val.slice(0, val.length - 1); //slice off end until it's a number
+                    }
+                    $(this).val(val);
+                    return false;
+                }
+                else if (key == 37 || key == 39)
+                    return true; //allow scrubbing
+                else if (key < 48 || key > 57) //do nothing for non-digits
+                    return false;
+
+                if (val.length >= 17)
+                    return false;
+
+                if (!val.startsWith("+"))
+                    val = "+" + val;
+
+                switch (val.length) {
+                    case 0:
+                        val += "+";
+                        break;
+                    case 2: //+# add _(
+                        val += " (";
+                        break;
+                    case 7:
+                        val += ") ";
+                        break;
+                    case 12:
+                        val += "-";
+                        break;
+                }
+
+                $(this).val(val);
+            });
+
+            var MFAEnroller;
+            var phoneNum;
+        function sendMFAMessage(){
+            $.ajax({
+                url: "/api/mfa/create/",
+                method: "post",
+                data: {
+                    payload: $("#Phone").val(),
+                    type: @((int)VerificationType.NewPhone)
+                },
+                success: function (id) {
+                    MFAEnroller = new MFAValidator(id, 0 + @((int)VerificationType.NewPhone), $("#Phone").val(), "#MFAPopup", null, (data) => { createAccount() }, hideAltVerification, "MFAValId", "MFASecret", "MFAPhone"); //create valCode instance
+                    $("#MFAVerificationAlert").css("display", "none");
+                    phoneNum = $("#Phone").val();
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    $("#MFAPopup").html("");
+                    $("#MFAVerificationAlert p").html("Error sending verification code:<br>" + xhr.responseText);
+                    $("#MFAVerificationAlert").css("display", "flex");
+                }
+            });
+        }
+
+            </script>
+    </body>

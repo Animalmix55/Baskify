@@ -9,6 +9,21 @@ using System.Threading.Tasks;
 
 namespace baskifyCore.Models
 {
+    public enum LockReason
+    {
+        [Display(Name = "Org Pending")]
+        OrgPending,
+        [Display(Name = "Invalid Documents")]
+        InvalidDocuments,
+        [Display(Name = "Fradulent Activity")]
+        Fraud,
+        [Display(Name = "User Requested")]
+        Requested,
+        [Display(Name = "Email Pending")]
+        PendingEmail,
+        [Display(Name = "Other")]
+        Other
+    }
     public static class Roles 
     {
         public const int USER = 1;
@@ -25,6 +40,7 @@ namespace baskifyCore.Models
              LastName = String.Empty;
              UserRole = Roles.NONE;
              iconUrl = "/Content/unknownUser.png";
+             CreationDate = DateTime.UtcNow;
         }
 
         [StringLength(30)]
@@ -41,7 +57,7 @@ namespace baskifyCore.Models
         { get; set; }
 
         [Required]
-        [RegularExpression(@"^([a-zA-Z0-9_\-\.]+)@((\[[0-9]{1,3}\.[0-9]{1,3}\.[0-9]{1,3}\.)|(([a-zA-Z0-9\-]+\.)+))([a-zA-Z]{2,4}|[0-9]{1,3})(\]?)$", ErrorMessage = "Invalid email format")]
+        [EmailAddress(ErrorMessage = "Invalid Email Format")]
         public string Email { get; set; }
 
         [Display(Name = "Last Name")]
@@ -73,16 +89,25 @@ namespace baskifyCore.Models
         public int UserRole
         { get; set; }
 
-        [DataType(DataType.Date)]
-        [Display(Name = "Date of Birth")]
-        [DisplayFormat(DataFormatString = "{0:dd.MM.yyyy}")]
-        public DateTime DateOfBirth { get; set; }
+        public DateTime CreationDate { get; set; }
 
         [Required]
         public string iconUrl { get; set; }
         public DateTime lastLogin { get; set; }
 
-        public ICollection<UserAlertModel> UserAlerts { get; set; }
+        /// <summary>
+        /// The user's phone number, with ONLY numerical characters (no parens, spaces, pluses)
+        /// </summary>
+        [Phone]
+        [Display(Name = "Phone Number")]
+        public string PhoneNumber { get; set; }
+
+        /// <summary>
+        /// Specifies that, in order to login, MFA must be completed
+        /// </summary>
+        public bool isMFA { get; set; }
+
+        public virtual ICollection<UserAlertModel> UserAlerts { get; set; }
 
         [ForeignKey("SubmittingUsername")]
         public List<BasketModel> Baskets { get; set; }
@@ -94,13 +119,23 @@ namespace baskifyCore.Models
         /// </summary>
         public string BearerHash { get; set; }
 
+        //Indicates if the account is currently locked
+        public bool Locked { get; set; }
+
+        //indicates why locked
+        public LockReason? LockReason { get; set; }
+
+        /// <summary>
+        /// Explains the reason for the lock for OTHER
+        /// </summary>
+        [MaxLength(100)]
+        public string LockDetails { get; set; }
+
         //---------------------------------------------------------ORGANIZATION-SPECIFIC PROPERTIES----------------------------------------------------------------------
 
         [Display(Name = "Organization Name")]
         [RegularExpression(@"^[-\.A-Za-z]+(\s[-\.A-Za-z]+)*$", ErrorMessage = "Name can only contain alphabetical letters, hyphens, and spaces")]
         public string OrganizationName { get; set; }
-
-        public bool OrganizationVerified { get; set; }
 
         public ICollection<AuctionModel> Auctions { get; set; }
 
@@ -108,9 +143,15 @@ namespace baskifyCore.Models
         [Display(Name = "Public Contact Email")]
         public string ContactEmail { get; set; }
 
+        [ForeignKey("IRSNonProfit")]
+        public int? EIN { get; set; }
+
+        [ForeignKey("EIN")]
+        public IRSNonProfit IRSNonProfit { get; set; }
+
+        public List<AccountDocumentsModel> Documents { get; set; }
+
         //---------------------------------------------------------UNMAPPED PROPERTIES FOR APPLICATION WORKFLOW----------------------------------------------------------
-        [NotMapped]
-        public string bearerToken { get; set; }
 
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
@@ -121,8 +162,6 @@ namespace baskifyCore.Models
                     errormsg.Add(new ValidationResult("A user must have a first name.", new string[] { "FirstName" }));
                 if (String.IsNullOrWhiteSpace(LastName))
                     errormsg.Add(new ValidationResult("A user must have a last name.", new string[] { "LastName" }));
-                if (DateOfBirth == null)
-                    errormsg.Add(new ValidationResult("A user must have a birthdate.", new String[] { "DateOfBirth" }));
             }
             else if (UserRole == Roles.COMPANY)
             {
@@ -131,6 +170,10 @@ namespace baskifyCore.Models
                 if (String.IsNullOrEmpty(ContactEmail))
                     errormsg.Add(new ValidationResult("Invalid Contact Email", new string[] { "ContactEmail" }));
             }
+
+            if(isMFA && string.IsNullOrWhiteSpace(PhoneNumber))
+                errormsg.Add(new ValidationResult("To enable MFA, enter a phone number", new string[] { "PhoneNumber" }));
+
             return errormsg;
         }
     }
