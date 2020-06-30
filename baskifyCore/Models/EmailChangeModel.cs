@@ -12,8 +12,10 @@ namespace baskifyCore.Models
 {
     public static class ChangeTypes
     {
+        public const int MFA = 3;
         public const int EMAIL = 1;
         public const int AUCTIONDELETION = 2;
+        public const int VERIFYEMAIL = 4;
     }
 
     public class EmailVerificationModel : IValidatableObject
@@ -34,7 +36,6 @@ namespace baskifyCore.Models
         [ForeignKey("Username")]
         public UserModel UserModel { get; set; }
 
-        [Required]
         public string Payload { get; set; }
 
         [Required]

@@ -1,0 +1,38 @@
+﻿@model VerificationCodeModel
+
+@{
+    ViewData["Title"] = "Verify Change";
+    var phoneNumber = Model.PhoneNumber.ToString();
+}
+
+<div class="modal-dialog" role="document">
+    <div class="modal-content">
+        <div class="modal-header">
+            <h5 class="modal-title">Verify</h5>
+        </div>
+        <div class="modal-body">
+            <div class="alert alert-success" id="SuccessAlert" style="opacity:0; display: none;">
+                <h3 style="text-align:center">Verified!</h3>
+                <div class="text-muted">Your MFA change was verified, the changes will be reflected in your account immediately. You will redirect shortly...</div>
+            </div>
+            <div id="MFAContainer" style="width: 100%">
+                <h5>Please enter the code sent to your phone number ending in @phoneNumber.Substring(phoneNumber.Length - 5, 4)</h5>
+                <div id="MFA">
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+    var MFA = new MFAValidator(@Model.Id, @((int)Model.VerificationType), null, "#MFA", null, (data) => {
+        //Valid
+        $("#MFAContainer").css("display", "none");
+        $("#SuccessAlert").css("display", "block");
+        setTimeout(function () {
+            window.location.href = "/";
+        }, 1000)
+
+    }, null, null, null, null); //create validator
+    MFA.setToken(getCookie("BearerToken"));
+</script>
+

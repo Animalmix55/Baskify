@@ -33,82 +33,91 @@
                 @using (Html.BeginForm("updateValues", "Account", FormMethod.Post, new { @id = "userInfoForm", enctype = "multipart/form-data" }))
                 {
                     @Html.ValidationSummary(true)
-                    <fieldset>
-                        <legend>Update User Information</legend>
-                        @if (Model.UserRole == Roles.USER)
-                        {
-                            <div class="form-group">
-                                @Html.LabelFor(Model => Model.FirstName)
-                                @Html.TextBoxFor(Model => Model.FirstName, null, new { @class = "form-control" })
-                                @Html.ValidationMessageFor(Model => Model.FirstName)
-                            </div>
-                            <div class="form-group">
-                                @Html.LabelFor(Model => Model.LastName)
-                                @Html.TextBoxFor(Model => Model.LastName, null, new { @class = "form-control" })
-                                @Html.ValidationMessageFor(Model => Model.LastName)
+                <fieldset>
+                    <legend>Update User Information</legend>
+                    @if (Model.UserRole == Roles.USER)
+                    {
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.FirstName)
+                            @Html.TextBoxFor(Model => Model.FirstName, null, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(Model => Model.FirstName)
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.LastName)
+                            @Html.TextBoxFor(Model => Model.LastName, null, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(Model => Model.LastName)
 
-                            </div>
-                        }
-                        else
-                        {
-                            <div class="form-group">
-                                @Html.LabelFor(Model => Model.OrganizationName)
-                                @Html.TextBoxFor(Model => Model.OrganizationName, null, new { @class = "form-control", @readonly = "\"\"" })
-                            </div>
-                        }
+                        </div>
+                    }
+                    else
+                    {
                         <div class="form-group">
-                            @Html.LabelFor(Model => Model.Username)
-                            @Html.TextBoxFor(Model => Model.Username, null, new { @class = "form-control", @readonly = "\"\"" })
+                            @Html.LabelFor(Model => Model.OrganizationName)
+                            @Html.TextBoxFor(Model => Model.OrganizationName, null, new { @class = "form-control", @readonly = "\"\"" })
                         </div>
+                    }
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.Username)
+                        @Html.TextBoxFor(Model => Model.Username, null, new { @class = "form-control", @readonly = "\"\"" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.Email)
+                        @Html.TextBoxFor(Model => Model.Email, null, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(Model => Model.Email)
+                    </div>
+                    @if (Model.UserRole == Roles.COMPANY)
+                    {
                         <div class="form-group">
-                            @Html.LabelFor(Model => Model.Email)
-                            @Html.TextBoxFor(Model => Model.Email, null, new { @class = "form-control" })
-                            @Html.ValidationMessageFor(Model => Model.Email)
+                            @Html.LabelFor(Model => Model.ContactEmail)
+                            @Html.TextBoxFor(Model => Model.ContactEmail, null, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(Model => Model.ContactEmail)
                         </div>
-                        @if (Model.UserRole == Roles.COMPANY)
-                        {
-                            <div class="form-group">
-                                @Html.LabelFor(Model => Model.ContactEmail)
-                                @Html.TextBoxFor(Model => Model.ContactEmail, null, new { @class = "form-control" })
-                                @Html.ValidationMessageFor(Model => Model.ContactEmail)
-                            </div>
-                        }
-                        <div class="form-group">
-                            @Html.LabelFor(Model => Model.Address)
-                            @Html.TextBoxFor(Model => Model.Address, null, new { @class = "form-control" })
-                            @Html.ValidationMessageFor(Model => Model.Address)
+                    }
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.Address)
+                        @Html.TextBoxFor(Model => Model.Address, null, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(Model => Model.Address)
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.City)
+                        @Html.TextBoxFor(Model => Model.City, null, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(Model => Model.City)
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.State)
+                        @Html.TextBoxFor(Model => Model.State, null, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(Model => Model.State)
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.ZIP)
+                        @Html.TextBoxFor(Model => Model.ZIP, null, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(Model => Model.ZIP)
+                    </div>
+                    <iframe id="userAddressMap" src="@baskifyCore.Utilities.accountUtils.getMapLink(Model.Address, Model.City, Model.State, Model.ZIP)"></iframe>
+                    @Html.HiddenFor(Model => Model.UserRole)
+                    @Html.HiddenFor(Model => Model.iconUrl)
+                    <label for="exampleInputFile">Upload New Icon</label>
+                    <div class="form-group" id="imgUploadContainer">
+                        <img src="@Model.iconUrl" id="userIcon" />
+                        <div>
+                            <input type="file" name="Icon" class="form-control-file" id="exampleInputFile" aria-describedby="fileHelp">
+                            <small id="fileHelp" class="form-text text-muted">Upload an image with dimensions that do not exceed 500px by 500px.</small>
                         </div>
-                        <div class="form-group">
-                            @Html.LabelFor(Model => Model.City)
-                            @Html.TextBoxFor(Model => Model.City, null, new { @class = "form-control" })
-                            @Html.ValidationMessageFor(Model => Model.City)
+                    </div>
+                    <div class="form-group">
+                        <label>Multi-Factor Authentification</label>
+                        <div class="custom-control custom-switch">
+                            @Html.CheckBoxFor(Model => Model.isMFA, new { @class = "custom-control-input" })
+                            <label class="custom-control-label" for="isMFA">Toggle MFA</label>
                         </div>
-                        <div class="form-group">
-                            @Html.LabelFor(Model => Model.State)
-                            @Html.TextBoxFor(Model => Model.State, null, new { @class = "form-control" })
-                            @Html.ValidationMessageFor(Model => Model.State)
-                        </div>
-                        <div class="form-group">
-                            @Html.LabelFor(Model => Model.ZIP)
-                            @Html.TextBoxFor(Model => Model.ZIP, null, new { @class = "form-control" })
-                            @Html.ValidationMessageFor(Model => Model.ZIP)
-                        </div>
-                        <iframe id="userAddressMap" src="@baskifyCore.Utilities.accountUtils.getMapLink(Model.Address, Model.City, Model.State, Model.ZIP)"></iframe>
-                        @Html.HiddenFor(Model => Model.UserRole)
-                        @Html.HiddenFor(Model => Model.iconUrl)
-                        <label for="exampleInputFile">Upload New Icon</label>
-                        <div class="form-group" id="imgUploadContainer">
-                            <img src="@Model.iconUrl" id="userIcon" />
-                            <div>
-                                <input type="file" name="Icon" class="form-control-file" id="exampleInputFile" aria-describedby="fileHelp">
-                                <small id="fileHelp" class="form-text text-muted">Upload an image with dimensions that do not exceed 500px by 500px.</small>
-                            </div>
-                        </div>
-                        <div style="display: flex;">
-                            <button id="loginButton" type="submit" class="btn btn-success btn-lg btn-block">Save Changes</button>
-                        </div>
-                        <button type="button" class="btn btn-primary btn-lg btn-block" onclick="redirect('/account/changepassword')">Reset Password</button>
-                    </fieldset>
+                        @Html.TextBoxFor(Model => Model.PhoneNumber, null, new { @class = "form-control", @placeholder = "Phone Number"})
+                        @Html.ValidationMessageFor(Model => Model.PhoneNumber)
+                    </div>
+                    <div style="display: flex;">
+                        <button id="loginButton" type="submit" class="btn btn-success btn-lg btn-block">Save Changes</button>
+                    </div>
+                    <button type="button" class="btn btn-primary btn-lg btn-block" onclick="redirect('/account/changepassword')">Reset Password</button>
+                </fieldset>
                 }
 
             </div>
@@ -128,6 +137,89 @@
         </div>
     </div>
     <script>
+
+        $(function () {
+            if ($("#isMFA").is(":checked")) { //initital phone num check
+                $("#PhoneNumber").css("display", "block");
+            }
+            else
+                $("#PhoneNumber").css("display", "none");
+            $("#PhoneNumber").trigger("input"); //update phone formatting
+        }); //ensure mfa phone is hidden or shown if necessary
+
+        $("#isMFA").on("change", function (e) {
+            if ($(this).is(":checked")) { //enabled, show phone num
+                $("#PhoneNumber").css("display", "block");
+            }
+            else
+                $("#PhoneNumber").css("display", "none");
+        });
+
+        $("#PhoneNumber").on("input", function (e) {
+            var caretPos = e.target.selectionStart;
+            var val = $(this).val();
+            var justNums = "";
+            for (var j = 0; j < val.length; j++) {
+                if (!isNaN(val.charAt(j)) && val.charAt(j) != " ")
+                    justNums += val.charAt(j);
+            }
+
+            var formatted = "";
+            var charNum = 0;
+            for (var i = 0; i < justNums.length; i++) {
+                var addedChars = 0;
+                var initChar = charNum;
+                switch (charNum) {
+                    case 0:
+                        formatted += "+";
+                        charNum++;
+                        addedChars = 1;
+                        break;
+                    case 2:
+                        formatted += " (";
+                        charNum += 2;
+                        addedChars = 2;
+                        break;
+                    case 7:
+                        formatted += ") ";
+                        charNum += 2;
+                        addedChars = 2;
+                        break;
+                    case 12:
+                        formatted += "-"
+                        charNum += 1;
+                        addedChars = 1;
+                        break;
+                }
+                if (initChar == caretPos - 1) {
+                    caretPos += addedChars;
+                }
+
+                formatted += justNums.charAt(i);
+                charNum++;
+            }
+            $(this).val(formatted.slice(0, 17));
+            caretPos = (caretPos < formatted.length ? caretPos : formatted.length);
+            e.target.setSelectionRange(caretPos, caretPos);
+        });
+
+        $("#PhoneNumber").on("keyup", function (e) {
+            var key = e.which || e.keyCode; 
+            var caretStart = e.target.selectionStart;
+            var caretEnd = e.target.selectionStart;
+            var val = $(this).val();
+            if (key == 8 || key == 46) {
+                for (var i = caretStart - 1; i >= 0; i--) //character before caret now
+                {
+                    if (!isNaN(val.charAt(i)) && val.charAt(i) != " ") {
+                        e.target.setSelectionRange(i + 1, i + 1);
+                        return;
+                    }
+                }
+            }
+        });
+    
+
         window.history.replaceState(null, "", '/Account');
         $("#Email, #ContactEmail").on("focusout", function (e) { //autofills contact email if empty
             var contactEmail = $("#ContactEmail");

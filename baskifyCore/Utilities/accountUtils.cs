@@ -99,7 +99,7 @@ namespace baskifyCore.Utilities
                 JObject parent = JObject.Parse(requestBodyString);
                 //this contains resultstatus and addresslist
                 var resultStatus = parent.Value<string>("resultStatus");
-                if (resultStatus != "ADDRESS NOT FOUND")
+                if (resultStatus == "SUCCESS")
                 {
                     JArray addressValues = (JArray)parent["addressList"];
                     var addressObject = addressValues[0].Value<JObject>();
@@ -109,6 +109,9 @@ namespace baskifyCore.Utilities
                         addressObject.Value<string>("city"), addressObject.Value<string>("state"),
                         addressObject.Value<string>("zip5") + "-" + addressObject.Value<string>("zip4"),
                         out lat, out lng); //if USPS validates, Google can geolocate
+
+                    if (lat == null || lng == null)
+                        return new Dictionary<string, string>() { { "resultStatus", "ADDRESS NOT FOUND" } };
 
                     returnDict = new Dictionary<string, string>() {
                         { "resultStatus", resultStatus },
@@ -168,7 +171,8 @@ namespace baskifyCore.Utilities
                 Guid revokeId = Guid.NewGuid();
 
                 var emailChange = new EmailVerificationModel() //this is the email change sent to server
-                { ChangeTime = DateTime.UtcNow,
+                { 
+                    ChangeTime = DateTime.UtcNow,
                     ChangeType = ChangeTypes.EMAIL, //signals it's an email change
                     CommitId = commitId,
                     Committed = false,
@@ -226,19 +230,34 @@ namespace baskifyCore.Utilities
                 };
 
                 service.Update(oldUser.StripeCustomerId, update); //update stripe
-
-                oldUser.Address = newUser.Address; //update user
-                oldUser.City = newUser.City;
-                oldUser.State = newUser.State;
-                oldUser.ZIP = newUser.ZIP;
-                oldUser.Latitude = newUser.Latitude;
-                oldUser.Longitude = newUser.Longitude;
             } //address on stripe and db
+
+            oldUser.Address = newUser.Address; //update user
+            oldUser.City = newUser.City;
+            oldUser.State = newUser.State;
+            oldUser.ZIP = newUser.ZIP;
+            oldUser.Latitude = newUser.Latitude;
+            oldUser.Longitude = newUser.Longitude;
 
             oldUser.iconUrl = newUser.iconUrl;
 
             oldUser.FirstName = newUser.FirstName;
             oldUser.LastName = newUser.LastName;
+
+            if(oldUser.isMFA != newUser.isMFA || oldUser.PhoneNumber != newUser.PhoneNumber)
+            {
+                if (newUser.isMFA) //turning on MFA
+                {
+                    long numericalNumber; //ensure number is actually well-formatted
+                    if (!long.TryParse(newUser.PhoneNumber, out numericalNumber))
+                    {
+                        numericalNumber = long.Parse(newUser.PhoneNumber.Where(c => char.IsNumber(c)).ToArray());
+                    }
+                    VerificationCodeUtils.SetMFA(oldUser, newUser.isMFA, numericalNumber, _context, req);
+                }
+                else //disable MFA
+                    VerificationCodeUtils.SetMFA(oldUser, newUser.isMFA, null, _context, req);
+            }
 
             if (oldUser.UserRole == Roles.COMPANY)
                 oldUser.ContactEmail = newUser.ContactEmail;

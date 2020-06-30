@@ -634,7 +634,6 @@ tr.shown td.details-control {
 }
 
 .signUpModal{
-    height:60%;
     min-height:500px;
 }
 .orgResultLine:hover {
@@ -649,6 +648,79 @@ tr.shown td.details-control {
     padding:10px;
     z-index:10;
     pointer-events:all;
+}
+#iconUploadContainer {
+    width: 200px;
+    height: 200px;
+    border-radius: 100px;
+    border-width: 4px;
+    border-color: black;
+    border-style: solid;
+    background-image: url(/Content/uploadImage.svg);
+    background-position: center;
+    background-size: 60px;
+    background-repeat: no-repeat;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+.countryCode {
+    -moz-appearance: textfield;
+}
+.countryCode::-webkit-outer-spin-button,
+.countryCode::-webkit-inner-spin-button {
+    /* display: none; <- Crashes Chrome on hover */
+    -webkit-appearance: none;
+    margin: 0; /* <-- Apparently some margin are still there even though it's hidden */
+}
+.verificationContainer {
+    display: flex;
+    height: 50px;
+    font-size: 40px;
+    justify-content: space-around;
+    width: 270px;
+    align-items: center
+}
+
+.verificationContainer span {
+    color: rgba(31, 155, 207, .3);
+    padding: unset;
+    cursor: default;
+}
+
+.verificationContainer.valid input {
+    border-color: #dbf2e3;
+}
+
+.verificationContainer.valid span {
+    color: #dbf2e3;
+}
+
+.verificationContainer.invalid input {
+    border-color: red;
+}
+
+.verificationContainer.invalid span {
+    color: red;
+}
+
+.verificationCharacter {
+    height: 100%;
+    width: 40px;
+    font-size: inherit;
+    text-align: center;
+    padding: unset !important;
+    border: 2px solid rgba(31, 155, 207, .3);
+    border-radius: 5px
+}
+
+.contextMenu td{
+    padding: .75rem;
+}
+
+.contextMenu {
+    margin-bottom: unset;
 }
 
 @media (max-width: 790px) {

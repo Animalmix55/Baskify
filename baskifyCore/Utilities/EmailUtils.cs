@@ -93,11 +93,29 @@ namespace baskifyCore.Utilities
                     viewModel.Contents = OriginalEmailText;
 
                     return SendEmail(user.Email, subject, RenderEmail(viewModel));
+
+                case ChangeTypes.MFA:
+                    var view = new EmailViewModel() { User = user };
+                    if (verificationModel.Payload == null) //disable MFA
+                        OriginalEmailText += $" disable multi-factor authentification for your account {user.Username}. ";
+                    else
+                        OriginalEmailText += $" enable multi-factor authentification for your account {user.Username}. ";
+                    OriginalEmailText += "If you did not request this change, just ignore this email and <b>CHANGE YOUR PASSWORD IMMEDIATELY</b> as this request originates from a logged-in account.\n";
+                    OriginalEmailText += "<br><br>If you did request this change, verify it by clicking <a href=\"" + LoginUtils.getAbsoluteUrl(String.Format("/verify?VerifyId={0}&ChangeId={1}", verificationModel.CommitId, verificationModel.ChangeId), request) + "\">HERE</a>.\n" +
+                        "<h1>Thank you!</h1>";
+                    subject = "Baskify - Your MFA Change Request";
+                    view.Contents = OriginalEmailText;
+                    return SendEmail(user.Email, subject, RenderEmail(view));
+                case ChangeTypes.VERIFYEMAIL:
+                    var verifyView = new EmailViewModel() { User = user };
+                    OriginalEmailText = "Thank you for creating an account with Baskify! It's a pleasure to meet you! <br><br> In order to verify your account, we ask that you please verify your email address by clicking <a href=\"" + LoginUtils.getAbsoluteUrl(String.Format("/verify?VerifyId={0}&ChangeId={1}", verificationModel.CommitId, verificationModel.ChangeId), request) + "\">HERE</a>";
+                    OriginalEmailText += "<br><br>If you did create this account, do not worry, just ignore this email" +
+                        "<h1>Thank you!</h1>";
+                    subject = "Baskify - Welcome to Baskify!";
+                    verifyView.Contents = OriginalEmailText;
+                    return SendEmail(user.Email, subject, RenderEmail(verifyView));
             }
             return false;
-            
-
-            
         }
 
         public static bool sendRecoveryEmail(UserModel user, string bearerToken, HttpRequest request)
@@ -480,6 +498,31 @@ namespace baskifyCore.Utilities
                     </html>";
 
             SendEmail(user.Email, "Baskify Purchase", html);
+        }
+
+        /// <summary>
+        /// Unlocks a user account after account creation
+        /// </summary>
+        /// <param name="VerifyId"></param>
+        /// <param name="verification"></param>
+        /// <param name="user"></param>
+        /// <param name="_context"></param>
+        /// <returns></returns>
+        public static string VerifyEmail(Guid VerifyId, EmailVerificationModel verification, UserModel user, ApplicationDbContext _context)
+        {
+            if (verification.CommitId == VerifyId)
+            {
+                if (user.Locked && user.LockReason == LockReason.PendingEmail) //unlock user
+                {
+                    user.Locked = false;
+                    user.LockReason = null;
+                    return "Account verified! Please log in to begin enjoying Baskify!";
+                }
+                else
+                    return "Verification failed: user is not pending verification.";
+            }
+            else
+                return "An unknown error occured, invalid verification code.";
         }
     }
 

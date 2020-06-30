@@ -42,7 +42,11 @@ namespace baskifyCore.Controllers
         [HttpPost]
         public IActionResult updateValues(UserModel user, IFormFile Icon)
         {
-        var oldUser = LoginUtils.getUserFromToken(Request.Cookies["BearerToken"], _context, Response);
+            var oldUser = LoginUtils.getUserFromToken(Request.Cookies["BearerToken"], _context, Response);
+
+            //format user phone number correctly...
+            user.PhoneNumber = user.PhoneNumber != null? new string(user.PhoneNumber.Where(c => char.IsNumber(c)).ToArray()) : null; //removes errant chars, only numbers
+
             if (oldUser != null) {
 
                 if (oldUser.Email != user.Email)//dont allow the email to be changed more than once in a ten-day range
@@ -51,6 +55,14 @@ namespace baskifyCore.Controllers
 
                     if (lastEmailChange != null && lastEmailChange.ChangeTime > DateTime.UtcNow.AddDays(-10)) 
                         ModelState.AddModelError("Email", "Email cannot be changed more than once in 10 days!");
+                }
+
+                if(oldUser.isMFA != user.isMFA || oldUser.PhoneNumber != user.PhoneNumber) //don't allow hackers to change email to change MFA until 10 days have passed
+                {
+                    var lastEmailChange = _context.EmailVerification.Where(ev => ev.Username == oldUser.Username).Where(ev => ev.ChangeType == ChangeTypes.EMAIL).OrderByDescending(ev => ev.ChangeTime).FirstOrDefault();
+
+                    if (lastEmailChange != null && lastEmailChange.ChangeTime > DateTime.UtcNow.AddDays(-10))
+                        ModelState.AddModelError("PhoneNumber", "MFA settings cannot be tweaked within 10 days of an email change");
                 }
 
                 if (!ModelState.IsValid)

@@ -25,7 +25,6 @@ namespace baskifyCore.DTOs
         public List<string> BasketContents { get; set; }
         public UserDto Winner { get; set; }
         public AuctionDto AuctionModel { get; set; }
-        [JsonConverter(typeof(StringEnumConverter))]
         public bool Delivered { get; set; }
         public int NumTickets
         {

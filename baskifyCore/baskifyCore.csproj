@@ -19,9 +19,11 @@
     <PackageReference Include="Stripe.net" Version="37.8.0" />
     <PackageReference Include="System.Drawing.Common" Version="4.7.0" />
     <PackageReference Include="System.IdentityModel.Tokens.Jwt" Version="6.5.0" />
+    <PackageReference Include="Twilio" Version="5.43.0" />
   </ItemGroup>
 
   <ItemGroup>
+    <Folder Include="DTOs\Admin\" />
     <Folder Include="wwwroot\Content\Auctions\BannerImages\" />
   </ItemGroup>
 

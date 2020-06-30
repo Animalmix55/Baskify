@@ -60,6 +60,9 @@ namespace baskifyCore.Controllers.api
             if (user == null)
                 return Unauthorized("Bad login");
 
+            if (user.StripeCustomerId == null) //if they aren't set up, don't try
+                return Ok(new List<PaymentMethodDto>(0));
+
             var paymentMethodListOpts = new PaymentMethodListOptions() { 
                 Customer = user.StripeCustomerId,
                 Type = "card"
