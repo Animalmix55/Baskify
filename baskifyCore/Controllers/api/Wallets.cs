@@ -8,14 +8,28 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
 using System.Data.Entity;
+using System.Configuration;
 
 namespace baskifyCore.Controllers.api
 {
     public static class StripeConsts
     {
-        public const string publicKey = "pk_test_GBB2UKgj1tlGwykGFvX7xypd00G0GIaBW6";
-        public const string secretKey = "sk_test_dNuiju1uhjBr4AhpuZGzfQPd00glKbAVYw";
-        public const string clientId = "ca_HQ3CXmd1Ye5Tapx6jGpFOnRw3JNsqZ7X";
+        public static string publicKey;
+        public static string secretKey;
+        public static string clientId;
+        static StripeConsts()
+        {
+#if DEBUG
+            publicKey = ConfigurationManager.AppSettings["StripePublicKeyTEST"];
+            secretKey = ConfigurationManager.AppSettings["StripeSecretTEST"];
+            clientId = ConfigurationManager.AppSettings["StripeClientIdTEST"];
+
+#else
+            publicKey = ConfigurationManager.AppSettings["StripePublicKeyPROD"];
+            secretKey = ConfigurationManager.AppSettings["StripeSecretPROD"];
+            clientId = ConfigurationManager.AppSettings["StripeClientIdPROD"];
+#endif
+        }
     }
 
     [ApiController]

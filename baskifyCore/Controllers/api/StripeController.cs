@@ -10,6 +10,8 @@ using baskifyCore.Utilities;
 using Microsoft.AspNetCore.Mvc;
 using Stripe;
 using System.Data.Entity;
+using System.Configuration;
+using Microsoft.AspNetCore.Http;
 
 namespace baskifyCore.Controllers.api
 {
@@ -75,11 +77,16 @@ namespace baskifyCore.Controllers.api
     [Route("api/[controller]")]
     public class StripeWebHook : Controller
     {
-        const string endpointSecret = "whsec_DaiWoTMdSQrYTAl5WJB8Jh8vUjRdKLFr"; //TEST SECRET
+        private string endpointSecret;
 
         ApplicationDbContext _context;
         public StripeWebHook()
         {
+#if !DEBUG
+            endpointSecret = ConfigurationManager.AppSettings["StripeWebhookSecretPROD"];
+#else
+            endpointSecret = ConfigurationManager.AppSettings["StripeWebhookSecretTEST"];
+#endif
             _context = new ApplicationDbContext();
         }
 

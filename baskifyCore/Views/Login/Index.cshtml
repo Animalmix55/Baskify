@@ -114,14 +114,14 @@
                     }
                     if (statusCode == 449) { //mfa
                         $("#loginLoader").css("visibility", "hidden");
-                        data = JSON.parse(xhr.responseText);
+                        var data = JSON.parse(xhr.responseText);
                         $("#loginAlert").css("display", "none"); //hide alert
                         $("#LoginForm").animate({ //hide login form
                             opacity: 0
                         }, 500, function (e) { $(this).css("display", "none");
-                            MFAField = new MFAValidator(data.verificationId, 0 + @((int)VerificationType.LoginMFA), $("#Username").val(), "#LoginMFA", null, (data) => {
+                            MFAField = new MFAValidator(data.verificationId, 0 + @((int)VerificationType.LoginMFA), $("#Username").val(), "#LoginMFA", null, (response) => {
                                 //on valid
-                                window.location.href = data.Redirect ?? "/"; //redirect
+                                window.location.href = data.redirect ?? "/"; //redirect
                                 $("#loginAlert p").html("Login Succeeded!");
                                 $("#loginAlert").addClass("alert-success").removeClass("alert-danger").removeClass("alert-warning");
                             }, null, "LoginValId", "LoginSecret");

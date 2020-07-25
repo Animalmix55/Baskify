@@ -90,6 +90,11 @@ namespace baskifyCore
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
+#if !DEBUG
+            if (!string.IsNullOrEmpty(ConfigurationManager.AppSettings["LogDir"]))
+                Console.SetOut(new System.IO.StreamWriter(ConfigurationManager.AppSettings["LogDir"]));
+#endif
+
             TwilioClient.Init(ConfigurationManager.AppSettings["TwilioAccountSID"], ConfigurationManager.AppSettings["TwilioAuth"]);
 
             Mapper.Initialize(c => c.AddProfile<MappingProfile>()); //add mapper
