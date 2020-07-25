@@ -11,6 +11,7 @@ using Newtonsoft.Json;
 using System;
 using System.Configuration;
 using System.Data.Entity.Migrations;
+using System.IO;
 using System.Linq;
 
 namespace baskifyCore.Controllers
@@ -160,7 +161,7 @@ namespace baskifyCore.Controllers
                 }
                 return View("ForgotPassword", model);
             }
-            catch (Exception) //something went wrong
+            catch (Exception e) //something went wrong
             {
                 ViewData["Alert"] = "Error sending recovery email";
                 return View("ForgotPassword", model);

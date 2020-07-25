@@ -73,7 +73,7 @@ namespace baskifyCore.Utilities
             if (secret.ToLower() != model.Secret.ToLower())
                 throw new Exception("Invalid verification code");
 
-            if ((model.Payload != null && model.Payload.ToLower() != payload.ToLower()) || model.Payload != payload) //tolerate null payloads for MFA 
+            if (model.Payload != null && model.Payload.ToLower() != payload.ToLower()) //tolerate null payloads for MFA 
             { //payload does not match, use changed EIN, etc. and tried to use same code
                 switch (model.VerificationType)
                 {

@@ -49,8 +49,8 @@ namespace baskifyCore.Controllers.api
                 return BadRequest("You do not own this auction");
 
             //at this point, the user owns the auction
-
-            var salesPerDay = _context.PaymentModel.Where(p => p.AuctionId == auctionId).Where(p => p.Complete).Select(p => new { p.Time, p.Amount, p.Fee, p.Username }).GroupBy(p => DbFunctions.TruncateTime(p.Time))
+            //ONLY SUCCESSFUL PAYMENTS!
+            var salesPerDay = _context.PaymentModel.Where(p => p.AuctionId == auctionId).Where(p => p.Complete && p.Success).Select(p => new { p.Time, p.Amount, p.Fee, p.Username }).GroupBy(p => DbFunctions.TruncateTime(p.Time))
                 .Select(g => new {
                     Date = g.Key,
                     Amount = g.Sum(dt => dt.Amount),

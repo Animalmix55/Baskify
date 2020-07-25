@@ -30,9 +30,10 @@ namespace baskifyCore.DTOs
                     break;
             }
 
+            //PAYMENTS MUST BE COMPLETED AND SUCCESSFUL!
             PercentDeliveryReq = percentDeliveredReq;
-            TotalFundraised = Decimal.Round((Decimal)Auction.Payments.Sum(p => p.Amount) / 100, 2);
-            Fees = Decimal.Round(Auction.Payments.Sum(p => p.Fee) / 100);
+            TotalFundraised = Decimal.Round((Decimal)Auction.Payments.Where(p => p.Complete && p.Success).Sum(p => p.Amount) / 100, 2);
+            Fees = Decimal.Round(Auction.Payments.Where(p => p.Complete && p.Success).Sum(p => p.Fee) / 100);
             MeetsDeliveryReq = Auction.Baskets.Where(b => b.AcceptedByOrg && !b.Draft).Count(b => b.Delivered && b.DeliveryTime.Value.AddDays(3) <= DateTime.UtcNow) >= percentDeliveredReq * Auction.Baskets.Where(b => b.AcceptedByOrg && !b.Draft).Count();
             MeetsDisputeReq = Auction.Baskets.Count(b => b.DisputedShipment) == 0;
             MeetsAuctionDrawnReq = Auction.isDrawn;

@@ -540,7 +540,7 @@
 
                 $("#validationLoader").css("display", "block");
                 $.ajax({
-                    url: "https://localhost:44331/api/nonprofit/select/" + encodeURIComponent(ein),
+                    url: "/api/nonprofit/select/" + encodeURIComponent(ein),
                     method: "get",
                     success: function (org) {
                         organizationDto = org;
