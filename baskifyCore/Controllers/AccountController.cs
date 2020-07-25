@@ -75,9 +75,11 @@ namespace baskifyCore.Controllers
                 if (Icon != null)
                     if (!accountUtils.saveIcon(user, Icon, _env.WebRootPath, 500, 500)) //this will add the file url to the new user object as well
                         ViewData["Alert"] = "Image upload failed, try another?";
+
+                string updateMessages = "";
                 try
                 {
-                    accountUtils.updateUser(oldUser, user, _context, Request, ModelState, this, _env);
+                    updateMessages = accountUtils.updateUser(oldUser, user, _context, Request, ModelState, this, _env);
                 }
                 catch(Exception)//only the email change throws error
                 {
@@ -86,7 +88,7 @@ namespace baskifyCore.Controllers
                     return View("Index", user);
                 }
                 _context.SaveChanges(); //save olduser changes
-                ViewData["Alert"] = "Account updated!";
+                ViewData["Alert"] = $"Account updated! ({updateMessages.Trim()})";
                 return View("Index", oldUser);
             }
             else

@@ -113,7 +113,7 @@ namespace baskifyCore.Controllers.api
 
                     _context.Entry(paymentModel).Reload(); //make sure locked flag is up to date
 
-                    if (paymentModel.Locked)
+                    if (paymentModel.Locked || paymentModel.Complete)
                         return Ok("Payment Already Updated"); //tells server to stop trying
 
                     paymentModel.Locked = true; //lock payment PERMANENTLY
@@ -170,7 +170,7 @@ namespace baskifyCore.Controllers.api
                     if (paymentModel == null)
                         return BadRequest("Invalid Payment Model Id");
 
-                    if (paymentModel.Complete == true)
+                    if (paymentModel.Complete || paymentModel.Locked)
                         return Ok("Payment Already Updated"); //tells server to stop trying
 
 
@@ -189,6 +189,7 @@ namespace baskifyCore.Controllers.api
                     _context.UserAlert.Add(newAlert);
                     */
 
+                    paymentModel.Locked = true;
                     paymentModel.Complete = true; //complete but NOT succeeded
 
                     _context.SaveChanges();
@@ -198,7 +199,7 @@ namespace baskifyCore.Controllers.api
                     return BadRequest("Invalid Event");
 
             }
-            catch (StripeException e)
+            catch (StripeException)
             {
                 return BadRequest();
             }

@@ -81,7 +81,7 @@ namespace baskifyCore.Controllers
                         ViewData["Alert"] = AuctionUtilities.VerifyDeletion(VerifyId, verification, user, _context, _env.WebRootPath);
                         break;
                     case ChangeTypes.VERIFYEMAIL:
-                        ViewData["Alert"] = EmailUtils.VerifyEmail(VerifyId, verification, user, _context);
+                        ViewData["Alert"] = EmailUtils.VerifyEmail(VerifyId, verification, user);
                         _context.SaveChanges();
                         return View("~/Views/Home/Index.cshtml", new UserModel()); //redirect home, NOT logged in
                     case ChangeTypes.ADDSTRIPE:
@@ -89,6 +89,9 @@ namespace baskifyCore.Controllers
                         var baskifyLandingPage = HttpUtility.UrlEncode(LoginUtils.getAbsoluteUrl("/Stripe/completeSignup", Request));
                         var redirectLink = $"https://connect.stripe.com/express/oauth/authorize?redirect_uri={baskifyLandingPage}&client_id={StripeConsts.clientId}&state={stateKey}";
                         return Redirect(redirectLink);
+                    case ChangeTypes.CONTACTEMAIL:
+                        ViewData["Alert"] = EmailUtils.VerifyContactEmailChange(VerifyId, verification, user);
+                        break;
                 }
 
                 _context.SaveChanges();
