@@ -33,6 +33,7 @@ namespace baskifyCore.Controllers
         [HttpGet]
         public IActionResult Index(string redirectBack) //redirect will be in query string
         {
+            redirectBack = System.Web.HttpUtility.UrlDecode(redirectBack); //ensures url is preserved
             if (Request.Cookies["BearerToken"] != null)
             {
                 if (LoginUtils.getUserFromToken(Request.Cookies["BearerToken"], _context, Response) != null)

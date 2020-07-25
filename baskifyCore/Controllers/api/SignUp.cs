@@ -344,6 +344,9 @@ namespace baskifyCore.Controllers.api
                         }
                     });
                 }
+                //send email telling them what's up (about being locked)
+                EmailUtils.SendStyledEmail(user, "Welcome to Baskify!", "Welcome to Baskify! It's a pleasure to meet you and get to know your organization. Now that you have registered, we just need a little while to make sure that you are a valid representative of your organization and that your organization meets our non-profit requirements! You may get another email from us later asking for more information. If all goes smoothly, we will be sending you an email to finish setup within the next 24-48 hours! <br><br>We look forward to having you on the Baskify team!", _env);
+
             }//save nonprofit documents
 
             _context.SaveChanges();
@@ -363,7 +366,25 @@ namespace baskifyCore.Controllers.api
                 _context.EmailVerification.Add(emailModel);
                 _context.SaveChanges(); //get id
                 
-                EmailUtils.sendVerificationEmail(user, emailModel, Request); //send verification email
+                EmailUtils.sendVerificationEmail(user, emailModel, Request, _env); //send verification email
+            }
+            else if(user.UserRole == Roles.COMPANY && !user.Locked) //if a company is not locked, they just need to add stripe
+            {
+                var emailVer = new EmailVerificationModel()
+                {
+                    ChangeTime = DateTime.UtcNow,
+                    ChangeType = ChangeTypes.ADDSTRIPE,
+                    CommitId = Guid.NewGuid(),
+                    Username = user.Username,
+                    Payload = ""
+                };
+
+                user.Locked = true;
+                user.LockReason = LockReason.StripePending; //lock for stripe
+                _context.EmailVerification.Add(emailVer);
+                _context.SaveChanges();
+
+                EmailUtils.sendVerificationEmail(user, emailVer, Request, _env);
             }
 
             return Ok();

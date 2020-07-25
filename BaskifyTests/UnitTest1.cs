@@ -7,9 +7,10 @@ namespace BaskifyTests
     public class TestNonProfits
     {
         [TestMethod]
-        public void LoadDb()
+        public void getTracking()
         {
-            baskifyCore.Utilities.NonProfitUtils.updateDb(2019);
+            
+            var result = baskifyCore.Utilities.TrackingUtils.trackFedEx("183353562584");
         }
     }
 }

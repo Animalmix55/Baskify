@@ -1,7 +1,7 @@
 ﻿@model UserModel
 
 @{
-    ViewData["Title"] = "My Raffles";
+    ViewData["Title"] = "Auction Results";
 }
 <script src="~/galleria/galleria.min.js"></script>
 <script src="~/js/moment-with-locales.js"></script>
@@ -10,7 +10,8 @@
 <script src="https://cdn.datatables.net/responsive/2.2.4/js/dataTables.responsive.min.js"></script>
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css" />
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.4/css/responsive.dataTables.min.css" />
-
+<link rel="stylesheet" type="text/css" href="~/css/tracking.css" />
+<script src="~/js/tracking.js"></script>
 
 <div id="basketDataModal" class="modal">
     @if (ViewData["basket"] != null)//if given a basket, load the modal with it
@@ -33,6 +34,15 @@
     top: 0;
     bottom: 0;
     display:none;">
+</div>
+
+<div id="trackingModal" class="modal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="basketTrackModalBody">
+            </div>
+        </div>
+    </div>
 </div>
 
 <div id="myTabContent" class="tab-content">
@@ -228,32 +238,53 @@
             basketTable.find(".shown").removeClass("shown");
 
             // Open this row
-            var childRow = row.child([
-                renderAuctionInfo(row.data()["auction"]),
-                `<table class="childTable" style="width:100%"></table>`
-            ]);
+            var auctionInfo = renderAuctionInfo(row.data()["auction"]);
+            var childRow;
+
+            if (auctionInfo != "") { //for cleanliness, don't render info row if empty
+                childRow = row.child([
+                    auctionInfo,
+                    `<table class="childTable" style="width:100%"></table>`
+                ]);
+            }
+            else {
+                childRow = row.child([
+                    `<table class="childTable" style="width:100%"></table>`
+                ]);
+            }
             childRow.show(); //show row
 
             var $childNode = row.child().find(".childTable");
             $childNode.DataTable({
                 data: row.data()["raffleResults"],
                 createdRow: function (row, data, dataIndex) {
-                    $(row).css("cursor", "pointer");
-                    $(row).attr("onclick", "viewBasket("+data["basket"]["basketId"]+")")
+                    $(row).find(".basketData").css("cursor", "pointer");
+                    $(row).find(".basketData").attr("onclick", "viewBasket("+data["basket"]["basketId"]+")")
                     $(row).attr("id", "basketRow-" + data["basket"]["basketId"]);
+                },
+                drawCallback: function (settings) {
+                    $(`[data-toggle=basketStatusTooltip]`).tooltip(); //init tooltips
                 },
                 columns: [
                     { //basketName
                         title: "Basket Name",
-                        data: "basket.basketTitle"
+                        data: "basket.basketTitle",
+                        className: "basketData"
                     },
                     {//numTickets
                         title: "Number of Tickets",
-                        data: "basket.numTickets"
+                        data: "basket.numTickets",
+                        className: "basketData"
                     },
                     {//status
                         title: "Status",
-                        data: "status"
+                        data: "status",
+                        render: function (data, type, row) {
+                            if (data == "In Transit" || data == "Delivered" || data == "Disputed")
+                                return (data=="Disputed"? `<span style="color:red">${data}</span>`: data) + `<img src="/Content/question.svg" style="height:15px; cursor:pointer; padding-left:5px" data-toggle="basketStatusTooltip" data-placement="top" title="Tracking info" data-id="${row.basket.basketId}">`
+                            else
+                                return data;
+                        }
                     }
                 ]
             });
@@ -270,8 +301,20 @@
         }
     });
 
+    $(document).on("click", "[data-toggle=basketStatusTooltip]", function (e) {
+        var tracker = new Tracker($(this).data()["id"], "Bearer " + getCookie("BearerToken"), "#trackingModal .basketTrackModalBody");
+        var html = `<div class="loading-spinner" style="height: 48px; width: 48px; margin: auto; display: block; visibility: visible;">\
+                            <div class="loading-body">\
+                                <div></div><div></div><div></div>\
+                            </div>\
+                        </div>`;
+        $("#trackingModal .basketTrackModalBody").html(html); //add loading spinner
+        tracker.buildTracker(); //build tracker modal
+        $("#trackingModal").modal("show");
+    });
+
     function renderAuctionInfo(auction) {
-        if (auction.deliveryType == @((int)DeliveryTypes.Pickup))//pickup
+        if (auction.deliveryType == @((int)DeliveryTypes.Pickup) && auction.address != null)//pickup IF the server provided an address, if not, they aren't privy
         {
             return `<div class="alert alert-dismissible alert-info">\
                             <strong>Heads up!</strong> Baskets that you've won should be picked up promptly at:<br>\

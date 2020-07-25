@@ -26,10 +26,10 @@ namespace baskifyCore.DTOs
         public UserDto Winner { get; set; }
         public AuctionDto AuctionModel { get; set; }
         public bool Delivered { get; set; }
+        public string Status { get; set; }
         public int NumTickets
         {
             get { return Tickets.Sum(t => t.NumTickets); }
         }
-
     }
 }

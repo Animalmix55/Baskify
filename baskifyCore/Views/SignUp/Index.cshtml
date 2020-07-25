@@ -1,315 +1,316 @@
 ﻿@{
     Layout = null;
+    ViewData["Title"] = "Signup";
 }
 
-    <head>
-        <script src="~/lib/jquery/dist/jquery.min.js"></script>
-        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.lux.min.css" />
-        <link rel="stylesheet" href="~/css/site.css" />
-        <meta name="viewport" content="width=device-width" />
-        <title>Sign Up</title>
-    </head>
-    <body>
-        <nav class="navigationBar">
-            <a class="navigationBarBrand navBarElement" href="/">Baskify</a>
-        </nav>
-        <div id="PageLoadingModal" style="z-index:999999; display:none">
-            <div class="loading-spinner" style="height: 100px; width: 100px; display: block; visibility: visible;overflow:unset">
-                <div class="loading-body">
-                    <div></div><div></div><div></div>
-                </div>
-                <div style="color: black;text-align: center;transform: translateY(-25px);">This may take a while...</div>
+<head>
+    <script src="~/lib/jquery/dist/jquery.min.js"></script>
+    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.lux.min.css" />
+    <link rel="stylesheet" href="~/css/site.css" />
+    <meta name="viewport" content="width=device-width" />
+    <title>Sign Up</title>
+</head>
+<body>
+    <nav class="navigationBar">
+        <a class="navigationBarBrand navBarElement" href="/"><img src="~/Content/Logo.png" style="height:75%; width: auto;" />Baskify</a>
+    </nav>
+    <div id="PageLoadingModal" style="z-index:999999; display:none">
+        <div class="loading-spinner" style="height: 100px; width: 100px; display: block; visibility: visible;overflow:unset">
+            <div class="loading-body">
+                <div></div><div></div><div></div>
             </div>
+            <div style="color: black;text-align: center;transform: translateY(-25px);">This may take a while...</div>
         </div>
-        <div style="padding-top: 20px; width:100%; display:flex; align-items:center; justify-content:center">
-            <div class="signUpModal maxWidthContainer" style="overflow:hidden">
-                <div id="signUpErrorAlert" class="alert alert-dismissible alert-danger" style="display:none; width:80%;margin: auto;">
-                    <button type="button" class="close" data-hide="alert">×</button>
-                    <p></p>
-                </div>
-                <form id="signUpForm" style="overflow:hidden; width:100%;">
-                    <div style="display:flex; justify-content:center; align-items:center; flex-direction:column" data-slide="1" data-user="both">
-                        <h3 style="text-align:center">What Kind of User are You?</h3>
-                        <button type="button" class="btn btn-secondary userType" data-type="organization">
-                            <img style="padding-right:20px; height:40px" src="data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIj8+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBpZD0iTGF5ZXJfMSIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgNDgwLjAzNyA0ODAuMDM3IiBoZWlnaHQ9IjUxMnB4IiB2aWV3Qm94PSIwIDAgNDgwLjAzNyA0ODAuMDM3IiB3aWR0aD0iNTEycHgiPjxwYXRoIGQ9Im0zMTMuMDM3IDMyOS4wMTl2MTUxaC02NXYtMTQyYzAtNC40MTgtMy41ODItOC04LThzLTggMy41ODItOCA4djE0MmgtNjV2LTE1MWMwLTEzLjIzMyAxMC43NjYtMjQgMjQtMjRoOThjMTMuMjM0IDAgMjQgMTAuNzY2IDI0IDI0em0xMzEuOTk1LTc1LjQ3Yy0yNy43MzkgMTEuMzYyLTYwLjEyNCA2Ljc2LTgzLjc3OC0xMy4yMDItMy4wMjctMi41NTQtNy40MDItMi41Ni0xMC40MjctLjAwNC0zMC40NiAyNS43MjItNzUuMDggMjUuNzMzLTEwNS41NTIuMDIzLTMuMDQtMi41NjUtNy40MzUtMi41NjUtMTAuNDc1IDAtMzAuNDg2IDI1LjcyMS03NS4xMzEgMjUuNjkyLTEwNS41NjktLjAzNS0zLjAyNy0yLjU1OC03LjQwNS0yLjU1NC0xMC40MzMuMDAzLTIzLjY2MyAxOS45ODItNTYuMDQ5IDI0LjU4My04My43NDcgMTMuMjE1LTUuMjU1LTIuMTU3LTExLjAxMyAxLjcyMy0xMS4wMTMgNy40MDN2MTc5LjA2OGMwIDIyLjA5MSAxNy45MDkgNDAgNDAgNDBoODd2LTE1MWMwLTIyLjA1NiAxNy45NDQtNDAgNDAtNDBoOThjMjIuMDU2IDAgNDAgMTcuOTQ0IDQwIDQwdjE1MWg4N2MyMi4wOTEgMCA0MC0xNy45MDkgNDAtNDB2LTE3OS4wNjVjLS4wMDEtNS42NzYtNS43NTMtOS41NTctMTEuMDA2LTcuNDA2em0tMzg0Ljk5NS0xMTcuNTNjLTQuNTk1IDAtOC4yODQtMy44NzMtNy45ODMtOC41MzIuMjc1LTQuMjUyIDMuOTk2LTcuNDY4IDguMjU3LTcuNDY4aDQwNC43OTJjNS43NTcgMCA5LjYzLTUuODk4IDcuMzQtMTEuMTgxbC00NS4wNjYtMTAzLjk5OWMtMS4yNy0yLjkzLTQuMTUtNC44Mi03LjM0LTQuODJoLTM2MGMtMy4xOSAwLTYuMDcgMS44OS03LjM0IDQuODJsLTUyIDEyMGMtLjkzMyAyLjEyLS42Ni0xLjEwMi0uNjYgNTIuODEuMDYgMzYuMzkgMjkuNjcgNjUuOTkgNjYgNjUuOTkgMjIuNjkgMCA0Mi43NTYtMTEuNTQyIDU0LjYzOC0yOS4wNzQgMS42MTQtMi4zODIgNS4wNjktMi4zODIgNi42ODMuMDAxIDI2LjI3MSAzOC43OCA4My4xMDEgMzguNjk0IDEwOS4zNC4wMjggMS42MTQtMi4zNzkgNS4wNjUtMi4zNzkgNi42NzkgMCAyNi4yNTkgMzguNjk3IDgzLjA0OSAzOC43MTcgMTA5LjMyMS0uMDAxIDEuNTkxLTIuMzQ1IDUuMDM3LTIuNDI3IDYuNjI0LS4wOCAxMi4wMjMgMTcuNzc0IDMyLjQ3NCAyOS40MTQgNTUuNTY4IDI5LjEyIDM2LjI4NC0uNDYxIDY1LjE0Ny0zMC43MiA2NS4xNDctNjcuMDA3di0zMi42MDhjMC00LjQxOC0zLjU4Mi04LTgtOGgtNDEyeiIgZmlsbD0iIzAwMDAwMCIvPjwvc3ZnPgo=" />
-                            <span style="font-size:200%;">Organization</span>
-                            <div class="text-muted">I plan on making auctions</div>
-                        </button>
-                        <button type="button" class="btn btn-secondary userType" data-type="user">
-                            <img style="padding-right: 20px;
+    </div>
+    <div style="padding-top: 20px; width:100%; display:flex; align-items:center; justify-content:center">
+        <div class="signUpModal maxWidthContainer" style="overflow:hidden">
+            <div id="signUpErrorAlert" class="alert alert-dismissible alert-danger" style="display:none; width:80%;margin: auto;">
+                <button type="button" class="close" data-hide="alert">×</button>
+                <p></p>
+            </div>
+            <form id="signUpForm" style="overflow:hidden; width:100%;">
+                <div style="display:flex; justify-content:center; align-items:center; flex-direction:column" data-slide="1" data-user="both">
+                    <h3 style="text-align:center">What Kind of User are You?</h3>
+                    <button type="button" class="btn btn-secondary userType" data-type="organization">
+                        <img style="padding-right:20px; height:40px" src="data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIj8+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiBpZD0iTGF5ZXJfMSIgZW5hYmxlLWJhY2tncm91bmQ9Im5ldyAwIDAgNDgwLjAzNyA0ODAuMDM3IiBoZWlnaHQ9IjUxMnB4IiB2aWV3Qm94PSIwIDAgNDgwLjAzNyA0ODAuMDM3IiB3aWR0aD0iNTEycHgiPjxwYXRoIGQ9Im0zMTMuMDM3IDMyOS4wMTl2MTUxaC02NXYtMTQyYzAtNC40MTgtMy41ODItOC04LThzLTggMy41ODItOCA4djE0MmgtNjV2LTE1MWMwLTEzLjIzMyAxMC43NjYtMjQgMjQtMjRoOThjMTMuMjM0IDAgMjQgMTAuNzY2IDI0IDI0em0xMzEuOTk1LTc1LjQ3Yy0yNy43MzkgMTEuMzYyLTYwLjEyNCA2Ljc2LTgzLjc3OC0xMy4yMDItMy4wMjctMi41NTQtNy40MDItMi41Ni0xMC40MjctLjAwNC0zMC40NiAyNS43MjItNzUuMDggMjUuNzMzLTEwNS41NTIuMDIzLTMuMDQtMi41NjUtNy40MzUtMi41NjUtMTAuNDc1IDAtMzAuNDg2IDI1LjcyMS03NS4xMzEgMjUuNjkyLTEwNS41NjktLjAzNS0zLjAyNy0yLjU1OC03LjQwNS0yLjU1NC0xMC40MzMuMDAzLTIzLjY2MyAxOS45ODItNTYuMDQ5IDI0LjU4My04My43NDcgMTMuMjE1LTUuMjU1LTIuMTU3LTExLjAxMyAxLjcyMy0xMS4wMTMgNy40MDN2MTc5LjA2OGMwIDIyLjA5MSAxNy45MDkgNDAgNDAgNDBoODd2LTE1MWMwLTIyLjA1NiAxNy45NDQtNDAgNDAtNDBoOThjMjIuMDU2IDAgNDAgMTcuOTQ0IDQwIDQwdjE1MWg4N2MyMi4wOTEgMCA0MC0xNy45MDkgNDAtNDB2LTE3OS4wNjVjLS4wMDEtNS42NzYtNS43NTMtOS41NTctMTEuMDA2LTcuNDA2em0tMzg0Ljk5NS0xMTcuNTNjLTQuNTk1IDAtOC4yODQtMy44NzMtNy45ODMtOC41MzIuMjc1LTQuMjUyIDMuOTk2LTcuNDY4IDguMjU3LTcuNDY4aDQwNC43OTJjNS43NTcgMCA5LjYzLTUuODk4IDcuMzQtMTEuMTgxbC00NS4wNjYtMTAzLjk5OWMtMS4yNy0yLjkzLTQuMTUtNC44Mi03LjM0LTQuODJoLTM2MGMtMy4xOSAwLTYuMDcgMS44OS03LjM0IDQuODJsLTUyIDEyMGMtLjkzMyAyLjEyLS42Ni0xLjEwMi0uNjYgNTIuODEuMDYgMzYuMzkgMjkuNjcgNjUuOTkgNjYgNjUuOTkgMjIuNjkgMCA0Mi43NTYtMTEuNTQyIDU0LjYzOC0yOS4wNzQgMS42MTQtMi4zODIgNS4wNjktMi4zODIgNi42ODMuMDAxIDI2LjI3MSAzOC43OCA4My4xMDEgMzguNjk0IDEwOS4zNC4wMjggMS42MTQtMi4zNzkgNS4wNjUtMi4zNzkgNi42NzkgMCAyNi4yNTkgMzguNjk3IDgzLjA0OSAzOC43MTcgMTA5LjMyMS0uMDAxIDEuNTkxLTIuMzQ1IDUuMDM3LTIuNDI3IDYuNjI0LS4wOCAxMi4wMjMgMTcuNzc0IDMyLjQ3NCAyOS40MTQgNTUuNTY4IDI5LjEyIDM2LjI4NC0uNDYxIDY1LjE0Ny0zMC43MiA2NS4xNDctNjcuMDA3di0zMi42MDhjMC00LjQxOC0zLjU4Mi04LTgtOGgtNDEyeiIgZmlsbD0iIzAwMDAwMCIvPjwvc3ZnPgo=" />
+                        <span style="font-size:200%;">Organization</span>
+                        <div class="text-muted">I plan on making auctions</div>
+                    </button>
+                    <button type="button" class="btn btn-secondary userType" data-type="user">
+                        <img style="padding-right: 20px;
         height: 20px" src="data:image/svg+xml;utf8;base64,PD94bWwgdmVyc2lvbj0iMS4wIj8+CjxzdmcgeG1sbnM9Imh0dHA6Ly93d3cudzMub3JnLzIwMDAvc3ZnIiB2aWV3Qm94PSItNDIgMCA1MTIgNTEyLjAwMiIgd2lkdGg9IjUxMnB4IiBoZWlnaHQ9IjUxMnB4Ij48cGF0aCBkPSJtMjEwLjM1MTU2MiAyNDYuNjMyODEyYzMzLjg4MjgxMyAwIDYzLjIyMjY1Ny0xMi4xNTIzNDMgODcuMTk1MzEzLTM2LjEyODkwNiAyMy45NzI2NTYtMjMuOTcyNjU2IDM2LjEyNS01My4zMDQ2ODcgMzYuMTI1LTg3LjE5MTQwNiAwLTMzLjg3NS0xMi4xNTIzNDQtNjMuMjEwOTM4LTM2LjEyODkwNi04Ny4xOTE0MDYtMjMuOTc2NTYzLTIzLjk2ODc1LTUzLjMxMjUtMzYuMTIxMDk0LTg3LjE5MTQwNy0zNi4xMjEwOTQtMzMuODg2NzE4IDAtNjMuMjE4NzUgMTIuMTUyMzQ0LTg3LjE5MTQwNiAzNi4xMjVzLTM2LjEyODkwNiA1My4zMDg1OTQtMzYuMTI4OTA2IDg3LjE4NzVjMCAzMy44ODY3MTkgMTIuMTU2MjUgNjMuMjIyNjU2IDM2LjEzMjgxMiA4Ny4xOTUzMTIgMjMuOTc2NTYzIDIzLjk2ODc1IDUzLjMxMjUgMzYuMTI1IDg3LjE4NzUgMzYuMTI1em0wIDAiIGZpbGw9IiMwMDAwMDAiLz48cGF0aCBkPSJtNDI2LjEyODkwNiAzOTMuNzAzMTI1Yy0uNjkxNDA2LTkuOTc2NTYzLTIuMDg5ODQ0LTIwLjg1OTM3NS00LjE0ODQzNy0zMi4zNTE1NjMtMi4wNzgxMjUtMTEuNTc4MTI0LTQuNzUzOTA3LTIyLjUyMzQzNy03Ljk1NzAzMS0zMi41MjczNDMtMy4zMDg1OTQtMTAuMzM5ODQ0LTcuODA4NTk0LTIwLjU1MDc4MS0xMy4zNzEwOTQtMzAuMzM1OTM4LTUuNzczNDM4LTEwLjE1NjI1LTEyLjU1NDY4OC0xOS0yMC4xNjQwNjMtMjYuMjc3MzQzLTcuOTU3MDMxLTcuNjEzMjgyLTE3LjY5OTIxOS0xMy43MzQzNzYtMjguOTY0ODQzLTE4LjE5OTIxOS0xMS4yMjY1NjMtNC40NDE0MDctMjMuNjY3OTY5LTYuNjkxNDA3LTM2Ljk3NjU2My02LjY5MTQwNy01LjIyNjU2MyAwLTEwLjI4MTI1IDIuMTQ0NTMyLTIwLjA0Mjk2OSA4LjUtNi4wMDc4MTIgMy45MTc5NjktMTMuMDM1MTU2IDguNDQ5MjE5LTIwLjg3ODkwNiAxMy40NjA5MzgtNi43MDcwMzEgNC4yNzM0MzgtMTUuNzkyOTY5IDguMjc3MzQ0LTI3LjAxNTYyNSAxMS45MDIzNDQtMTAuOTQ5MjE5IDMuNTQyOTY4LTIyLjA2NjQwNiA1LjMzOTg0NC0zMy4wMzkwNjMgNS4zMzk4NDQtMTAuOTcyNjU2IDAtMjIuMDg1OTM3LTEuNzk2ODc2LTMzLjA0Njg3NC01LjMzOTg0NC0xMS4yMTA5MzgtMy42MjEwOTQtMjAuMjk2ODc2LTcuNjI1LTI2Ljk5NjA5NC0xMS44OTg0MzgtNy43Njk1MzItNC45NjQ4NDQtMTQuODAwNzgyLTkuNDk2MDk0LTIwLjg5ODQzOC0xMy40Njg3NS05Ljc1LTYuMzU1NDY4LTE0LjgwODU5NC04LjUtMjAuMDM1MTU2LTguNS0xMy4zMTI1IDAtMjUuNzUgMi4yNTM5MDYtMzYuOTcyNjU2IDYuNjk5MjE5LTExLjI1NzgxMyA0LjQ1NzAzMS0yMS4wMDM5MDYgMTAuNTc4MTI1LTI4Ljk2ODc1IDE4LjE5OTIxOS03LjYwNTQ2OSA3LjI4MTI1LTE0LjM5MDYyNSAxNi4xMjEwOTQtMjAuMTU2MjUgMjYuMjczNDM3LTUuNTU4NTk0IDkuNzg1MTU3LTEwLjA1ODU5NCAxOS45OTIxODgtMTMuMzcxMDk0IDMwLjMzOTg0NC0zLjE5OTIxOSAxMC4wMDM5MDYtNS44NzUgMjAuOTQ1MzEzLTcuOTUzMTI1IDMyLjUyMzQzNy0yLjA1ODU5NCAxMS40NzY1NjMtMy40NTcwMzEgMjIuMzYzMjgyLTQuMTQ4NDM3IDMyLjM2MzI4Mi0uNjc5Njg4IDkuNzk2ODc1LTEuMDIzNDM4IDE5Ljk2NDg0NC0xLjAyMzQzOCAzMC4yMzQzNzUgMCAyNi43MjY1NjIgOC40OTYwOTQgNDguMzYzMjgxIDI1LjI1IDY0LjMyMDMxMiAxNi41NDY4NzUgMTUuNzQ2MDk0IDM4LjQ0MTQwNiAyMy43MzQzNzUgNjUuMDY2NDA2IDIzLjczNDM3NWgyNDYuNTMxMjVjMjYuNjI1IDAgNDguNTExNzE5LTcuOTg0Mzc1IDY1LjA2MjUtMjMuNzM0Mzc1IDE2Ljc1NzgxMy0xNS45NDUzMTIgMjUuMjUzOTA2LTM3LjU4NTkzNyAyNS4yNTM5MDYtNjQuMzI0MjE5LS4wMDM5MDYtMTAuMzE2NDA2LS4zNTE1NjItMjAuNDkyMTg3LTEuMDM1MTU2LTMwLjI0MjE4N3ptMCAwIiBmaWxsPSIjMDAwMDAwIi8+PC9zdmc+Cg==" />
-                            <span style="font-size:200%;">Customer</span>
-                            <div class="text-muted">I plan on participating in auctions</div>
-                        </button>
-                        <input type="hidden" name="Type" id="Type" />
+                        <span style="font-size:200%;">Customer</span>
+                        <div class="text-muted">I plan on participating in auctions</div>
+                    </button>
+                    <input type="hidden" name="Type" id="Type" />
+                </div>
+                <!-----------------START SLIDE 2 USER (FIRST AND LAST)------------------->
+                <div style="display:none; opacity:0; justify-content:center; align-items:center; flex-direction:column" data-slide="2" data-user="user">
+                    <div onclick="previousSlide()" style="color: #1F9BCF; cursor: pointer; width:80%;">Go Back</div>
+                    <div style="width:80%">
+                        <h3 style="text-align:center">What is your name?</h3>
+                        <div class="text-muted">This will be shared with organizations looking to deliver your baskets.</div>
+                        <div class="form-group" style="width:100%">
+                            <label for="FirstName">First Name</label>
+                            <input type="text" name="FirstName" id="FirstName" placeholder="First Name" class="form-control" />
+                            <span class="invalid-feedback" data-valmsg-for="FirstName" data-valmsg-replace="true"></span>
+                        </div>
+                        <div class="form-group" style="width:100%">
+                            <label for="FirstName">Last Name</label>
+                            <input type="text" name="LastName" id="LastName" placeholder="Last Name" class="form-control" />
+                            <span class="invalid-feedback" data-valmsg-for="LastName" data-valmsg-replace="true"></span>
+                        </div>
                     </div>
-                    <!-----------------START SLIDE 2 USER (FIRST AND LAST)------------------->
-                    <div style="display:none; opacity:0; justify-content:center; align-items:center; flex-direction:column" data-slide="2" data-user="user">
-                        <div onclick="previousSlide()" style="color: #1F9BCF; cursor: pointer; width:80%;">Go Back</div>
-                        <div style="width:80%">
-                            <h3 style="text-align:center">What is your name?</h3>
-                            <div class="text-muted">This will be shared with organizations looking to deliver your baskets.</div>
-                            <div class="form-group" style="width:100%">
-                                <label for="FirstName">First Name</label>
-                                <input type="text" name="FirstName" id="FirstName" placeholder="First Name" class="form-control" />
-                                <span class="invalid-feedback" data-valmsg-for="FirstName" data-valmsg-replace="true"></span>
-                            </div>
-                            <div class="form-group" style="width:100%">
-                                <label for="FirstName">Last Name</label>
-                                <input type="text" name="LastName" id="LastName" placeholder="Last Name" class="form-control" />
-                                <span class="invalid-feedback" data-valmsg-for="LastName" data-valmsg-replace="true"></span>
-                            </div>
-                        </div>
-                        <button type="button" class="btn btn-success nextSlide" onclick="validateName()" style="width:80%">Next</button>
-                    </div>
-                    <!---------------START SLIDE 2 ORG (PROOF ON NONPROFIT)------------------>
-                    <div style="display:none; opacity:0; justify-content:center; align-items:center; flex-direction:column" data-slide="2" data-user="organization">
-                        <div onclick="previousSlide()" style="color: #1F9BCF; cursor: pointer; width:80%;">Go Back</div>
-                        <h3 style="text-align:center">Find Your Organization</h3>
-                        <div class="text-muted">We only allow non-profits 501(c)(#) or 4947(a)(1)</div>
-                        <input id="EIN" name="EIN" type="hidden" />
-                        <div id="searchBarParent" class="form-inline my-2 my-lg-0" style="display: block; width:80%;">
-                            <div style="position:relative">
-                                <input class="form-control mr-sm-2 searchBar" style="width: 100%;" id="searchOrg" placeholder="Search by Organization Name or EIN" type="text" value="">
-                                <div id="searchOrgLoader" style="height: 66px; width: 45px; visibility: visible; position: absolute;top: 0;right: 14px;bottom: 0;margin: auto; display:none">
-                                    <div class="loading-body">
-                                        <div></div><div></div><div></div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div>
-                                <div id="searchResults" style="z-index:10;border-right: 1px solid rgba(155, 155, 155, 0.3); border-bottom: 1px solid rgba(155, 155, 155, 0.3);border-left: 1px solid rgba(155, 155, 155, 0.3);
-                        border-image: initial; position: absolute;text-align: center; display: none;background: white;width: 535.188px;">
-                                </div>
-                            </div>
-                        </div>
-                        <div class="invalid-feedback" style="display:inline" data-valmsg-for="EIN" data-valmsg-replace="true"></div>
-                        <div style="cursor:pointer; color:#1F9BCF;" onclick="loadProofOfNonProf()">Can't find your organization?</div>
-
-                        <div style="padding-top:30px; width:80%; display:none; opacity: 0" id="uploadOrgDocsContainer">
-                            <h3 style="text-align:center">Upload Proof of Non-Profit Status</h3>
-                            <div class="text-muted" style="padding-bottom: 10px;">Official IRS documents can be uploaded here (ex: an IRS determination letter or any other document proving non-profit status and providing an EIN)</div>
-                            <div class="form-group" id="nonprofitFilesCont">
-                                <div class="input-group mb-3">
-                                    <div class="custom-file" style="flex: unset;">
-                                        <input type="file" class="custom-file-input" accept=".pdf,image/*" name="ProofOfNonProfit" multiple>
-                                        <label class="custom-file-label" for="ProofOfNonProfit">Choose files</label>
-                                    </div>
-                                    <span class="invalid-feedback" style="display:inline" data-valmsg-for="ProofOfNonProfit" data-valmsg-replace="true"></span>
-                                    <table class="table table-hover">
-                                        <tbody class="fileList"></tbody>
-                                    </table>
-                                </div>
-                            </div>
-                        </div>
-                        <button type="button" class="btn btn-success nextSlide" onclick="nextSlide(tryLoadOrg)" style="width:80%" disabled>Next</button>
-                    </div>
-                    <!---------------------START SLIDE 3 ORG (VERYIFY USER)----------------------->
-                    <div style="display:none; opacity:0; justify-content:center; align-items:center; flex-direction:column" data-slide="3" data-user="organization">
-                        <div onclick="previousSlide()" style="color: #1F9BCF; cursor: pointer; width:80%;">Go Back</div>
-                        <div id="verificationAlert" class="alert alert-dismissible alert-danger" style="display:none; width:80%;">
-                            <button type="button" class="close" data-hide="alert">&times;</button>
-                            <p></p>
-                        </div>
-                        <h3 style="text-align:center">Verify Your Membership</h3>
-                        <div class="text-muted" style="padding-bottom: 10px;text-align:center">We need to ensure that you are a permissioned member of the host organization.</div>
-                        <hr style="width:80%" />
-                        <div id="validationLoader" style="height: 200px; width: 200px; visibility: visible; position: relative;display:none">
-                            <div class="loading-body">
-                                <div></div><div></div><div></div>
-                            </div>
-                        </div>
-                        <div id="allValidationItems" style="display:none; flex-wrap:wrap; justify-content:center">
-                            <div style="width:80%; max-width:500px">
-                                <h4 style="width:100%">Send a validation code</h4>
-                                <div class="text-muted">These numbers were pulled from your IRS records.</div>
-                                <div id="validationNumbers" style="width:100%">
-                                </div>
-                            </div>
-                            <div id="numberEditWindow" style="display:none; position: absolute; align-items: center; border: 2px solid;background: lightseagreen; height:45px; overflow:hidden">
-                                <div style="display:inline-flex; display: flex; align-items: center;">
-                                    <div class="input-group" style="height: inherit;">
-                                        <div style="height:inherit">
-                                            <span class="input-group-text" style="font-size: 30px;padding: 0 10px 0px 10px; height:inherit">+</span>
-                                        </div>
-                                        <input type="number" min="1" max="999" value="1" class="form-control countryCode" style="width:55px; height:inherit;text-align: center; padding: 0 10px 0 10px;" aria-label="Country code">
-                                        <div style="height:inherit">
-                                            <span class="input-group-text phoneNumber" style="font-size: 14px;padding: 0 10px 0 10px;height:100%"></span>
-                                        </div>
-                                    </div>
-                                </div>
-                                <img src="~/Content/save.svg" onclick="saveCountryCode()" style="height: 20px; padding-left:13px; padding-right: 13px;cursor:pointer" />
-                            </div>
-                            <div id="ValidationPopup" style="width:80%">
-
-                            </div>
-                            <div style="cursor:pointer; color:#1F9BCF; text-align:center; width:100%" onclick="showAltVerification()">Do these not work for you?</div>
-                        </div>
-
-                        <div id="uploadProof" style="padding-top:20px; width:80%; display: none; opacity: 0">
-                            <hr />
-                            <h4 style="text-align:center">Upload ID</h4>
-                            <div class="text-muted" style="text-align:center">Upload a license, non-drivers id, passport, or other photo ID (front and back)</div>
-                            <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:center;">
-                                <img src="~/Content/driving-license.svg" style="height:175px" />
-                                <div style="width:320px">
-                                    <div class="custom-file" style="flex: unset; width:100%">
-                                        <input type="file" class="custom-file-input" accept=".pdf,image/*" name="IdFront" id="IdFront">
-                                        <label class="custom-file-label" for="IdFront">Upload ID <b>FRONT</b></label>
-                                    </div>
-                                    <span class="invalid-feedback" style="display:inline" data-valmsg-for="IdFront" data-valmsg-replace="true"></span>
-                                    <div class="custom-file" style="flex: unset;width:100%">
-                                        <input type="file" class="custom-file-input" accept=".pdf,image/*" name="IdBack" id="IdBack">
-                                        <label class="custom-file-label" for="IdBack">Upload ID <b>BACK <span class="text-muted">(opt.)</span></b></label>
-                                    </div>
-                                    <span class="invalid-feedback" style="display:inline" data-valmsg-for="IdBack" data-valmsg-replace="true"></span>
-                                </div>
-                            </div>
-                            <hr />
-
-                            <h4 style="text-align:center; padding-top:20px">Upload Proof of Authority</h4>
-                            <div class="text-muted" style="text-align:center">
-                                Upload a federal or state form connecting you to the organization; official, signed organization letterhead permitting
-                                you to host on behalf of the organization; or another form validating your authority.
-                            </div>
-                            <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:center;">
-                                <div style="width:320px">
-                                    <div class="custom-file" style="flex: unset;width:100%">
-                                        <input type="file" class="custom-file-input" accept=".pdf,image/*" name="MembershipForm" id="MembershipForm" multiple>
-                                        <label class="custom-file-label" for="MembershipForm">Upload Form</label>
-                                        <span class="invalid-feedback" style="display:inline" data-valmsg-for="MembershipForm" data-valmsg-replace="true"></span>
-                                    </div>
-                                </div>
-                                <img src="~/Content/irs.svg" style="height:175px" />
-                            </div>
-                        </div>
-                        <button type="button" class="btn btn-success nextSlide" onclick="tryNext()" style="left: 0; right: 0; width: 80%; margin: auto; display: block; padding-top:20px">Next</button>
-                    </div>
-                    <!---------------------START SLIDE 4 ORG/USER (ADDRESS)----------------------->
-                    <div style="display:none; opacity:0; justify-content:center; align-items:center; flex-direction:column" data-slide="4" data-user="both">
-                        <div onclick="previousSlide()" style="color: #1F9BCF; cursor: pointer; width:80%;">Go Back</div>
-                        <div id="invalidAddressAlert" class="alert alert-dismissible alert-danger" style="display:none; width:80%;">
-                            <button type="button" class="close" data-hide="alert">&times;</button>
-                            <strong>Oh snap!</strong> The address you entered is invalid!
-                        </div>
-                        <div id="addressAlert" style="display:none; width:80%" class="alert alert-dismissible alert-warning">
-                            <button type="button" class="close" data-hide="alert">&times;</button>
-                            <h4 class="alert-heading">Warning!</h4>
-                            <p class="mb-0"></p>
-                        </div>
-
-                        <div id="addressLoader" style="height: 200px; width: 300px; visibility: visible; position: relative;top: 0;right: 14px;bottom: 0;margin: auto; display:none">
-                            <div class="loading-body">
-                                <div></div><div></div><div></div>
-                            </div>
-                        </div>
-
-                        <div id="addressContainer" style="display:flex; flex-direction:inherit; align-items:inherit; justify-content:inherit; width:80%">
-                            <h3 style="text-align:center">Where are You Located?</h3>
-                            <div class="text-muted">Currently, we only allow accounts to have US-based addresses.</div>
-                            <div class="form-group" style="width:100%">
-                                <label for="Address">Address</label>
-                                <input type="text" name="Address" id="Address" placeholder="Address" class="form-control" />
-                                <span class="invalid-feedback" data-valmsg-for="Address" data-valmsg-replace="true"></span>
-                            </div>
-                            <div class="form-group" style="width:100%">
-                                <label for="City">City</label>
-                                <input type="text" name="City" id="City" placeholder="City" class="form-control" />
-                                <span class="invalid-feedback" data-valmsg-for="City" data-valmsg-replace="true"></span>
-                            </div>
-                            <div class="form-group" style="width:100%">
-                                <label for="State">State</label>
-                                <input type="text" name="State" id="State" placeholder="State" class="form-control" />
-                                <span class="invalid-feedback" data-valmsg-for="State" data-valmsg-replace="true"></span>
-                            </div>
-                            <div class="form-group" style="width:100%">
-                                <label for="ZIP">ZIP</label>
-                                <input type="text" name="ZIP" id="ZIP" placeholder="ZIP Code" class="form-control" />
-                                <span class="invalid-feedback" data-valmsg-for="ZIP" data-valmsg-replace="true"></span>
-                            </div>
-                            <button type="button" class="btn btn-success nextSlide" onclick="validateAddress()" style="width:100%">Next</button>
-                        </div>
-
-                    </div>
-                    <!---------------------START SLIDE 5 ORG/USER (ICON)-------------------------->
-                    <div style="display:none; opacity:0; justify-content:center; align-items:center; flex-direction:column" data-slide="5" data-user="both">
-                        <div onclick="previousSlide()" style="color: #1F9BCF; cursor: pointer; width:80%;">Go Back</div>
-                        <div id="invalidPersonalization" class="alert alert-dismissible alert-danger" style="display:none; width:80%">
-                            <button type="button" class="close" data-hide="alert">&times;</button>
-                            <p></p>
-                        </div>
-                        <h3 style="text-align:center">Make it Personal</h3>
-                        <div id="iconUploadContainer" onclick="getIcon()">
-                            <p style="transform: translateY(45px);">Choose an Icon</p>
-                            <div id="iconLoader" style="height: 100px; width: 100px; visibility: visible; position: relative;display:none">
+                    <button type="button" class="btn btn-success nextSlide" onclick="validateName()" style="width:80%">Next</button>
+                </div>
+                <!---------------START SLIDE 2 ORG (PROOF ON NONPROFIT)------------------>
+                <div style="display:none; opacity:0; justify-content:center; align-items:center; flex-direction:column" data-slide="2" data-user="organization">
+                    <div onclick="previousSlide()" style="color: #1F9BCF; cursor: pointer; width:80%;">Go Back</div>
+                    <h3 style="text-align:center">Find Your Organization</h3>
+                    <div class="text-muted">We only allow non-profits 501(c)(#) or 4947(a)(1)</div>
+                    <input id="EIN" name="EIN" type="hidden" />
+                    <div id="searchBarParent" class="form-inline my-2 my-lg-0" style="display: block; width:80%;">
+                        <div style="position:relative">
+                            <input class="form-control mr-sm-2 searchBar" style="width: 100%;" id="searchOrg" placeholder="Search by Organization Name or EIN" type="text" value="">
+                            <div id="searchOrgLoader" style="height: 66px; width: 45px; visibility: visible; position: absolute;top: 0;right: 14px;bottom: 0;margin: auto; display:none">
                                 <div class="loading-body">
                                     <div></div><div></div><div></div>
                                 </div>
                             </div>
                         </div>
-                        <div class="invalid-feedback" style="display:inline; text-align:center" data-valmsg-for="Icon" data-valmsg-replace="true"></div>
-                        <input type="file" accept="image/*" id="Icon" name="Icon" style="display:none;" />
-                        <input type="hidden" name="IconUrl" id="IconUrl" />
-                        <div class="form-group" style="width:80%">
-                            <label for="Username">Username</label>
-                            <input type="text" name="Username" id="Username" placeholder="Username" class="form-control" />
-                            <span class="invalid-feedback" data-valmsg-for="Username" data-valmsg-replace="true"></span>
+                        <div>
+                            <div id="searchResults" style="z-index:10;border-right: 1px solid rgba(155, 155, 155, 0.3); border-bottom: 1px solid rgba(155, 155, 155, 0.3);border-left: 1px solid rgba(155, 155, 155, 0.3);
+                        border-image: initial; position: absolute;text-align: center; display: none;background: white;width: 535.188px;">
+                            </div>
                         </div>
-                        <div class="form-group" style="width:80%">
-                            <label for="Email">Email</label>
-                            <input type="email" name="Email" id="Email" placeholder="Email" class="form-control" />
-                            <span class="invalid-feedback" data-valmsg-for="Email" data-valmsg-replace="true"></span>
-                        </div>
-                        <div class="form-group" style="width:80%">
-                            <label for="Password">Password</label>
-                            <input type="password" name="Password" id="Password" placeholder="Password" class="form-control" />
-                            <span class="invalid-feedback" data-valmsg-for="Password" data-valmsg-replace="true"></span>
-                        </div>
-                        <div class="form-group" style="width:80%">
-                            <label for="ConfirmPassword">Confirm Password</label>
-                            <input type="password" name="ConfirmPassword" id="ConfirmPassword" placeholder="Confirm Password" class="form-control" />
-                            <span class="invalid-feedback" data-valmsg-for="ConfirmPassword" data-valmsg-replace="true"></span>
-                        </div>
-                        <button type="button" class="btn btn-success nextSlide" onclick="verifyLoginInfo()" style="width:80%">Next</button>
                     </div>
-                    <!--------------SLIDE 6 (both) MFA----------->
-                    <div style="display:none; opacity:0; justify-content:center; align-items:center; flex-direction:column" data-slide="6" data-user="both">
-                        <div onclick="previousSlide()" style="color: #1F9BCF; cursor: pointer; width:80%;">Go Back</div>
-                        <h4 style="text-align:center">Enable Multi-factor Authentification?</h4>
-                        <div style="padding-bottom:20px" class="text-muted">This will allow us to send you verification texts for login and various other secure actions on your account.</div>
-                        <div style="width: 100%;display: flex;justify-content: center;flex-wrap:wrap">
-                            <div id="MFAVerificationAlert" class="alert alert-dismissible alert-danger" style="display:none; width:80%">
-                                <button type="button" class="close" data-hide="alert">&times;</button>
-                                <p></p>
-                            </div>
-                            <div class="form-group" style="width:80%">
-                                <label for="Phone">Phone Number</label>
-                                <div style="display:flex">
-                                    <input style="flex:.8" type="tel" id="Phone" placeholder="+# (###) ###-####" class="form-control" />
-                                    <button type="button" onclick="sendMFAMessage()" class="btn btn-success" style="flex: .2">Send</button>
-                                </div>
-                                <span class="invalid-feedback" data-valmsg-for="Phone" data-valmsg-replace="true"></span>
-                            </div>
-                            <div id="MFAPopup" style="width:80%">
+                    <div class="invalid-feedback" style="display:inline" data-valmsg-for="EIN" data-valmsg-replace="true"></div>
+                    <div style="cursor:pointer; color:#1F9BCF;" onclick="loadProofOfNonProf()">Can't find your organization?</div>
 
+                    <div style="padding-top:30px; width:80%; display:none; opacity: 0" id="uploadOrgDocsContainer">
+                        <h3 style="text-align:center">Upload Proof of Non-Profit Status</h3>
+                        <div class="text-muted" style="padding-bottom: 10px;">Official IRS documents can be uploaded here (ex: an IRS determination letter or any other document proving non-profit status and providing an EIN)</div>
+                        <div class="form-group" id="nonprofitFilesCont">
+                            <div class="input-group mb-3">
+                                <div class="custom-file" style="flex: unset;">
+                                    <input type="file" class="custom-file-input" accept=".pdf,image/*" name="ProofOfNonProfit" multiple>
+                                    <label class="custom-file-label" for="ProofOfNonProfit">Choose files</label>
+                                </div>
+                                <span class="invalid-feedback" style="display:inline" data-valmsg-for="ProofOfNonProfit" data-valmsg-replace="true"></span>
+                                <table class="table table-hover">
+                                    <tbody class="fileList"></tbody>
+                                </table>
                             </div>
-                            <button type="button" class="btn btn-success nextSlide" onclick="createAccount()" style="width:80%">Skip and Create Account</button>
                         </div>
                     </div>
-                </form>
-                <!--------ACCOUNT CREATED--------------------------------------->
-                <div style="display:none; opacity:0; justify-content:center; align-items:center; flex-direction:column" data-slide="7" data-user="both">
-                    <div class="alert alert-success">
-                        <h3 style="text-align:center">Account Created!</h3>
-                        <div class="text-muted">A verification email has been sent to your email.</div>
+                    <button type="button" class="btn btn-success nextSlide" onclick="nextSlide(tryLoadOrg)" style="width:80%" disabled>Next</button>
+                </div>
+                <!---------------------START SLIDE 3 ORG (VERYIFY USER)----------------------->
+                <div style="display:none; opacity:0; justify-content:center; align-items:center; flex-direction:column" data-slide="3" data-user="organization">
+                    <div onclick="previousSlide()" style="color: #1F9BCF; cursor: pointer; width:80%;">Go Back</div>
+                    <div id="verificationAlert" class="alert alert-dismissible alert-danger" style="display:none; width:80%;">
+                        <button type="button" class="close" data-hide="alert">&times;</button>
+                        <p></p>
                     </div>
-                 </div>
+                    <h3 style="text-align:center">Verify Your Membership</h3>
+                    <div class="text-muted" style="padding-bottom: 10px;text-align:center">We need to ensure that you are a permissioned member of the host organization.</div>
+                    <hr style="width:80%" />
+                    <div id="validationLoader" style="height: 200px; width: 200px; visibility: visible; position: relative;display:none">
+                        <div class="loading-body">
+                            <div></div><div></div><div></div>
+                        </div>
+                    </div>
+                    <div id="allValidationItems" style="display:none; flex-wrap:wrap; justify-content:center">
+                        <div style="width:80%; max-width:500px">
+                            <h4 style="width:100%">Send a validation code</h4>
+                            <div class="text-muted">These numbers were pulled from your IRS records.</div>
+                            <div id="validationNumbers" style="width:100%">
+                            </div>
+                        </div>
+                        <div id="numberEditWindow" style="display:none; position: absolute; align-items: center; border: 2px solid;background: lightseagreen; height:45px; overflow:hidden">
+                            <div style="display:inline-flex; display: flex; align-items: center;">
+                                <div class="input-group" style="height: inherit;">
+                                    <div style="height:inherit">
+                                        <span class="input-group-text" style="font-size: 30px;padding: 0 10px 0px 10px; height:inherit">+</span>
+                                    </div>
+                                    <input type="number" min="1" max="999" value="1" class="form-control countryCode" style="width:55px; height:inherit;text-align: center; padding: 0 10px 0 10px;" aria-label="Country code">
+                                    <div style="height:inherit">
+                                        <span class="input-group-text phoneNumber" style="font-size: 14px;padding: 0 10px 0 10px;height:100%"></span>
+                                    </div>
+                                </div>
+                            </div>
+                            <img src="~/Content/save.svg" onclick="saveCountryCode()" style="height: 20px; padding-left:13px; padding-right: 13px;cursor:pointer" />
+                        </div>
+                        <div id="ValidationPopup" style="width:80%">
+
+                        </div>
+                        <div style="cursor:pointer; color:#1F9BCF; text-align:center; width:100%" onclick="showAltVerification()">Do these not work for you?</div>
+                    </div>
+
+                    <div id="uploadProof" style="padding-top:20px; width:80%; display: none; opacity: 0">
+                        <hr />
+                        <h4 style="text-align:center">Upload ID</h4>
+                        <div class="text-muted" style="text-align:center">Upload a license, non-drivers id, passport, or other photo ID (front and back)</div>
+                        <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:center;">
+                            <img src="~/Content/driving-license.svg" style="height:175px" />
+                            <div style="width:320px">
+                                <div class="custom-file" style="flex: unset; width:100%">
+                                    <input type="file" class="custom-file-input" accept=".pdf,image/*" name="IdFront" id="IdFront">
+                                    <label class="custom-file-label" for="IdFront">Upload ID <b>FRONT</b></label>
+                                </div>
+                                <span class="invalid-feedback" style="display:inline" data-valmsg-for="IdFront" data-valmsg-replace="true"></span>
+                                <div class="custom-file" style="flex: unset;width:100%">
+                                    <input type="file" class="custom-file-input" accept=".pdf,image/*" name="IdBack" id="IdBack">
+                                    <label class="custom-file-label" for="IdBack">Upload ID <b>BACK <span class="text-muted">(opt.)</span></b></label>
+                                </div>
+                                <span class="invalid-feedback" style="display:inline" data-valmsg-for="IdBack" data-valmsg-replace="true"></span>
+                            </div>
+                        </div>
+                        <hr />
+
+                        <h4 style="text-align:center; padding-top:20px">Upload Proof of Authority</h4>
+                        <div class="text-muted" style="text-align:center">
+                            Upload a federal or state form connecting you to the organization; official, signed organization letterhead permitting
+                            you to host on behalf of the organization; or another form validating your authority.
+                        </div>
+                        <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:center;">
+                            <div style="width:320px">
+                                <div class="custom-file" style="flex: unset;width:100%">
+                                    <input type="file" class="custom-file-input" accept=".pdf,image/*" name="MembershipForm" id="MembershipForm" multiple>
+                                    <label class="custom-file-label" for="MembershipForm">Upload Form</label>
+                                    <span class="invalid-feedback" style="display:inline" data-valmsg-for="MembershipForm" data-valmsg-replace="true"></span>
+                                </div>
+                            </div>
+                            <img src="~/Content/irs.svg" style="height:175px" />
+                        </div>
+                    </div>
+                    <button type="button" class="btn btn-success nextSlide" onclick="tryNext()" style="left: 0; right: 0; width: 80%; margin: auto; display: block; padding-top:20px">Next</button>
+                </div>
+                <!---------------------START SLIDE 4 ORG/USER (ADDRESS)----------------------->
+                <div style="display:none; opacity:0; justify-content:center; align-items:center; flex-direction:column" data-slide="4" data-user="both">
+                    <div onclick="previousSlide()" style="color: #1F9BCF; cursor: pointer; width:80%;">Go Back</div>
+                    <div id="invalidAddressAlert" class="alert alert-dismissible alert-danger" style="display:none; width:80%;">
+                        <button type="button" class="close" data-hide="alert">&times;</button>
+                        <strong>Oh snap!</strong> The address you entered is invalid!
+                    </div>
+                    <div id="addressAlert" style="display:none; width:80%" class="alert alert-dismissible alert-warning">
+                        <button type="button" class="close" data-hide="alert">&times;</button>
+                        <h4 class="alert-heading">Warning!</h4>
+                        <p class="mb-0"></p>
+                    </div>
+
+                    <div id="addressLoader" style="height: 200px; width: 300px; visibility: visible; position: relative;top: 0;right: 14px;bottom: 0;margin: auto; display:none">
+                        <div class="loading-body">
+                            <div></div><div></div><div></div>
+                        </div>
+                    </div>
+
+                    <div id="addressContainer" style="display:flex; flex-direction:inherit; align-items:inherit; justify-content:inherit; width:80%">
+                        <h3 style="text-align:center">Where are You Located?</h3>
+                        <div class="text-muted">Currently, we only allow accounts to have US-based addresses.</div>
+                        <div class="form-group" style="width:100%">
+                            <label for="Address">Address</label>
+                            <input type="text" name="Address" id="Address" placeholder="Address" class="form-control" />
+                            <span class="invalid-feedback" data-valmsg-for="Address" data-valmsg-replace="true"></span>
+                        </div>
+                        <div class="form-group" style="width:100%">
+                            <label for="City">City</label>
+                            <input type="text" name="City" id="City" placeholder="City" class="form-control" />
+                            <span class="invalid-feedback" data-valmsg-for="City" data-valmsg-replace="true"></span>
+                        </div>
+                        <div class="form-group" style="width:100%">
+                            <label for="State">State</label>
+                            <input type="text" name="State" id="State" placeholder="State" class="form-control" />
+                            <span class="invalid-feedback" data-valmsg-for="State" data-valmsg-replace="true"></span>
+                        </div>
+                        <div class="form-group" style="width:100%">
+                            <label for="ZIP">ZIP</label>
+                            <input type="text" name="ZIP" id="ZIP" placeholder="ZIP Code" class="form-control" />
+                            <span class="invalid-feedback" data-valmsg-for="ZIP" data-valmsg-replace="true"></span>
+                        </div>
+                        <button type="button" class="btn btn-success nextSlide" onclick="validateAddress()" style="width:100%">Next</button>
+                    </div>
+
+                </div>
+                <!---------------------START SLIDE 5 ORG/USER (ICON)-------------------------->
+                <div style="display:none; opacity:0; justify-content:center; align-items:center; flex-direction:column" data-slide="5" data-user="both">
+                    <div onclick="previousSlide()" style="color: #1F9BCF; cursor: pointer; width:80%;">Go Back</div>
+                    <div id="invalidPersonalization" class="alert alert-dismissible alert-danger" style="display:none; width:80%">
+                        <button type="button" class="close" data-hide="alert">&times;</button>
+                        <p></p>
+                    </div>
+                    <h3 style="text-align:center">Make it Personal</h3>
+                    <div id="iconUploadContainer" onclick="getIcon()">
+                        <p style="transform: translateY(45px);">Choose an Icon</p>
+                        <div id="iconLoader" style="height: 100px; width: 100px; visibility: visible; position: relative;display:none">
+                            <div class="loading-body">
+                                <div></div><div></div><div></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="invalid-feedback" style="display:inline; text-align:center" data-valmsg-for="Icon" data-valmsg-replace="true"></div>
+                    <input type="file" accept="image/*" id="Icon" name="Icon" style="display:none;" />
+                    <input type="hidden" name="IconUrl" id="IconUrl" />
+                    <div class="form-group" style="width:80%">
+                        <label for="Username">Username</label>
+                        <input type="text" name="Username" id="Username" placeholder="Username" class="form-control" />
+                        <span class="invalid-feedback" data-valmsg-for="Username" data-valmsg-replace="true"></span>
+                    </div>
+                    <div class="form-group" style="width:80%">
+                        <label for="Email">Email</label>
+                        <input type="email" name="Email" id="Email" placeholder="Email" class="form-control" />
+                        <span class="invalid-feedback" data-valmsg-for="Email" data-valmsg-replace="true"></span>
+                    </div>
+                    <div class="form-group" style="width:80%">
+                        <label for="Password">Password</label>
+                        <input type="password" name="Password" id="Password" placeholder="Password" class="form-control" />
+                        <span class="invalid-feedback" data-valmsg-for="Password" data-valmsg-replace="true"></span>
+                    </div>
+                    <div class="form-group" style="width:80%">
+                        <label for="ConfirmPassword">Confirm Password</label>
+                        <input type="password" name="ConfirmPassword" id="ConfirmPassword" placeholder="Confirm Password" class="form-control" />
+                        <span class="invalid-feedback" data-valmsg-for="ConfirmPassword" data-valmsg-replace="true"></span>
+                    </div>
+                    <button type="button" class="btn btn-success nextSlide" onclick="verifyLoginInfo()" style="width:80%">Next</button>
+                </div>
+                <!--------------SLIDE 6 (both) MFA----------->
+                <div style="display:none; opacity:0; justify-content:center; align-items:center; flex-direction:column" data-slide="6" data-user="both">
+                    <div onclick="previousSlide()" style="color: #1F9BCF; cursor: pointer; width:80%;">Go Back</div>
+                    <h4 style="text-align:center">Enable Multi-factor Authentification?</h4>
+                    <div style="padding-bottom:20px" class="text-muted">This will allow us to send you verification texts for login and various other secure actions on your account.</div>
+                    <div style="width: 100%;display: flex;justify-content: center;flex-wrap:wrap">
+                        <div id="MFAVerificationAlert" class="alert alert-dismissible alert-danger" style="display:none; width:80%">
+                            <button type="button" class="close" data-hide="alert">&times;</button>
+                            <p></p>
+                        </div>
+                        <div class="form-group" style="width:80%">
+                            <label for="Phone">Phone Number</label>
+                            <div style="display:flex">
+                                <input style="flex:.8" type="tel" id="Phone" placeholder="+# (###) ###-####" class="form-control" />
+                                <button type="button" onclick="sendMFAMessage()" class="btn btn-success" style="flex: .2">Send</button>
+                            </div>
+                            <span class="invalid-feedback" data-valmsg-for="Phone" data-valmsg-replace="true"></span>
+                        </div>
+                        <div id="MFAPopup" style="width:80%">
+
+                        </div>
+                        <button type="button" class="btn btn-success nextSlide" onclick="createAccount()" style="width:80%">Skip and Create Account</button>
+                    </div>
+                </div>
+            </form>
+            <!--------ACCOUNT CREATED--------------------------------------->
+            <div style="display:none; opacity:0; justify-content:center; align-items:center; flex-direction:column" data-slide="7" data-user="both">
+                <div class="alert alert-success">
+                    <h3 style="text-align:center">Account Created!</h3>
+                    <div class="text-muted">A verification email has been sent to your email.</div>
+                </div>
             </div>
         </div>
+    </div>
 
-            <script src="~/js/MFAValidator.js"></script>
-            <script>
+    <script src="~/js/MFAValidator.js"></script>
+    <script>
         $(document).on("click", "[data-hide]", function () {
             $(this).closest("." + $(this).attr("data-hide")).css("display", "none"); //hide all alerts rather than remove
         });
@@ -1082,5 +1083,5 @@
             });
         }
 
-            </script>
-    </body>
+    </script>
+</body>

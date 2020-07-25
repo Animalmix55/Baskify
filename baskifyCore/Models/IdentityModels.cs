@@ -7,9 +7,15 @@ namespace baskifyCore.Models
 {
     public class ApplicationDbContext : DbContext
     {
-        //public ApplicationDbContext() : base(ConfigurationManager.ConnectionStrings["BasketlyDB"].ConnectionString) { }
+#if !DEBUG
+        //public ApplicationDbContext() : base(ConfigurationManager.ConnectionStrings["BasketlyDBProd"].ConnectionString) { }
+        public ApplicationDbContext() : base("Data Source=baskifycoredbserver.database.windows.net;Initial Catalog=Baskify_PROD;User ID=animalmix55;Password=@Nimalmix55") { }
+#endif
+#if DEBUG
+        //public ApplicationDbContext() : base(ConfigurationManager.ConnectionStrings["BasketlyDBTest"].ConnectionString) { }
         public ApplicationDbContext() : base("Data Source=tcp:baskifycoredbserver.database.windows.net;Initial Catalog=Baskify;Persist Security Info=True;User ID=animalmix55;Password=@Nimalmix55") { }
-        //public ApplicationDbContext() : base(@"Data Source=(LocalDB)\MSSQLLocalDB;AttachDbFilename=C:\Users\Cory\baskifyCore.Models.ApplicationDbContext.mdf;Integrated Security=True;Connect Timeout=30") { }
+#endif
+
         public DbSet<UserModel> UserModel { get; set; }
         public DbSet<UserAlertModel> UserAlert { get; set; }
         public DbSet<EmailVerificationModel> EmailVerification { get; set; }
@@ -29,5 +35,6 @@ namespace baskifyCore.Models
 
         public DbSet<AnonymousClientModel> AnonymousClientModel { get; set; }
         public DbSet<AccountDocumentsModel> AccountDocumentsModel { get; set; }
+        public DbSet<StripeRegistrationModel> StripeRegistrationModel { get; set; }
     }
 }

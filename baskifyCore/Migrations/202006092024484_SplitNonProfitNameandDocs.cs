@@ -13,7 +13,7 @@
                 "dbo.IRSNonProfits",
                 c => new
                     {
-                        EIN = c.String(nullable: false, maxLength: 9),
+                        EIN = c.Int(nullable: false),
                         OrganizationName = c.String(nullable: false, maxLength: 120),
                         City = c.String(nullable: false, maxLength: 60),
                         State = c.String(nullable: false, maxLength: 2),
@@ -21,7 +21,7 @@
                 })
                 .PrimaryKey(t => t.EIN);
             
-            AlterColumn("dbo.IRSNonProfitDocuments", "EIN", c => c.String(nullable: false, maxLength: 9));
+            AlterColumn("dbo.IRSNonProfitDocuments", "EIN", c => c.Int(nullable: false));
             CreateIndex("dbo.IRSNonProfitDocuments", "EIN");
             AddForeignKey("dbo.IRSNonProfitDocuments", "EIN", "dbo.IRSNonProfits", "EIN", cascadeDelete: true);
             DropColumn("dbo.IRSNonProfitDocuments", "OrganizationName");

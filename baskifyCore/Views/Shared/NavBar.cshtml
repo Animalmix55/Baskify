@@ -6,7 +6,8 @@
     var isOrg = Model.UserRole == baskifyCore.Models.Roles.COMPANY;
 }
 <nav class="navigationBar">
-    <a class="navigationBarBrand navBarElement" href="/">Baskify</a>
+    <a class="navigationBarBrand navBarElement" href="/">
+    <img src="~/Content/Logo.png" style="height:75%; width: auto;" />Baskify</a>
 
     <div class="navBarElement searchBarContainerParent" id="navbarColor03">
         @using (Html.BeginForm("Index", "Search", FormMethod.Get, new { @class = "form-inline my-2 my-lg-0 searchBarContainer" }))
@@ -161,7 +162,13 @@
 
     function getCookie(cname) {
         var name = cname + "=";
-        var decodedCookie = decodeURIComponent(document.cookie);
+        var decodedCookie;
+        try {
+            decodedCookie = decodeURIComponent(document.cookie);
+        }
+        catch (Exception) {
+            decodedCookie = document.cookie;
+        }
         var ca = decodedCookie.split(';');
         for (var i = 0; i < ca.length; i++) {
             var c = ca[i];

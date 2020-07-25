@@ -2,6 +2,8 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
+using baskifyCore.Controllers.api;
 using baskifyCore.Models;
 using baskifyCore.Utilities;
 using Microsoft.AspNetCore.Hosting;
@@ -34,8 +36,19 @@ namespace baskifyCore.Controllers
             if (verification?.ChangeType == ChangeTypes.VERIFYEMAIL) //get user for email verification
                 user = _context.UserModel.Find(verification.Username);
 
+            if(verification?.ChangeType == ChangeTypes.ADDSTRIPE) //unlock the user
+            {
+                var tempUser = _context.UserModel.Find(verification.Username);
+                if (tempUser.LockReason == LockReason.StripePending)
+                {
+                    tempUser.Locked = false;
+                    tempUser.LockReason = null;
+                }
+                _context.SaveChanges();
+            }
+
             if (user == null)//invalid login state, redirect to login if not verifying email
-                return Redirect("/login?redirectBack=" + Request.GetDisplayUrl());
+                return Redirect("/login?redirectBack=" + HttpUtility.UrlEncode(Request.GetDisplayUrl()));
 
 
             if (verification == null) //reverted changes are deleted or...
@@ -71,6 +84,11 @@ namespace baskifyCore.Controllers
                         ViewData["Alert"] = EmailUtils.VerifyEmail(VerifyId, verification, user, _context);
                         _context.SaveChanges();
                         return View("~/Views/Home/Index.cshtml", new UserModel()); //redirect home, NOT logged in
+                    case ChangeTypes.ADDSTRIPE:
+                        var stateKey = accountUtils.GetStripeRegistrationState(VerifyId, verification, user, _context);
+                        var baskifyLandingPage = HttpUtility.UrlEncode(LoginUtils.getAbsoluteUrl("/Stripe/completeSignup", Request));
+                        var redirectLink = $"https://connect.stripe.com/express/oauth/authorize?redirect_uri={baskifyLandingPage}&client_id={StripeConsts.clientId}&state={stateKey}";
+                        return Redirect(redirectLink);
                 }
 
                 _context.SaveChanges();

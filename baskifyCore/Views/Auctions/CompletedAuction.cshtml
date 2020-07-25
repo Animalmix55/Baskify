@@ -1,6 +1,7 @@
 ﻿@model AuctionModel
 @{
     ViewData["Title"] = Model.Title;
+    var fundraisingTotals = new baskifyCore.DTOs.FundraisingTotalsDto(Model);
 }
 
 <script src="~/js/moment-with-locales.js"></script>
@@ -11,9 +12,24 @@
 <script src="https://cdn.datatables.net/responsive/2.2.4/js/dataTables.responsive.min.js"></script>
 <script type="text/javascript" charset="utf-8" src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css" />
+<link rel="stylesheet" type="text/css" href="~/css/tracking.css" />
+<script src="~/js/tracking.js"></script>
 <script src="https://maps.googleapis.com/maps/api/js?key=@baskifyCore.Utilities.AuctionUtilities.getGoogleAPI()" defer></script>
 
 <div id="basketDataModal" class="modal">
+</div>
+
+<div id="payoutModal" class="modal">
+    <div class="modal-dialog" role="document">
+        <div class="modal-content">
+            <div class="modal-body">
+                <div>
+                    <div style="font-size: 120%; width: 100%;font-weight: bold;text-align: center;margin-bottom: 10px;">Payout succeeded! You can view your balance any time at: </div>
+                    <img src="~/Content/stripeLogo.svg" onclick="viewStripeAccount()" style="height: auto;width: 65%;cursor: pointer;display: block;border: 1px solid rgba(0,0,0,.3);margin: auto;border-radius: 14px;background: rgba(0,0,0,.04);" />
+                </div>
+            </div>
+        </div>
+    </div>
 </div>
 
 <div id="error-alert" class="alert alert-dismissible alert-warning" style="margin-bottom: 0; display: none">
@@ -22,6 +38,17 @@
     <p class="mb-0"></p>
 </div>
 
+<style>
+    .TrackingContainer, .trackingEditor, .disputeEditor {
+        border-top-right-radius: unset;
+        border-top-left-radius: unset;
+    }
+    .basketPersonInfo {
+        border-bottom: unset;
+        border-bottom-left-radius: unset;
+        border-bottom-right-radius: unset;
+    }
+</style>
 <div id="accountSettings">
     <div id="accountSettingContainer">
         <div id="auctionAddLink" class="alert alert-dismissible alert-info">
@@ -35,80 +62,87 @@
             <img class="AuctionBannerImage" src="@Model.BannerImageUrl" />
         }
 
-        <ul class="nav nav-tabs" id="AuctionNavTabs">
-            <li class="nav-item">
-                <a class="nav-link active" data-toggle="tab" href="#auctionInfo">Auction Info</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" href="#baskets">Baskets</a>
-            </li>
-            <li class="nav-item">
-                <a class="nav-link" data-toggle="tab" href="#performance">Performance</a>
-            </li>
-        </ul>
+    <ul class="nav nav-tabs" id="AuctionNavTabs">
+        <li class="nav-item">
+            <a class="nav-link active" data-toggle="tab" href="#auctionInfo">Auction Info</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#baskets">Baskets</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#performance">Performance</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#payout">Payout</a>
+        </li>
+    </ul>
         <div id="myTabContent" class="tab-content">
             <div class="tab-pane fade active show" id="auctionInfo">
                 @using (Html.BeginForm("editAuction", "auctions", FormMethod.Post, new { @id = "auctionInfoForm", enctype = "multipart/form-data" }))
                 {
-                <fieldset>
-                    <legend>Auction Information</legend>
-                    <div class="form-group">
-                        @Html.LabelFor(Model => Model.Title)
-                        @Html.TextBoxFor(Model => Model.Title, null, new { @readonly = "readonly", @class = "form-control" })
-                    </div>
-                    <div class="form-group">
-                        @Html.LabelFor(Model => Model.Description)
-                        @Html.TextAreaFor(Model => Model.Description, 5, 50, new { @readonly = "readonly", @class = "form-control" })
-                    </div>
-                    <div class="form-group">
-                        @Html.LabelFor(Model => Model.DeliveryType)
-                        @Html.DropDownListFor(Model => Model.DeliveryType, Html.GetEnumSelectList<DeliveryTypes>(), "Select Delivery Type", new { @disabled = "disabled", @class = "custom-select" })
-                    </div>
-                    @if (Model.DeliveryType == DeliveryTypes.Pickup || Model.DeliveryType == DeliveryTypes.DeliveryByOrg)
-                    {
-                        <div id="basketRetrievalGroup" class="form-group">
-                            @Html.LabelFor(Model => Model.BasketRetrieval)
-                            @Html.DropDownListFor(Model => Model.BasketRetrieval, Html.GetEnumSelectList<BasketRetrieval>(), "Select Retrieval Type", new { @disabled = "disabled", @class = "custom-select" })
+                    <fieldset>
+                        <legend>Auction Information</legend>
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.Title)
+                            @Html.TextBoxFor(Model => Model.Title, null, new { @readonly = "readonly", @class = "form-control" })
                         </div>
-                    }
-                    <div class="form-group">
-                        @Html.Label("Auction Start Date")
-                        @Html.TextBoxFor(Model => Model.StartTime, new { @readonly = "readonly", @class = "form-control" })
-                    </div>
-                    <div class="form-group">
-                        @Html.Label("Auction End Date")
-                        @Html.TextBoxFor(Model => Model.EndTime, new { @readonly = "readonly", @class = "form-control" })
-                    </div>
-                    <div class="form-group">
-                        @Html.LabelFor(Model => Model.Address)
-                        @Html.TextBoxFor(Model => Model.Address, new { @readonly = "readonly", @class = "form-control" })
-                    </div>
-                    <div class="form-group">
-                        @Html.LabelFor(Model => Model.City)
-                        @Html.TextBoxFor(Model => Model.City, new { @readonly = "readonly", @class = "form-control" })
-                    </div>
-                    <div class="form-group">
-                        @Html.LabelFor(Model => Model.State)
-                        @Html.TextBoxFor(Model => Model.State, new { @readonly = "readonly", @class = "form-control" })
-                    </div>
-                    <div class="form-group">
-                        @Html.LabelFor(Model => Model.ZIP)
-                        @Html.TextBoxFor(Model => Model.ZIP, new { @readonly = "readonly", @class = "form-control" })
-                    </div>
-                    <div class="form-group">
-                        @Html.LabelFor(Model => Model.MaxRange)
-                        @Html.HiddenFor(Model => Model.MaxRange)
-                        <input class="form-control" value="@Model.MaxRange miles" readonly />
-                    </div>
-                    <div id="userAddressMap"></div>
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.Description)
+                            @Html.TextAreaFor(Model => Model.Description, 5, 50, new { @readonly = "readonly", @class = "form-control" })
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.DeliveryType)
+                            @Html.DropDownListFor(Model => Model.DeliveryType, Html.GetEnumSelectList<DeliveryTypes>(), "Select Delivery Type", new { @disabled = "disabled", @class = "custom-select" })
+                        </div>
+                        @if (Model.DeliveryType == DeliveryTypes.Pickup || Model.DeliveryType == DeliveryTypes.DeliveryByOrg)
+                        {
+                            <div id="basketRetrievalGroup" class="form-group">
+                                @Html.LabelFor(Model => Model.BasketRetrieval)
+                                @Html.DropDownListFor(Model => Model.BasketRetrieval, Html.GetEnumSelectList<BasketRetrieval>(), "Select Retrieval Type", new { @disabled = "disabled", @class = "custom-select" })
+                            </div>
+                        }
+                        <div class="form-group">
+                            @Html.Label("Auction Start Date")
+                            @Html.TextBoxFor(Model => Model.StartTime, new { @readonly = "readonly", @class = "form-control" })
+                        </div>
+                        <div class="form-group">
+                            @Html.Label("Auction End Date")
+                            @Html.TextBoxFor(Model => Model.EndTime, new { @readonly = "readonly", @class = "form-control" })
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.Address)
+                            @Html.TextBoxFor(Model => Model.Address, new { @readonly = "readonly", @class = "form-control" })
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.City)
+                            @Html.TextBoxFor(Model => Model.City, new { @readonly = "readonly", @class = "form-control" })
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.State)
+                            @Html.TextBoxFor(Model => Model.State, new { @readonly = "readonly", @class = "form-control" })
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.ZIP)
+                            @Html.TextBoxFor(Model => Model.ZIP, new { @readonly = "readonly", @class = "form-control" })
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.MaxRange)
+                            @Html.HiddenFor(Model => Model.MaxRange)
+                            <input class="form-control" value="@Model.MaxRange miles" readonly />
+                        </div>
+                        <div id="userAddressMap"></div>
 
-                    @Html.HiddenFor(Model => Model.AuctionId)
-                    @Html.HiddenFor(Model => Model.HostUsername)
-                </fieldset>
+                        @Html.HiddenFor(Model => Model.AuctionId)
+                        @Html.HiddenFor(Model => Model.HostUsername)
+                    </fieldset>
                 }
             </div>
             <div class="tab-pane fade" id="baskets" style="overflow-x: hidden;">
-                <div style="float:right; padding-right:30px" ><a href="/auctions/basketReport/@Model.AuctionId">Download Report (.csv)</a></div>
+                @if (!Model.isDrawn && Model.Baskets.Count(b => !b.Draft && b.AcceptedByOrg) > 0)
+                {
+                    <button id="drawAuctionButton" style="position:relative; width:100%; height:5vh; bottom:0px; z-index:50" class="btn btn-success" onclick="drawAuction()">Draw Winners</button>
+                }
+                <div style="float:right; padding-right:30px"><a href="/auctions/basketReport/@Model.AuctionId">Download Report (.csv)</a></div>
                 <table id="basketTable" class="table table-hover" style="width:100%;">
                     <thead>
                         <tr>
@@ -116,6 +150,7 @@
                             <th>Basket Name</th>
                             <th>Winner</th>
                             <th>Tickets Entered</th>
+                            <th>Status</th>
                         </tr>
                     </thead>
                 </table>
@@ -135,12 +170,104 @@
                     </thead>
                 </table>
             </div>
+            <div id="payout" class="tab-pane fade maxWidthContainer">
+                <div class="alert alert-dismissible alert-danger payoutAlert" style="display:none">
+                    <button type="button" class="close" data-dismiss="alert">&times;</button>
+                    <span></span>
+                </div>
+                <div id="auctionPayoutReqContainer">
+                    <h2 style="text-align: left; width:70%">Statistics</h2>
+                    <table class="fundraisedTable table">
+                        <tbody>
+                            <tr>
+                                <td>Total Fundraised</td>
+                                <td>$@fundraisingTotals.TotalFundraised</td>
+                            </tr>
+                            <tr>
+                                <td>Total Fees: </td>
+                                <td>$@fundraisingTotals.Fees <img style="height: 12px" src="~/Content/question.svg" data-toggle="payoutTooltip" data-placement="top" title="Baskify levies a fee of 4.9% plus $0.30 per transaction."></td>
+                            </tr>
+                            <tr class="netRaised">
+                                <td>Net Fundraised: </td>
+                                <td>$@fundraisingTotals.NetFundraised</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                    <h2 style="text-align: left; width:70%; margin-top: 30px">Eligibility</h2>
+                    <table class="fundraisedTable table">
+                        <tbody>
+                            <tr>
+                                <td>Baskets Drawn</td>
+                                @if (fundraisingTotals.MeetsAuctionDrawnReq)
+                                {
+                                    <td class="valid">
+                                        &check;
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td class="invalid">X</td>
+                                }
+                            </tr>
+                            <tr>
+                                <td>@(fundraisingTotals.PercentDeliveryReq*100)% of Baskets Delivered <span style="font-size:50%">(over 3 days ago)</span></td>
+                                @if (fundraisingTotals.MeetsDeliveryReq)
+                                {
+                                    <td class="valid">
+                                        &check;
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td class="invalid">X</td>
+                                }
+                            </tr>
+                            <tr>
+                                <td>Zero Disputes</td>
+                                @if (fundraisingTotals.MeetsDisputeReq)
+                                {
+                                    <td class="valid">
+                                        &check;
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td class="invalid">X</td>
+                                }
+                            </tr>
+                            <tr>
+                                <td>Not Already Paid:</td>
+                                @if (fundraisingTotals.MeetsAuctionNotPaidReq)
+                                {
+                                    <td class="valid paidOut">
+                                        &check;
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td class="invalid paidOut">X</td>
+                                }
+                            </tr>
+                            <tr>
+                                @if (fundraisingTotals.isPayable)
+                                {
+                                    <td colspan="2" style="padding:unset" class="payoutButton">
+                                        <button class="btn btn-success" style="width: 100%; height: 70px" onclick="requestPayout()">Request Payout</button>
+                                    </td>
+                                }
+                                else
+                                {
+                                    <td colspan="2" style="padding:unset">
+                                        <button class="btn btn-secondary disabled" style="width: 100%; height: 70px">Requirements Not Met</button>
+                                    </td>
+                                }
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
         </div>
     </div>
-    @if (!Model.isDrawn)
-    {
-        <button id="drawAuctionButton" style="position:sticky; width:100%; height:5vh; bottom:0px; z-index:50" class="btn btn-success" onclick="drawAuction()">Draw Winners</button>
-    }
 </div>
 <div id="basketDetailsModal" style="position: fixed;
     display: flex;
@@ -157,6 +284,52 @@
     display:none;">
 </div>
 <script>
+
+    function requestPayout() {
+        $("#PageLoadingModal").css("display", "flex"); //display loading
+        $.ajax({
+            url: "/api/auctions/@Model.AuctionId/payout",
+            method: "post",
+            beforeSend: function (xhr) { //add token
+                var token = getCookie("BearerToken");
+                if (token != "")
+                    xhr.setRequestHeader("Authorization", "Bearer " + token);
+            },
+            success: function (data) {
+                $(".paidOut").html("X").removeClass("valid").addClass("invalid");
+                $(".payoutButton").html("Requirements Not Met").removeClass("btn-success").addClass("btn-secondary disabled"); //disable button
+                $("#PageLoadingModal").css("display", "none"); //display loading
+                $("#payoutModal").modal("show"); //open modal
+            },
+            error: function (XMLHttpRequest, textStatus, errorThrown) {
+                //HANDLE DRAW ERROR
+                $(".payoutAlert span").html(XMLHttpRequest.responseText);
+                $(".payoutAlert").css("display", "block");
+                $("#PageLoadingModal").css("display", "none"); //display loading
+            }
+        });
+    }
+
+    function viewStripeAccount() {
+        //get link
+        $("#PageLoadingModal").css("display", "flex"); //display loading
+        $.ajax({
+            url: "/api/stripe/getDashboardUrl",
+            method: "get",
+            beforeSend: function (xhr) { //add token
+                var token = getCookie("BearerToken");
+                if (token != "")
+                    xhr.setRequestHeader("Authorization", "Bearer " + token);
+            },
+            success: function (data) {
+                redirect(data); //redirect to stripe link returned by server
+                $("#PageLoadingModal").css("display", "none"); //display loading
+            },
+            error: function () {
+                $("#PageLoadingModal").css("display", "none"); //display loading
+            }
+        });
+    }
 
     var ServiceRadius;
     var map;
@@ -192,6 +365,7 @@
     var basketTable = $("#basketTable");
 
     $(document).ready(function () {
+        $("[data-toggle=payoutTooltip]").tooltip();
         initMap();
         $('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
             localStorage.setItem('activeTab', $(e.target).attr('href'));
@@ -203,9 +377,9 @@
         });
         var activeTab = localStorage.getItem('activeTab');
         if (activeTab) {
-            $("#AuctionNavTabs a").removeClass("active");
-            $('a[href="' + activeTab + '"]').addClass("active");
-            $('#myTabContent').children().removeClass('active show')
+        $("#AuctionNavTabs a").removeClass("active");
+        $('a[href="' + activeTab + '"]').addClass("active");
+        $('#myTabContent').children().removeClass('active show')
             $(activeTab).addClass('active show');
         }
     }); //sets the appropriate open tab
@@ -227,16 +401,16 @@
             type: "GET",
             dataSrc: "",
             beforeSend: function (xhr) { //add token
-                var token = getCookie("BearerToken");
-                if (token != "")
-                    xhr.setRequestHeader("Authorization", "Bearer " + token);
-            }
+                        var token = getCookie("BearerToken");
+                        if (token != "")
+                            xhr.setRequestHeader("Authorization", "Bearer " + token);
+                    }
         },
         createdRow: function (row, data, dataIndex) {
             $(row).attr("id", "basketRow-" + data["basketId"]);
             $(row).find(".data").attr("onclick", "viewBasket(" + data["basketId"] + ")");
             $(row).css("cursor", "pointer");
-        },
+                    },
         columns: [
             {
                 className: 'details-control',
@@ -254,20 +428,31 @@
                 className: 'data',
                 data: "winner.username",
                 render: function (data, type, row) {
-                    if (data == null)
-                        return "N/A";
-                    else
-                        return data;
-                },
+                        if (data == null)
+                            return "N/A";
+                        else
+                            return data;
+                    },
                 responsivePriority: 3
             },
             {
                 className: 'data',
                 data: "tickets",
                 render: function (data, type, row) {
-                    var sum = 0;
-                    data.forEach(function (ticketModel) { sum += ticketModel.numTickets })
+                        var sum = 0;
+                        data.forEach(function (ticketModel) { sum += ticketModel.numTickets })
                     return sum;
+                    },
+                responsivePriority: 2
+            },
+            {
+                className: 'data',
+                data: "status",
+                render: function (data, type, row) {
+                    if (data == "Disputed")
+                        return `<span style="color:red">${data}</span>`;
+                    else
+                        return data;
                 },
                 responsivePriority: 2
             }
@@ -277,128 +462,128 @@
     function drawAuction() {
         $("#PageLoadingModal").css("display", "flex");
         $.ajax({
-            url: "/api/auctions/@Model.AuctionId/draw",
+                        url: "/api/auctions/@Model.AuctionId/draw",
             method: "post",
             beforeSend: function (xhr) { //add token
-                var token = getCookie("BearerToken");
-                if (token != "")
-                    xhr.setRequestHeader("Authorization", "Bearer " + token);
-            },
+                                var token = getCookie("BearerToken");
+                                if (token != "")
+                                    xhr.setRequestHeader("Authorization", "Bearer " + token);
+                            },
             success: function (data) {
-                basketTable.DataTable().ajax.reload(null, false); //reload table
+                                basketTable.DataTable().ajax.reload(null, false); //reload table
                 $("#PageLoadingModal").css("display", "none");
                 $("#drawAuctionButton").remove(); //hide draw button
-            },
+                            },
             error: function (XMLHttpRequest, textStatus, errorThrown) {
                 //HANDLE DRAW ERROR
                 $("#error-alert p").html(XMLHttpRequest.responseText);
                 $("#error-alert p").css("display", "block");
                 $("#PageLoadingModal").css("display", "none");
-            }
-        });
-    }
+                            }
+                        });
+                    }
 
-    //CHART SCRIPT HERE
+                    //CHART SCRIPT HERE
 
-    var salesData;
-    function loadChart() {
-        var ctx = $('#salesChart');
+                    var salesData;
+                    function loadChart() {
+                        var ctx = $('#salesChart');
 
-        var startDate = new Date(Date.parse("@Model.StartTime.Date"));
-        var endDate = new Date(Date.parse("@Model.EndTime.Date"));
+                        var startDate = new Date(Date.parse("@Model.StartTime.Date"));
+                        var endDate = new Date(Date.parse("@Model.EndTime.Date"));
         $.ajax({
-            url: "/api/data/auction/@Model.AuctionId",
+                        url: "/api/data/auction/@Model.AuctionId",
             beforeSend: function (xhr) { //add token
-                var token = getCookie("BearerToken");
-                if (token != "")
-                    xhr.setRequestHeader("Authorization", "Bearer " + token);
-            },
+                                var token = getCookie("BearerToken");
+                                if (token != "")
+                                    xhr.setRequestHeader("Authorization", "Bearer " + token);
+                            },
             success: function (data) {
-                salesData = data;
-                var data = [];
+                                salesData = data;
+                                var data = [];
 
                 for (var key in salesData) {
-                    data.push({
-                        x: key,
+                                    data.push({
+                                    x: key,
                         y: salesData[key]["amount"] / 100 //in cents
                     });
-                }
+                                }
 
-                let chart = new Chart(ctx, {
+                                let chart = new Chart(ctx, {
                     type: 'bar',
                     data: {
-                        datasets: [{
-                            label: 'Sales',
+                                datasets: [{
+                                    label: 'Sales',
                             backgroundColor: 'rgba(210, 235, 245, 1)',
                             data: data
-                        }],
+                                }],
                     },
                     options: {
-                        maintainAspectRatio: false,
+                                maintainAspectRatio: false,
                         tooltips: {
-                            callbacks: {
-                                label: function (tooltipObj, data) {
-                                    var sales = tooltipObj.value;
-                                    var label = "$" + parseInt(sales).toFixed(2);
-                                    return label;
-                                },
+                                    callbacks: {
+                                        label: function (tooltipObj, data) {
+                                                var sales = tooltipObj.value;
+                                                var label = "$" + parseInt(sales).toFixed(2);
+                                                return label;
+                                            },
                                 title: function (tooltipObjs, data) {
-                                    var date = tooltipObjs[0].label;
-                                    date = moment(date).format("MM/DD/YYYY");
-                                    return date;
-                                }
-                            }
-                        },
+                                                var date = tooltipObjs[0].label;
+                                                date = moment(date).format("MM/DD/YYYY");
+                                                return date;
+                                            }
+                                        }
+                                    },
                         lengend: {
-                            display: false
+                                    display: false
                         },
                         title: {
-                            display: true,
+                                    display: true,
                             fontSize: 20,
                             text: "Ticket Sales"
                         },
                         responsive: true,
                         scales: {
-                            yAxes: [{
-                                ticks: {
-                                    Min: 0,
+                                    yAxes: [{
+                                        ticks: {
+                                            Min: 0,
                                     callback: function (value, index, values) {
-                                        return "$" + parseInt(value).toFixed(2);
-                                    }
-                                },
+                                                    return "$" + parseInt(value).toFixed(2);
+                                                }
+                                            },
                                 scaleLabel: {
-                                    display: true,
+                                            display: true,
                                     labelString: "Sales (USD)"
                                 }
-                            }],
+                                        }],
                             xAxes: [{
-                                type: 'time',
+                                        type: 'time',
                                 distribution: 'linear',
                                 time: {
-                                    unit: 'day'
+                                            unit: 'day'
                                 }
-                            }]
+                                        }]
                         }
-                    }
-                });
+                                }
+                            });
 
-                var tableData = [];
-                for (var day of Object.values(salesData)) {
-                    for (var transaction of day["breakdown"]) {
-                        tableData.push(transaction);
-                    }
-                }
-                var tableContainer = $("#salesTable");
-                tableContainer.DataTable({
-                    data: tableData,
+                            var tableData = [];
+                            for (var day of Object.values(salesData)) {
+                                for (var transaction of day["breakdown"]) {
+                                    tableData.push(transaction);
+                                }
+                            }
+                            var tableContainer = $("#salesTable");
+                            tableContainer.DataTable({
+                            data: tableData,
                     responsive: {
-                        details: {
-                            type: 'column'
-                        }
-                    },
+                                details: {
+                                    type: 'column'
+                                }
+                                },
                     columns: [
-                        {
-                            searchable: false,
+                                    {
+                                searchable: false,
                             targets: 0,
                             className: 'control',
                             orderable: false,
@@ -406,56 +591,56 @@
                             data: null
                         },
                         {
-                            data: "time",
+                                data: "time",
                             render: function (data, type, row) {
-                                return moment(data).format("MM/DD hh:mm");
-                            },
+                                        return moment(data).format("MM/DD hh:mm");
+                                    },
                             responsivePriority: 2
                         },
                         {
-                            data: "amount",
+                                data: "amount",
                             render: function (data, type, row) {
-                                return "$" + (parseInt(data)/100.00).toFixed(2);
-                            },
+                                return `$${(data / 100.00).toFixed(2)} <span style="font-size: 70%">(-$${(row.fee / 100).toFixed(2)} fee)</span>`;
+                                    },
                             responsivePriority: 1
                         },
                         {
-                            data: "username",
+                                data: "username",
                             responsivePriority: 3
                         }
                     ]
                 });
-            },
+                        },
             error: function (xhr) {
-                ctx.html(xhr.responseText);
-            }
-        });
+                            ctx.html(xhr.responseText);
+                        }
+                    });
 
     }
 
     function viewBasket(basketId) {
-        var baskets = $("#basketTable").DataTable().data()
+                        var baskets = $("#basketTable").DataTable().data()
         var basket;
-        for (var i = 0; i < baskets.length; i++) { //find basket data
-            if (baskets[i].basketId == basketId) {
-                basket = baskets[i];
-                break;
-            }
-        }
+                        for (var i = 0; i < baskets.length; i++) { //find basket data
+                            if (baskets[i].basketId == basketId) {
+                                basket = baskets[i];
+                                break;
+                            }
+                        }
 
-        if (basket == null) //basket not found
-            return;
+                        if (basket == null) //basket not found
+                            return;
 
 
-            var html = `<div class="card mb-3 basketCard" style="border-radius: 30px" data-id="` + basket["basketId"] + `" data-loaded="false">\
+                        var html = `<div class="card mb-3 basketCard" style="border-radius: 30px" data-id="` + basket["basketId"] + `" data-loaded="false">\
                     <h3 class="card-header" style="font-size:114%">`+ basket["basketTitle"]
             html += `</h3>\
                 <div style="height:300px; overflow:hidden;z-index:2">\
                     <div id="gallery-`+ basket["basketId"] + `" class="galleria basketCardImages" style="z-index:1;background-color:rgba(0, 0, 0, 0.00); height:300px; width:inherit">`;
                         //ADD PHOTOS
                         basket["photos"].forEach(function(photo){
-                            html += `<img src="` + photo["url"] + `" />`;
-                        });
+                        html += `<img src="` + photo["url"] + `" />`;
+                    });
                     html += `</div>\
                     <div id="basket-`+ basket["basketId"] + `-details" style="opacity:0; display:none; height:270px; overflow-y:auto;">\
                         <div class="modalHeader">Description:</div>
@@ -467,10 +652,10 @@
                             <tbody style="display:flex; justify-content:center; flex-wrap: wrap;">`;
                         //add contents
                         basket["basketContents"].forEach(function (element) {
-                            html += "<tr style='flex-basis: 50%; display:flex; justify-content:center' class='table-light'>"; //build list
-                            html += "<td style='padding: unset;'>" + element + "</td>";
-                            html += "</tr>";
-                        });
+                        html += "<tr style='flex-basis: 50%; display:flex; justify-content:center' class='table-light'>"; //build list
+                        html += "<td style='padding: unset;'>" + element + "</td>";
+                        html += "</tr>";
+                    });
 
                         html +=
                             `</tbody>\
@@ -483,90 +668,96 @@
             </div>`
         $("#basketDetailsModal").html(html);
         $("#basketDetailsModal").css("display", "flex");
-        Galleria.run("#basketDetailsModal .galleria");
+                    Galleria.run("#basketDetailsModal .galleria");
         }
 
     $(loadChart);
 
     $("#basketDetailsModal").on("click", function (e) {
-        if ($(e.target).hasClass("card"))
+                        if ($(e.target).hasClass("card"))
             e.stopPropagation();
         else if ($(e.target).attr("id") == "basketDetailsModal")
             $(e.target).css("display", "none");
-    })
+                    })
 
     $(document).on("click", ".viewDetails", function (e) {
-        var card = $(this).closest(".basketCard");
-        var gallery = card.find(".galleria");
-        var desc = card.find("[id$=-details]");
-        if (gallery.position().top == 0) //when galleria is collapsed. open galleria
-        {
-            desc.animate({
-                opacity: 0
-            }, 500, function () {
-                desc.css("display", "none");
-                gallery.css("display", "block");
-                gallery.data('galleria').resize(); //if page was resized while not displaying, the gallery is invisible
-                gallery.animate({ opacity: 1 }, 500);
-                card.find(".viewDetails").html("Details");
-            });
-        }
-        else { //when galleria is open
-            gallery.animate({
-                opacity: 0
-            }, 500, function () {
-                gallery.css("display", "none");
-                desc.css("display", "block");
-                desc.animate({ opacity: 1 }, 500);
-                card.find(".viewDetails").html("Images");
-            });
-        }
+                        var card = $(this).closest(".basketCard");
+                        var gallery = card.find(".galleria");
+                        var desc = card.find("[id$=-details]");
+                        if (gallery.position().top == 0) //when galleria is collapsed. open galleria
+                        {
+                            desc.animate({
+                            opacity: 0
+                            }, 500, function () {
+                                desc.css("display", "none");
+                                gallery.css("display", "block");
+                                gallery.data('galleria').resize(); //if page was resized while not displaying, the gallery is invisible
+                                gallery.animate({ opacity: 1 }, 500);
+                                card.find(".viewDetails").html("Details");
+                            });
+                        }
+                        else { //when galleria is open
+                            gallery.animate({
+                            opacity: 0
+                            }, 500, function () {
+                                gallery.css("display", "none");
+                                desc.css("display", "block");
+                                desc.animate({ opacity: 1 }, 500);
+                                card.find(".viewDetails").html("Images");
+                            });
+                        }
+                    });
+
+    $(function () {
+        $(document).on("click", ".toggleBasketInfo", function (e) {
+            $(this).closest("tr").find(".basketPersonInfo").toggle();
+                    });
     });
 
     function basketInfoFormat(basket) {
-        // `d` is the original data object for the row
-        var html = `<div style="display:flex; flex-wrap:wrap">`;
-        if (basket.winner != null) {
-            var winner = basket.winner;
-            html += '<div style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center;"><h2>Winner Info</h2>' +
-                '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">' +
-                '<tr>' +
-                '<td>Full name:</td>' +
-                '<td>' + winner.firstName + " " + winner.lastName + '</td>' +
-                '</tr>' +
-                '<tr>' +
-                '<td>Email:</td>' +
-                '<td>' + winner.email + '</td>' +
-                '</tr>' +
-                '<tr>';
-            if (winner.address != null) {
-                html += '<td>Address:</td>' +
-                    '<td>' + winner.address + " " + winner.city + ", " + winner.state + " " + winner.zip + '</td>' +
-                    '</tr>';
-            }
-            html += '</table></div>';
+                        // `d` is the original data object for the row
+                        var html = `<div style="display: flex; justify-content: center; align-items:stretch; flex-wrap: wrap">`;
+                        if (basket.winner != null) {
+                            var winner = basket.winner;
+                            html += `<div class="basketPersonInfo">\
+                        <div class="basketInfoHeader">Winner Info${basket.submittingUser != null? `<span class="toggleBasketInfo" style="font-size: 50%; padding-left: 10px; cursor: pointer; user-select: none">[Submitter Info]</span>` : ``}</div>\
+                       <div style="display: table; width: " class="BasketInfoTable">\
+                            <div style="display: table-row">\
+                                <div style="display: table-cell">Full name:</div>\
+                                <div style="display: table-cell">${winner.firstName} ${winner.lastName}</div>\
+                            </div>\
+                            <div style="display: table-row">\
+                                <div style="display: table-cell">Email:</div>\
+                                <div style="display: table-cell">${winner.email}</div>\
+                            </div>\
+                            ${winner.address != null ? `<div style="display: table-row">\
+                                <div style="display: table-cell">Address:</div>\
+                                <div style="display: table-cell">${winner.address} ${winner.city}, ${winner.zip} ${winner.state}</div>\
+                            </div>`: ``}
+                        </div>\
+                    </div>`;
         }
         if (basket.submittingUser != null) {
             var submitter = basket.submittingUser;
             if (submitter.firstName == "")
                 submitter.firstName = "You"; //for orgs
-            html += '<div style="flex:1; display:flex; flex-direction:column; justify-content:center; align-items:center;"><h2>Submitter Info</h2>' +
-                '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;">' +
-                '<tr>' +
-                '<td>Full name:</td>' +
-                '<td>' + submitter.firstName + " " + submitter.lastName + '</td>' +
-                '</tr>' +
-                '<tr>' +
-                '<td>Email:</td>' +
-                '<td>' + submitter.email + '</td>' +
-                '</tr>' +
-                '<tr>';
-            if (submitter.address != null) {
-                html += '<td>Address:</td>' +
-                    '<td>' + submitter.address + " " + submitter.city + ", " + submitter.state + " " + submitter.zip + '</td>' +
-                    '</tr>';
-            }
-            html += '</table></div>';
+            html += `<div class="basketPersonInfo" ${basket.winner != null? `style="display: none"`: ``}>\
+                        <div class="basketInfoHeader">Submitter Info${basket.winner != null ? `<span class="toggleBasketInfo" style="font-size: 50%; padding-left: 10px; cursor: pointer; user-select: none">[Winner Info]</span>` : ``}</div>\
+                        <div style="display: table; width: " class="BasketInfoTable">\
+                            <div style="display: table-row">\
+                                <div style="display: table-cell">Full name:</div>\
+                                <div style="display: table-cell">${submitter.firstName} ${submitter.lastName}</div>\
+                            </div>\
+                            <div style="display: table-row">\
+                                <div style="display: table-cell">Email:</div>\
+                                <div style="display: table-cell">${submitter.email}</div>\
+                            </div>\
+                            ${submitter.address != null ? `<div style="display: table-row">\
+                                <div style="display: table-cell">Address:</div>\
+                                <div style="display: table-cell">${submitter.address} ${submitter.city}, ${submitter.zip} ${submitter.state}</div>\
+                            </div>`: ``}
+                        </div>\
+                    </div>`;
         }
         html += "</div>";
         return html;
@@ -575,6 +766,7 @@
     $('#basketTable tbody').on('click', 'td.details-control', function () {
         var tr = $(this).closest('tr');
         var row = basketTable.DataTable().row(tr);
+        var basket = row.data();
 
         if (row.child.isShown()) {
             // This row is already open - close it
@@ -583,9 +775,13 @@
         }
         else {
             // Open this row
-            row.child(basketInfoFormat(row.data())).show();
+            row.child(basketInfoFormat(row.data()) + `<div id="basketTrackingContainer`+ basket.basketId+`"></div>`).show();
             tr.addClass('shown');
             row.child().css("background-color", "white") //no hover coloring
+            if (basket.winner != null) {
+                var tracker = new Tracker(basket.basketId, "Bearer " + getCookie("BearerToken"), "#basketTrackingContainer" + basket.basketId);
+                tracker.buildTracker();
+            }
         }
     });
 

@@ -111,10 +111,33 @@ class MFAValidator {
             <div data-valmsg-for="` + this.secretFieldname + `" class="invalid-feedback" style="display:block;text-align:center"></div>\
         </div>`;
         $(parentSelector).html(html); //inject html
+        $(document).on("paste", parentSelector + " .verificationCharacter", function (e) {
+            var element = $(e.currentTarget);
+            var data = e.originalEvent.clipboardData.getData('text/plain') || window.clipboardData.getData('text');
+            var value = data.toUpperCase();
+            if(value.length == 5){
+                $(parentSelector + " .verificationCharacter").each((index, field) => {
+                    $(field).val(value[index]);
+                });
+                var nextEl = $(parentSelector + " .verificationCharacter").last();
+                nextEl.focus().selectRange(1);
+                model.validateCode();
+            }
+            return false;
+        });
+        
         $(document).on("input", parentSelector + " .verificationCharacter", function (e) {
             var element = $(e.currentTarget);
             element.val(element.val().toUpperCase());
-            if (element.val().length >= 1) {
+            if(element.val().length == 5){
+                var value = element.val();
+                $(parentSelector + " .verificationCharacter").each((index, field) => {
+                    $(field).val(value[index]);
+                });
+                var nextEl = $(parentSelector + " .verificationCharacter").last();
+                nextEl.focus().selectRange(1);
+            }
+            else if (element.val().length >= 1) {
                 element.val(element.val().slice(0, 1));
                 var nextEl = element.next("span").next("input");
                 nextEl.focus().selectRange(0);

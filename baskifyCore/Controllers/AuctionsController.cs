@@ -57,6 +57,12 @@ namespace baskifyCore.Controllers
                 ViewData["Alert"] = "You do not have access to this resource";
                 return View("~/Views/Home/Index.cshtml", user);
             }
+            else if (string.IsNullOrWhiteSpace(user.StripeCustomerId))
+            {
+                ViewData["Alert"] = "Create/link your Stripe account for payouts (in the account payments tab) before creating an auction.";
+                return View("~/Views/Account/Index.cshtml", user);
+            }
+
             ViewData["NavBarOverride"] = user;
             var auctionModel = new AuctionModel() { HostUsername = user.Username };
             return View(auctionModel);
@@ -65,6 +71,7 @@ namespace baskifyCore.Controllers
         [HttpPost]
         public IActionResult createAuction(AuctionModel auction)
         {
+            List<AuctionModel> disputes;
             var user = LoginUtils.getUserFromToken(Request.Cookies["BearerToken"], _context, Response);
             if (user == null) {
                 ViewData["LoginAgain"] = true; //require log back in
@@ -76,6 +83,18 @@ namespace baskifyCore.Controllers
                 ViewData["Alert"] = "You do not have access to this resource";
                 return View("~/Views/Home/Index.cshtml", user);
             }
+            else if (string.IsNullOrWhiteSpace(user.StripeCustomerId))
+            {
+                ViewData["Alert"] = "Create/link your Stripe account for payouts (in the account payments tab) before creating an auction.";
+                return View("~/Views/Account/Index.cshtml", user);
+            }
+            else if((disputes = _context.AuctionModel.Where(a => a.HostUsername == user.Username).Where(a => a.Baskets.Any(b => b.DisputedShipment)).ToList()).Count > 0)
+            {
+                ViewData["Alert"] = $"You cannot create any auctions when you have pending disputes in auction(s): {string.Join(',', disputes.Select(d => d.Title))}";
+                ViewData["NavBarOverride"] = user;
+                return View(auction);
+            }
+                
 
             if (auction.StartTime < DateTime.UtcNow)
                 ModelState.AddModelError("StartTime", "Auction cannot have already started!");
@@ -141,14 +160,12 @@ namespace baskifyCore.Controllers
             }
             else if (user.Auctions != null && user.Auctions.Any(a => a.AuctionId == id)) //user hosts this auction?
             {
-                var auction = _context.AuctionModel.Find(id);
+                var auction = _context.AuctionModel.Where(a => a.AuctionId == id).Include(a => a.Baskets).Include(a => a.Payments).First();
                 if(auction.EndTime < DateTime.UtcNow)
                 {
                     ViewData["NavBarOverride"] = user;
                     return View("CompletedAuction", auction); //send them back to the auction list!
                 }
-
-                _context.Entry(auction).Collection(a => a.Baskets).Load();
 
                 ViewData["NavBarOverride"] = user;
                 return View(auction);
@@ -398,7 +415,7 @@ namespace baskifyCore.Controllers
             _context.SaveChanges();
             _context.Entry(deletionValidation).Reload();
 
-            if (EmailUtils.sendVerificationEmail(user, deletionValidation, Request)) //send verification email
+            if (EmailUtils.sendVerificationEmail(user, deletionValidation, Request, _env, auction)) //send verification email
             {
                 _context.SaveChanges();
                 ViewData["Alert"] = "Success, verify the deletion via email to complete the process!";

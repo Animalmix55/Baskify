@@ -47,7 +47,7 @@ namespace baskifyCore.Controllers.api.Admin
                     case "Email":
                         orderUsers = column.dir == "asc" ? orderUsers.OrderBy(u => u.Email) : orderUsers.OrderByDescending(u => u.Email);
                         break;
-                    case "UserType":
+                    case "UserRole":
                         orderUsers = column.dir == "asc" ? orderUsers.OrderBy(u => u.UserRole) : orderUsers.OrderByDescending(u => u.UserRole);
                         break;
                     case "DisplayName":

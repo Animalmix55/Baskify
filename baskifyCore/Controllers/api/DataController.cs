@@ -50,11 +50,11 @@ namespace baskifyCore.Controllers.api
 
             //at this point, the user owns the auction
 
-            var salesPerDay = _context.PaymentModel.Where(p => p.AuctionId == auctionId).Where(p => p.Complete).Select(p => new { p.Time, p.Amount, p.Username }).GroupBy(p => DbFunctions.TruncateTime(p.Time))
+            var salesPerDay = _context.PaymentModel.Where(p => p.AuctionId == auctionId).Where(p => p.Complete).Select(p => new { p.Time, p.Amount, p.Fee, p.Username }).GroupBy(p => DbFunctions.TruncateTime(p.Time))
                 .Select(g => new {
                     Date = g.Key,
                     Amount = g.Sum(dt => dt.Amount),
-                    Breakdown = g.Select(g => new { g.Time, g.Username, g.Amount })})
+                    Breakdown = g.Select(g => new { g.Time, g.Username, g.Amount, g.Fee })})
                 .ToList();
 
             var resultDict = salesPerDay.ToDictionary(pair => pair.Date.Value, pair => new { pair.Amount, pair.Breakdown });

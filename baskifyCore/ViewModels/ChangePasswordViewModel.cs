@@ -15,7 +15,7 @@ namespace baskifyCore.ViewModels
 
         [Required]
         [MinLength(8, ErrorMessage = "The password must be at least 8 characters long.")]
-        [RegularExpression(@"^(?=.*[a-z])(?=.*[A-Z])(?=.*[0-9])(?=.*[!@#\$%\^&\*])(?=.{8,})", 
+        [RegularExpression(@"^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[#?!@$%^&*-]).{8,}$", 
             ErrorMessage = "Password must contain at least 1 uppercase, 1 lowercase, and a special character")]
         [Display(Name = "New Password")]
         public string NewPassword { get; set; }

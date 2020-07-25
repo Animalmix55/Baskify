@@ -1,7 +1,7 @@
 ﻿@model baskifyCore.Models.AuctionModel
 
 @{
-    ViewData["Title"] = "View";
+    ViewData["Title"] = "Edit " + Model.Title;
 }
 
 <script src="~/galleria/galleria.min.js"></script>
@@ -696,7 +696,7 @@
                         {
                             data: "amount",
                             render: function (data, type, row) {
-                                return "$" + (parseInt(data)/100.00).toFixed(2);
+                                return `$${(data / 100.00).toFixed(2)} <span style="font-size: 70%">(-$${(row.fee / 100).toFixed(2)} fee)</span>`;
                             },
                             responsivePriority: 1
                         },

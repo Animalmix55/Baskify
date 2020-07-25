@@ -1,0 +1,139 @@
+.TrackingContainer, .trackingEditor, .disputeEditor{
+        position: relative;
+        width: 100%;
+        height: 200px;
+        padding: 1% 1% 1% 1%;
+        border: 1px solid rgba(155, 155, 155, .4);
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: rgba(155,155,155,.2);
+        border-radius: 5px;
+    }
+
+    .trackingEditor input{
+        font-size: 16px;
+    }
+    
+    .StatusBar{
+        margin-top:auto;
+        height: 40px;
+        width: 85%;
+        border: 1px solid rgba(71, 168, 87, .4);
+        border-radius: 10px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: row;
+        padding-right: 15%;
+        background: rgba(155,155,155,.8);
+        background-image: url('/Content/home.svg');
+        background-position: 99% center;
+        background-repeat: no-repeat;
+        background-size: contain;
+    }
+    
+    .StatusBar.Delivered{
+        width: 100%;
+        padding-right: unset !important;
+    }
+    
+    .StatusBar.Delivered .stage:last-child{
+        width: 100%;
+        padding-right: unset !important;
+        background-image: url('/Content/home.svg');
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 80% 80%
+    }
+    
+    .StatusBar .stage:first-child{
+        background-image: url('/Content/box.svg');
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 80% 80%
+    }
+    
+    .arrow{
+        height: 100%;
+        right: 0;
+        transform: translateX(14px);
+        position: absolute;
+        z-index: 10;
+    }
+    
+    .stage{
+        cursor: pointer;
+        z-index: 0;
+        flex:1;
+        max-width: 30%;
+        height: 100%;
+        background-color: green;
+        -webkit-filter: drop-shadow( 3px 0px 2px rgba(0, 0, 0, .7));
+        filter: drop-shadow( 3px 0px 2px rgba(0, 0, 0, .7));
+    }
+    
+    .stage:hover{
+        background-color: gray;
+    }
+    
+     .stage:hover polygon{
+        fill: gray;
+    }
+    
+    .brandLogo{
+        max-height: 100%;
+        max-width: 30%;
+        margin-right: auto;
+        align-self: center;
+    }
+    .infoContainer{
+        height: 80%;
+        width:100%;
+        display: flex;
+        justify-content: flex-start;
+    }
+    
+    .infoData{
+        overflow-y: auto;
+        padding: 5px 0px 20px 0px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        flex:1;
+        font-family: sans-serif;
+        color: gray;
+        font-weight: bold;
+        flex-wrap: wrap;
+    }
+    
+    .infoItem{
+        flex-basis:100%;
+        text-align: center;
+    }
+    
+    .stageInfo{
+        display: none;
+        padding: 5px 0px 20px 0px;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        flex:1;
+        font-family: sans-serif;
+        color: gray;
+        font-weight: bold;
+        flex-wrap: wrap;
+    }
+    
+    .stageInfo.Visible{
+        display: flex;
+    }
+    
+    .exitButton{
+        position: absolute;
+        right: 0;
+        top: 0;
+        color: black;
+        cursor: pointer;
+        user-select: none;
+    }

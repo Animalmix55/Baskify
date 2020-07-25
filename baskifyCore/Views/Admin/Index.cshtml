@@ -1,6 +1,7 @@
 ﻿
 @{
     Layout = null;
+    ViewData["Title"] = "Admin Panel";
 }
 
 <!DOCTYPE html>
@@ -186,11 +187,11 @@
     <div id="contextMenu" style="display:none; position:absolute; z-index:100000; border: 1px solid rgba(85, 89, 92, 0.52); background: white">
         <table class="contextMenu table table-hover">
             <tbody>
-                <tr class="edit" onclick="editUser()"><td>Edit User</td></tr>
-                <tr class="lock" onclick="lockUserDialog()"><td>Lock</td></tr>
-                <tr class="unlock" onclick="unlockUser()"><td>Unlock</td></tr>
-                <tr class="reqDocs" onclick="openDocRequestDialog()"><td>Request Documents</td></tr>
-                <tr class="viewDocs" onclick="viewDocs()"><td>View Documents</td></tr>
+                <tr class="edit" style="cursor:pointer" onclick="editUser()"><td>Edit User</td></tr>
+                <tr class="lock" style="cursor:pointer" onclick="lockUserDialog()"><td>Lock</td></tr>
+                <tr class="unlock" style="cursor:pointer" onclick="unlockUser()"><td>Unlock</td></tr>
+                <tr class="reqDocs" style="cursor:pointer" onclick="openDocRequestDialog()"><td>Request Documents</td></tr>
+                <tr class="viewDocs" style="cursor:pointer" onclick="viewDocs()"><td>View Documents</td></tr>
             </tbody>
         </table>
     </div>
@@ -501,7 +502,7 @@
                 },
                 success: function (data) {
                     $("#editUser").modal("hide");
-                    $("#userTable").DataTable().ajax.reload(); //reload table
+                    $("#userTable").DataTable().ajax.reload(null, false); //reload table
                 },
                 error: function (xhr, textStatus, errorThrown) {
                     alert(xhr.responseText); //alert error
@@ -538,7 +539,7 @@
                 },
                 success: function (data) {
                     $("#lockUserModal").modal("hide");
-                    $("#userTable").DataTable().ajax.reload(); //reload table
+                    $("#userTable").DataTable().ajax.reload(null, false); //reload table
                 },
                 error: function (xhr, textStatus, errorThrown) {
                     alert(xhr.responseText); //alert error
@@ -560,7 +561,7 @@
                 },
                 success: function (data) {
                     $("#lockUserModal").modal("hide");
-                    $("#userTable").DataTable().ajax.reload(); //reload table
+                    $("#userTable").DataTable().ajax.reload(null, false); //reload table
                 },
                 error: function (xhr, textStatus, errorThrown) {
                     alert(xhr.responseText); //alert error
@@ -585,7 +586,7 @@
                 },
                 success: function (data) {
                     $("#documentModal").modal("hide");
-                    $("#userTable").DataTable().ajax.reload(); //reload table
+                    $("#userTable").DataTable().ajax.reload(null, false); //reload table
                 },
                 error: function (xhr, textStatus, errorThrown) {
                     alert(xhr.responseText); //alert error

@@ -15,6 +15,8 @@ using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
+using System.Drawing.Text;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -26,6 +28,47 @@ namespace baskifyCore.Utilities
 {
     public static class EmailUtils
     {
+        private static string applicationEmail;
+        private static string emailEndpoint;
+        private static int emailPort;
+
+        static EmailUtils()
+        {
+            applicationEmail = ConfigurationManager.AppSettings["Email"];
+            emailEndpoint = ConfigurationManager.AppSettings["EmailEndpoint"];
+            emailPort = int.Parse(ConfigurationManager.AppSettings["EmailPort"]);
+        }
+
+        public static bool SendStyledEmail(UserModel user, string Subject, string Message, IWebHostEnvironment _env, string EmailOverride=null)
+        {
+            return SendEmail(EmailOverride == null? user.Email: EmailOverride, Subject, getEmailTemplate(Subject, Message, null, null, _env));
+        }
+
+        public static string getEmailTemplate(string title, string body, List<string> buttonTextList, List<string> buttonLinkList, IWebHostEnvironment _env)
+        {
+            var templateFile = File.ReadAllText(_env.ContentRootPath + @"\EmailTemplates\singleButtonEmailTemplate.html");
+
+            const string buttonDiv = @"<div align=""center"" class=""button-container"" style=""padding-top:15px;padding-right:10px;padding-bottom:0px;padding-left:10px;"">
+                <!--[if mso]><table width=""100%"" cellpadding=""0"" cellspacing=""0"" border=""0"" style=""border-spacing: 0; border-collapse: collapse; mso-table-lspace:0pt; mso-table-rspace:0pt;""><tr><td style=""padding-top: 15px; padding-right: 10px; padding-bottom: 0px; padding-left: 10px"" align=""center""><v:roundrect xmlns:v=""urn:schemas-microsoft-com:vml"" xmlns:w=""urn:schemas-microsoft-com:office:word"" href="""" style=""height:46.5pt; width:197.25pt; v-text-anchor:middle;"" arcsize=""97%"" stroke=""false"" fillcolor=""#e8c47c""><w:anchorlock/><v:textbox inset=""0,0,0,0""><center style=""color:#ffffff; font-family:Tahoma, sans-serif; font-size:16px""><![endif]-->
+                <a href=""{0}""><div style=""text-decoration:none;display:inline-block;color:#ffffff;background-color:#e8c47c;border-radius:60px;-webkit-border-radius:60px;-moz-border-radius:60px;width:auto; width:auto;;border-top:1px solid #e8c47c;border-right:1px solid #e8c47c;border-bottom:1px solid #e8c47c;border-left:1px solid #e8c47c;padding-top:15px;padding-bottom:15px;font-family:Montserrat, Trebuchet MS, Lucida Grande, Lucida Sans Unicode, Lucida Sans, Tahoma, sans-serif;text-align:center;mso-border-alt:none;word-break:keep-all;""><span style=""padding-left:30px;padding-right:30px;font-size:16px;display:inline-block;""><span style=""font-size: 16px; margin: 0; line-height: 2; word-break: break-word; mso-line-height-alt: 32px;""><strong>{1}</strong></span></span></div></a>
+                <!--[if mso]></center></v:textbox></v:roundrect></td></tr></table><![endif]-->
+                </div>";
+
+            var buttons = "";
+            if (buttonTextList != null && buttonLinkList != null)
+            {
+                for (int i = 0; i < buttonTextList.Count; i++)
+                {
+                    buttons += String.Format(buttonDiv, buttonLinkList[i], buttonTextList[i]);
+                }
+            }
+
+            string[] contents = templateFile.Split("</head>");
+            templateFile = contents[0] + "</head>" + String.Format(contents[1], title, body, buttons);
+
+            return templateFile;
+        }
+
         /// <summary>
         /// Sends the winner an email, should attach the auction submitting user to the auction
         /// </summary>
@@ -33,9 +76,8 @@ namespace baskifyCore.Utilities
         /// <param name="basket"></param>
         /// <param name="auction"></param>
         /// <returns></returns>
-        public static bool sendBasketWinnerEmail(UserModel user, BasketModel basket, AuctionModel auction, string webrootUrl)
+        public static bool sendBasketWinnerEmail(UserModel user, BasketModel basket, AuctionModel auction, IWebHostEnvironment _env)
         {
-            var viewModel = new EmailViewModel() { Basket = basket, rootUrl = webrootUrl };
             string contents = "";
             contents += $"Congratulations, you won the basket {basket.BasketTitle} from the auction {auction.Title}! <br><br>";
 
@@ -55,92 +97,86 @@ namespace baskifyCore.Utilities
                     contents += $"If there is an issue with this arrangement, kindly contact the host at {auction.HostUser.ContactEmail}";
                     break;
             }
-            viewModel.Contents = contents;
 
-            return SendEmail(user.Email, $"Baskify - Congrats!", RenderEmail(viewModel));
+            return SendEmail(user.Email, $"Baskify - Congrats!", getEmailTemplate("Congrats!", contents, null, null, _env));
         }
 
-        public static bool sendVerificationEmail(UserModel user, EmailVerificationModel verificationModel, HttpRequest request)
+        public static bool sendVerificationEmail(UserModel user, EmailVerificationModel verificationModel, HttpRequest request, IWebHostEnvironment _env, object additionalInfo=null)
         {
             
-            var OriginalEmailText = "We have received your request to";
+            var OrigEmailText = "We have received your request to";
             string subject;
             switch (verificationModel.ChangeType)
             {
                 case ChangeTypes.EMAIL:
-                    var origEmailModel = new EmailViewModel() { User = user };
-                    var newEmailModel = new EmailViewModel() { User = user };
-                    OriginalEmailText += " change your email to <b>" + verificationModel.Payload + "</b>\n";
-                    var NewEmailText = OriginalEmailText +
-                        "<br><br>To verify this change, please <a href=\"" + LoginUtils.getAbsoluteUrl(String.Format("/verify?VerifyId={0}&ChangeId={1}", verificationModel.CommitId, verificationModel.ChangeId), request) + "\">CLICK HERE</a>.\n";
+                    OrigEmailText += " change your email to <b>" + verificationModel.Payload + "</b>.";
+                    var newEmailText = OrigEmailText + " If you did not make this request do not worry, just ignore this email! If you did, use the button below to verify!";
 
-                    OriginalEmailText +=
-                        "<br><br>If you did not request this change, please <a href=\"" + LoginUtils.getAbsoluteUrl(String.Format("/verify?VerifyId={0}&ChangeId={1}", verificationModel.RevertId, verificationModel.ChangeId), request) + "\">CLICK HERE</a>.\n";
+                    OrigEmailText += " If you did not make this request, you don't have to worry, just use the button below to undo any changes and be sure to secure your account by changing the password!";
 
-                    subject = "Baskify - Your Email Change Request";
-                    origEmailModel.Contents = OriginalEmailText;
-                    newEmailModel.Contents = NewEmailText;
+                    subject = "Your Email Change Request";
 
-                    return SendEmail(user.Email, subject, RenderEmail(origEmailModel)) && SendEmail(verificationModel.Payload, subject, RenderEmail(newEmailModel));
+                    return SendEmail(user.Email, subject, getEmailTemplate(subject, OrigEmailText, new List<string>() { "Undo Change" }, new List<string>() { LoginUtils.getAbsoluteUrl(String.Format("/verify?VerifyId={0}&ChangeId={1}", verificationModel.RevertId, verificationModel.ChangeId), request) }, _env))
+                        && SendEmail(verificationModel.Payload, subject, getEmailTemplate(subject, newEmailText, new List<string>() { "Verify Change" }, new List<string>() { LoginUtils.getAbsoluteUrl(String.Format("/verify?VerifyId={0}&ChangeId={1}", verificationModel.CommitId, verificationModel.ChangeId), request) }, _env));
 
                 case ChangeTypes.AUCTIONDELETION:
-                    var viewModel = new EmailViewModel() { User = user };
-                    OriginalEmailText += " delete your auction entitled: <b>" + verificationModel.Payload + "</b>\n";
-                    OriginalEmailText += "If you did not request this change, just ignore this email; your account is not at any risk.</b>\n";
-                    OriginalEmailText += "<br><br>If you did request this change, verify it by clicking <a href=\"" + LoginUtils.getAbsoluteUrl(String.Format("/verify?VerifyId={0}&ChangeId={1}", verificationModel.CommitId, verificationModel.ChangeId), request) + "\">HERE</a>.\n" +
-                        "<h1>Thank you!</h1>";
-                    subject = "Baskify - Your Auction Deletion Request";
-                    viewModel.Contents = OriginalEmailText;
+                    OrigEmailText += " delete your auction entitled: <b>" + (additionalInfo as AuctionModel).Title + "</b>.\n";
+                    OrigEmailText += "If you did not request this change, just ignore this email; your account is not at any risk.\n";
+                    OrigEmailText += "If you did request this change, verify it by clicking the button below!";
 
-                    return SendEmail(user.Email, subject, RenderEmail(viewModel));
+                    subject = "Your Auction Deletion Request";
+
+                    return SendEmail(user.Email, subject,
+                        getEmailTemplate(subject, OrigEmailText, new List<string>() { "Verify Deletion" }, new List<string>() { LoginUtils.getAbsoluteUrl(String.Format("/verify?VerifyId={0}&ChangeId={1}", verificationModel.CommitId, verificationModel.ChangeId), request) }, _env));
 
                 case ChangeTypes.MFA:
-                    var view = new EmailViewModel() { User = user };
+
                     if (verificationModel.Payload == null) //disable MFA
-                        OriginalEmailText += $" disable multi-factor authentification for your account {user.Username}. ";
+                        OrigEmailText += $" disable multi-factor authentification for your account {user.Username}. ";
                     else
-                        OriginalEmailText += $" enable multi-factor authentification for your account {user.Username}. ";
-                    OriginalEmailText += "If you did not request this change, just ignore this email and <b>CHANGE YOUR PASSWORD IMMEDIATELY</b> as this request originates from a logged-in account.\n";
-                    OriginalEmailText += "<br><br>If you did request this change, verify it by clicking <a href=\"" + LoginUtils.getAbsoluteUrl(String.Format("/verify?VerifyId={0}&ChangeId={1}", verificationModel.CommitId, verificationModel.ChangeId), request) + "\">HERE</a>.\n" +
-                        "<h1>Thank you!</h1>";
-                    subject = "Baskify - Your MFA Change Request";
-                    view.Contents = OriginalEmailText;
-                    return SendEmail(user.Email, subject, RenderEmail(view));
+                        OrigEmailText += $" enable multi-factor authentification for your account {user.Username}. ";
+                    OrigEmailText += "If you did not request this change, just ignore this email and <b>CHANGE YOUR PASSWORD IMMEDIATELY</b> as this request originates from a logged-in account.\n";
+                    OrigEmailText += "<br><br>If you did request this change, verify it by clicking the button below!";
+                    subject = "Your MFA Change Request";
+
+                    return SendEmail(user.Email, subject, getEmailTemplate(subject, OrigEmailText, new List<string>() { "Verify Change" }, new List<string>() { LoginUtils.getAbsoluteUrl(String.Format("/verify?VerifyId={0}&ChangeId={1}", verificationModel.CommitId, verificationModel.ChangeId), request) }, _env));
                 case ChangeTypes.VERIFYEMAIL:
-                    var verifyView = new EmailViewModel() { User = user };
-                    OriginalEmailText = "Thank you for creating an account with Baskify! It's a pleasure to meet you! <br><br> In order to verify your account, we ask that you please verify your email address by clicking <a href=\"" + LoginUtils.getAbsoluteUrl(String.Format("/verify?VerifyId={0}&ChangeId={1}", verificationModel.CommitId, verificationModel.ChangeId), request) + "\">HERE</a>";
-                    OriginalEmailText += "<br><br>If you did create this account, do not worry, just ignore this email" +
-                        "<h1>Thank you!</h1>";
-                    subject = "Baskify - Welcome to Baskify!";
-                    verifyView.Contents = OriginalEmailText;
-                    return SendEmail(user.Email, subject, RenderEmail(verifyView));
+                    OrigEmailText = "Thank you for creating an account with Baskify! It's a pleasure to meet you! <br><br> In order to verify your account, we ask that you please verify your email address by clicking the button below!";
+                    OrigEmailText += "If you did not create this account, do not worry, just ignore this email";
+
+                    subject = "Welcome to Baskify!";
+
+                    return SendEmail(user.Email, subject, getEmailTemplate(subject, OrigEmailText, new List<string>() { "Verify Email" }, new List<string>() { LoginUtils.getAbsoluteUrl(String.Format("/verify?VerifyId={0}&ChangeId={1}", verificationModel.CommitId, verificationModel.ChangeId), request) }, _env));
+
+                case ChangeTypes.ADDSTRIPE:
+                    OrigEmailText = "Thank you for creating an account with Baskify! It's a pleasure to meet you! <br><br> In order to complete your organization's registration, we ask that you complete signup through our affiliate, Stripe.";
+                    OrigEmailText  += "Stripe is our secure intermediary used to ensure that your organization gets paid when an auction is complete. You can register with Stripe by clicking the button below!";
+                    OrigEmailText += "<br><br>If you did not create this account, do not worry, just ignore this email";
+                    subject = "Register with Stripe!";
+
+                    return SendEmail(user.Email, subject, getEmailTemplate(subject, OrigEmailText, new List<string>() { "Add Stripe" }, new List<string>() { LoginUtils.getAbsoluteUrl(String.Format("/verify?VerifyId={0}&ChangeId={1}", verificationModel.CommitId, verificationModel.ChangeId), request) }, _env));
             }
             return false;
         }
 
-        public static bool sendRecoveryEmail(UserModel user, string bearerToken, HttpRequest request)
+        public static bool sendRecoveryEmail(UserModel user, string bearerToken, HttpRequest request, IWebHostEnvironment _env)
         {
-            var EmailText = "We have received your request to reset your passcode! If you did not request this change, just ignore this email; your account is not at any risk.</b>\n";
+            var EmailText = "We have received your request to reset your passcode! If you did not request this change, just ignore this email; your account is not at any risk. If you did request this change, please click the button below!";
 
-            EmailText +=
-                "<br><br>If you did request this change, please <a href=\"" + LoginUtils.getAbsoluteUrl("/account/changepassword?bearerToken=" + bearerToken, request) + "\">CLICK HERE</a>.\n" +
-                "<h1>Have a great day!</h1>";
+            var subject = "Your Password Change Request";
 
-            var subject = "Baskify - Your Password Change Request";
-            var viewModel = new EmailViewModel() { Contents = EmailText, User = user };
-
-            return SendEmail(user.Email, subject, RenderEmail(viewModel));
+            return SendEmail(user.Email, subject, getEmailTemplate(subject, EmailText, new List<string>() { "Change Password "}, new List<string>(){ LoginUtils.getAbsoluteUrl("/account/changepassword?bearerToken=" + bearerToken, request) }, _env));
         }
         public static bool SendEmail(string receiver, string subject, string message) {
             try
             {
-                var senderEmail = new MailAddress("corycherven@hotmail.com", "Cory");
-                var receiverEmail = new MailAddress(receiver, "Receiver");
-                var password = "animalmix55"; //to be changed
+                var senderEmail = new MailAddress(applicationEmail, "Baskify");
+                var receiverEmail = new MailAddress(receiver, "Recipient");
+                var password = ConfigurationManager.AppSettings["EmailPassword"]; //never stored at rest
                 var smtp = new SmtpClient
                 {
-                    Host = "smtp.office365.com",
-                    Port = 587,
+                    Host = emailEndpoint,
+                    Port = emailPort,
                     EnableSsl = true,
                     DeliveryMethod = SmtpDeliveryMethod.Network,
                     UseDefaultCredentials = false,
@@ -207,109 +243,6 @@ namespace baskifyCore.Utilities
                 return "An unknown error occurred";
         }
         
-
-        /// <summary>
-        /// Renders the email frame at ~/Views/Email/EmailContainer.cshtml
-        /// </summary>
-        /// <param name="model"></param>
-        /// <param name="partial"></param>
-        /// <returns></returns>
-        public static string RenderEmail(EmailViewModel Model)
-        {
-            var html = @"
-            <html>
-            <body>
-                <header>
-                    <nav style=""display:flex; align-items: center; height: 80px; border-bottom: solid rgba(0,0,0,.2) 2px"">
-                        <a style=""text-decoration: none"" href="""+Model.rootUrl+@"""><div style=""font-family: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';position: relative;text-transform: uppercase;color: black;font-weight: 600;text-decoration: none;align-items: center;margin-right: auto;margin-left: 10px; font-size: 30pt; align-self: center; text-decoration:none;"">Baskify</div></a>
-                    </nav>
-                </header>";
-                if (Model.Basket != null)
-                {
-                    var basket = Model.Basket;
-                            html += @"<div class=""card mb-3 basketCard"" style=""
-                    width: 300px;
-                    border-radius: 30px;
-                    position: relative;
-                    -webkit-box-orient: vertical;
-                    -webkit-box-direction: normal;
-                    min-width: 0;
-                    word-wrap: break-word;
-                    background-color: #fff;
-                    background-clip: border-box;
-                    border: 1px solid rgba(0,0,0,0.125);
-                    font-family: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';
-                    left: 0;
-                    right: 0;
-                    margin: auto;
-                    overflow: hidden;
-                    margin-top: 10px;
-                "">
-                        <h3 class=""card-header"" style=""font-size: 114%;
-                        padding: 0.75rem 1.25rem;
-                        margin-bottom: 0;
-                        background-color: rgba(0,0,0,0.03);
-                        border-bottom: 1px solid rgba(0,0,0,0.125);
-                        text-transform: uppercase;
-                        letter-spacing: 3px;
-                        margin:unset;
-                         "">";
-                            html += basket.BasketTitle + @"
-                        </h3>
-                        <div>
-                            <div style=""height: 300px;width: inherit;overflow: hidden;display: flex;align-items: center; background-image: url(" + Model.rootUrl.Trim('/') + "/" + basket.photos[0].Url + @"); background-size:cover; background-position:center;"">
-                        </div>
-                            <div>
-                                <div style=""font-weight: bold; font-size: 145%; text-transform: uppercase; text-align: center; border-bottom: solid rgba(1,1,1,0.1) 1px; border-top: solid rgba(1,1,1,0.1) 1px;"">
-                                    Description:
-                                </div>
-                                <div class=""basketDesc"" style=""text-align:center;"">" + basket.BasketDescription + @"
-                                </div>
-                                <div style=""font-weight: bold; font-size: 145%; text-transform: uppercase; text-align: center; border-bottom: solid rgba(1,1,1,0.1) 1px; border-top: solid rgba(1,1,1,0.1) 1px;"">
-                                    Contents:
-                                </div>
-                                <table style=""border-collapse: collapse; width:100%;"">
-                                    <tbody style=""display: flex; justify-content: space-evenly; flex-wrap: wrap;"">";
-                                        foreach (var item in basket.BasketContents)
-                                        {
-                                            html += @"<tr style='flex-basis: 50%; display:flex; justify-content:center' class='table-light'>
-                                                <td style='padding: unset;'>" + item + @"</td>
-                                            </tr>";
-                                        }
-                                    html += @"</tbody>
-                                </table>
-                            </div>
-                        </div>
-                    </div>
-                    <hr />";
-                }
-                html += @"<div style=""margin-bottom: 30px; margin-top:10px; font-family: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';"">";
-                if (Model.User != null)
-                {
-                    if (Model.User.UserRole != Roles.COMPANY)
-                    {
-                        html += $"{Model.User.FirstName} {Model.User.LastName},";
-                    }
-                    else
-                    {
-                        html += $"{Model.User.OrganizationName},";
-                    }
-                }
-                else
-                {
-                    html += "User,";
-                }
-                        html += @"</div>
-                <div style=""padding-left:10px; font-family: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';"">"
-                    + Model.Contents + @"
-                </div>
-                <footer style=""margin-top: 20px; font-size: 150%; display: flex; justify-content: center; font-weight: 300; font-family: 'Nunito Sans', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji', 'Segoe UI Symbol';"">
-                    We thank you again for choosing Baskify!
-                </footer>
-            </body>
-            </html>";
-            return html;
-        }
         public static void SendReceiptEmail(UserModel user, ReceiptDto receiptData)
         {
             var html = @"<!DOCTYPE html>

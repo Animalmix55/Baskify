@@ -12,12 +12,6 @@ a {
   color: #0366d6;
 }
 
-.btn-primary {
-  color: #fff;
-  background-color: #1b6ec2;
-  border-color: #1861ac;
-}
-
 .nav-pills .nav-link.active, .nav-pills .show > .nav-link {
   color: #fff;
   background-color: #1b6ec2;
@@ -88,7 +82,7 @@ body {
 }
 .navigationBarBrand {
     position: relative;
-    height: inherit;
+    height: 96px;
     text-transform: uppercase;
     color: black;
     font-weight: bold;
@@ -97,7 +91,9 @@ body {
     margin-right: auto;
     margin-left: 10px;
     font-size: 30pt;
-    align-self:center;
+    align-self: center;
+    flex: 1;
+    text-align: center;
 }
 .navigationBarBrand:hover{
     text-decoration-line: none;
@@ -105,10 +101,12 @@ body {
 .navUserContainer{
     position: relative;
     display: flex;
+    flex: 1;
     height: 96px;
     margin-left: auto;
     align-items: center;
     margin-right: 10px;
+    justify-content: flex-end;
 }
 .navUserContainer #userAccount{
     padding-right:10px;
@@ -116,7 +114,7 @@ body {
 .navUserContainer img{
     height: 75%;
     width: auto;
-    border-radius: 36px;
+    border-radius: 50%;
 }
 .navUserContainer:hover+.userDropdown  {
     max-height: 1000px;
@@ -233,7 +231,6 @@ body {
         top: 0;
         right: 0;
     }
-
 }
 
 
@@ -340,12 +337,13 @@ body {
     align-content: center;
     align-items: center;
     justify-content: center;
+
 }
 
 #searchBarPhotoWall{
     background-color: rgba(255, 255, 255, 0.41);
     border-radius: 27px;
-    width: 70%;
+    width: 95%;
     max-width: 800px;
 }
 
@@ -368,7 +366,6 @@ body {
 
 }
 
-
 #aboutUs{
     display: flex;
     flex-direction: row;
@@ -376,6 +373,7 @@ body {
     align-content: center;
     align-items: center;
     justify-content: center;
+    overflow: hidden;
 }
 #aboutUs img{
     width: 20%;
@@ -408,7 +406,6 @@ h4{
     right: 0;
     margin: auto;
     width: 60%;
-    min-width: 400px;
 }
 
 #userIcon{
@@ -507,6 +504,9 @@ h4{
 }
 
 @media (max-width: 790px) {
+    #userInfoForm {
+        width: 100%;
+    }
     .searchButton {
         display: none;
     }
@@ -723,8 +723,195 @@ tr.shown td.details-control {
     margin-bottom: unset;
 }
 
+h1, h2, h3, h4, legend {
+    text-align: center;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+.dataTables_wrapper .row{
+    margin: unset
+}
+
+[class^=col-sm]{
+    padding:unset
+}
+
+table.dataTable td{
+    vertical-align:middle
+}
+
 @media (max-width: 790px) {
     .signUpModal{
         height:80%;
     }
+}
+
+@media (max-width: 490px) {
+    .navigationBarBrand.navBarElement{
+        font-size: 17vw;
+        justify-content:center;
+        margin-left: unset;
+    }
+    .navUserContainer {
+        justify-content: center;
+    }
+    #homePagePhotoModal h1 {
+        font-size: 14vw;
+    }
+}
+
+@media (max-width: 440px) {
+    .transactionsHeader{
+        font-size: 10vw;
+    }
+}
+
+    .basketPersonInfo{
+        padding: 5px;
+        border: 1px solid rgba(155, 155, 155, .4);
+        border-radius: 8px;
+        background-color: rgba(155,155,155,.2);
+        font-family: sans-serif;
+        width: 100%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        flex-wrap: wrap
+    }
+    
+    .basketPersonInfo .BasketInfoTable>div :first-child{
+        font-weight: bold;
+        color: gray;
+        font-size: 80%
+    }
+    
+    .basketPersonInfo .BasketInfoTable>div:not(:last-child) div{
+        border-bottom: 1px solid rgba(155,155,155,.7)
+    }
+    
+    .BasketInfoTable>div>div{
+        padding-left: 5px;
+        padding-bottom: 5px;
+        padding-top: 5px;
+        color: rgba(0,0,0,.6);
+    }
+    
+    .basketInfoHeader{
+        text-align: center;
+        width:100%;
+        font-weight: bold;
+        font-size: 150%;
+        color: rgba(0,0,0,.6)
+    }
+
+    #trackingModal .modal-dialog{
+        margin-top: 30vh;
+        max-width: 615px;
+    }
+
+#basketDataModal{
+    color:white;
+}
+
+.basketButtons{
+    border-bottom-left-radius: 30px;
+    border-bottom-right-radius: 30px;
+    overflow: hidden;
+}
+
+#BasketModalContainer{
+    color:black !important;
+}
+
+#transactionTable td{
+    border-bottom: 1px solid rgba(0,0,0,.05);
+}
+
+#transactionTable [data-dt-column="6"] .dtr-title{
+    display: none !important;
+}
+
+#transactionTable .dtr-details{
+    width: 100%;
+    text-align: center;
+}
+
+#trackingModal .modal-content{
+        border-radius: 5px;
+}
+
+    .alert-heading{
+        text-align: left !important;
+    }
+
+@media screen {
+    .userDropdown tr{
+        height: 35px;
+        line-height: 35px;
+    }
+    main {
+        padding: 0px 10px 0px 10px;
+    }
+    .nav.nav-tabs{
+        font-size: 16px
+    }
+    select, textarea, input[type="text"], input[type="password"],
+    input[type="datetime"], input[type="datetime-local"],
+    input[type="date"], input[type="month"], input[type="time"],
+    input[type="week"], input[type="number"], input[type="email"],
+    input[type="tel"], input[type="url"], input[type="search"] {
+        font-size: 16px !important;
+    }
+}
+
+.fundraisedTable .valid {
+    color: green;
+    font-weight: bolder
+}
+
+.fundraisedTable .invalid{
+    color: red;
+    font-weight: bolder;
+}
+
+.fundraisedTable {
+    width: 70%;
+    margin: auto;
+    left: 0;
+    right: 0;
+    border: 1px solid rgba(0,0,0,.05);
+    background: rgba(0,0,0, .05)
+}
+
+.fundraisedTable tr:first-child td {
+    border-top: unset
+}
+
+.fundraisedTable tr:last-child td {
+    border-bottom: unset
+}
+
+#auctionPayoutReqContainer {
+    position: relative;
+    padding: 1% 1% 1% 1%;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.netRaised {
+    color: green;
+    font-weight: bold;
+    border: 1px solid rgba(0,0,0,0.05);
+    background: rgba(0,0,0,.1);
+    cursor: pointer;
+}
+
+.netRaised:hover {
+    box-shadow: 2px 2px 10px rgba(0,0,0,.5)
+}
+
+#basketContainer{
+    padding-top: 25px;
 }

@@ -10,7 +10,21 @@
 <script src="https://cdn.datatables.net/responsive/2.2.4/js/dataTables.responsive.min.js"></script>
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css" />
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.4/css/responsive.dataTables.min.css" />
+<link rel="stylesheet" type="text/css" href="~/css/tracking.css" />
+<script src="~/js/tracking.js"></script>
 
+<style>
+    .TrackingContainer, .trackingEditor, .disputeEditor {
+        border-top-right-radius: unset;
+        border-top-left-radius: unset;
+    }
+
+    .basketPersonInfo {
+        border-bottom: unset;
+        border-bottom-left-radius: unset;
+        border-bottom-right-radius: unset;
+    }
+</style>
 
 <div id="basketDataModal" class="modal">
     @if (ViewData["basket"] != null)//if given a basket, load the modal with it
@@ -101,7 +115,7 @@
 
     var basketTable = $("#basketTable");
 
-     basketTable.dataTable({
+    basketTable.dataTable({
         ajax: {
             url: "/api/baskets/submitted",
             type: "GET",
@@ -112,9 +126,9 @@
                     xhr.setRequestHeader("Authorization", "Bearer " + token);
             }
         },
-         responsive: {
-             details: false
-         },
+        responsive: {
+            details: false
+        },
         createdRow: function (row, data, dataIndex) {
             if (data["acceptedByOrg"]) {
                 $(row).addClass("table-success");
@@ -130,7 +144,7 @@
 
             $(row).css("cursor", "pointer");
             $(row).attr("id", "basketRow-" + data["basketId"]);
-            
+
         },
         columns: [
             {
@@ -177,13 +191,13 @@
                 className: 'data'
             },
             {
-                data: "delivered",
+                data: "status",
                 responsivePriority: 2,
                 render: function (data, type, row) {
-                    if (data)
-                        return "Delivered";
+                    if (data == "Disputed")
+                        return `<span style="color:red">${data}</span>`;
                     else
-                        return "Not Delivered"
+                        return data;
                 },
                 className: 'data'
             },
@@ -202,7 +216,7 @@
                 responsivePriority: 3
             }
         ]
-     });
+    });
 
     function viewAcceptedBasket(basketId) {
         var baskets = $("#basketTable").DataTable().data()
@@ -300,21 +314,26 @@
 
     function winnerInfoFormat(winner) {
         // `d` is the original data object for the row
-        return '<h2 style="text-align:center">Winner Info</h2>' +
-            '<table cellpadding="5" cellspacing="0" border="0" style="padding-left:50px;left:0;right:0;margin:auto; text-align:center;">' +
-            '<tr>' +
-            '<td>Full name:</td>' +
-            '<td>' + winner.firstName + " " + winner.lastName + '</td>' +
-            '</tr>' +
-            '<tr>' +
-            '<td>Email:</td>' +
-            '<td>' + winner.email + '</td>' +
-            '</tr>' +
-            '<tr>' +
-            '<td>Address:</td>' +
-            '<td>' + winner.address + " " + winner.city + ", " + winner.state + " " + winner.zip + '</td>' +
-            '</tr>' +
-            '</table>';
+        var html = `<div style="display: flex; justify-content: center; align-items:stretch; flex-wrap: wrap">\
+                    <div class="basketPersonInfo">\
+                        <div class="basketInfoHeader">Winner Info</div>\
+                       <div style="display: table; width: " class="BasketInfoTable">\
+                            <div style="display: table-row">\
+                                <div style="display: table-cell">Full name:</div>\
+                                <div style="display: table-cell">${winner.firstName} ${winner.lastName}</div>\
+                            </div>\
+                            <div style="display: table-row">\
+                                <div style="display: table-cell">Email:</div>\
+                                <div style="display: table-cell">${winner.email}</div>\
+                            </div>\
+                            ${winner.address != null ? `<div style="display: table-row">\
+                                <div style="display: table-cell">Address:</div>\
+                                <div style="display: table-cell">${winner.address} ${winner.city}, ${winner.zip} ${winner.state}</div>\
+                            </div>`: ``}
+                        </div>\
+                    </div>\
+                </div>`;
+        return html;
     }
 
     $('#basketTable tbody').on('click', 'td.details-control', function () {
@@ -328,9 +347,13 @@
         }
         else {
             // Open this row
-            row.child(winnerInfoFormat(row.data()["winner"])).show();
+            row.child(winnerInfoFormat(row.data()["winner"]) + `<div id="basketTrackingContainer` + row.data().basketId + `"></div>`).show();
             tr.addClass('shown');
             row.child().css("background-color", "white") //no hover coloring
+            var tracker = new Tracker(row.data().basketId, "Bearer " + getCookie("BearerToken"), "#basketTrackingContainer" + row.data().basketId);
+            tracker.buildTracker();
+
+            $("#basketTrackingContainer" + row.data().basketId).closest("[colspan]").attr("colspan", "10"); //set colspan to something rediculous for posterity
         }
     });
 

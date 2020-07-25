@@ -10,7 +10,13 @@
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css" />
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.4/css/responsive.dataTables.min.css" />
 
-<div class="maxWidthContainer">
+<style>
+    .searchBarContainerParent{
+        display: none;
+    }
+</style>
+
+<div class="maxWidthContainer" style="padding-top: 14px">
     <h2>Search Auctions</h2>
     <table id="searchResults" class="table table-hover" style="width:100%">
         <thead>
@@ -19,7 +25,10 @@
                 <th>Title</th>
                 <th>Host</th>
                 <th>End Date</th>
+                @if ((ViewData["NavBarOverride"] as UserModel).UserRole != Roles.NONE)
+                {
                 <th>Distance</th>
+                }
             </tr>
         </thead>
     </table>
@@ -41,7 +50,7 @@
             },
             dataSrc: "data",
             beforeSend: function (xhr) { //add token
-                var token = getCookie("Admin");
+                var token = getCookie("BearerToken");
                 if (token != "")
                     xhr.setRequestHeader("Authorization", "Bearer " + token);
             }
@@ -83,7 +92,11 @@
                 type: "date",
                 responsivePriority: 5,
                 className: 'data'
-            },
+            }
+            @if ((ViewData["NavBarOverride"] as UserModel).UserRole != Roles.NONE)
+            {
+            <text>
+            ,
             {
                 name: 'Distance',
                 data: "distanceFromUser",
@@ -92,6 +105,8 @@
                 render: function (data, type, row) {
                     return data + " miles";
                 }
+            }
+            </text>
             }
         ]
     });

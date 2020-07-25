@@ -10,7 +10,7 @@
             DropPrimaryKey("dbo.IRSNonProfitIndexModels");
             AddColumn("dbo.IRSNonProfitIndexModels", "DLN", c => c.String(nullable: false, maxLength: 128));
             AddColumn("dbo.IRSNonProfitIndexModels", "TaxPeriod", c => c.String(nullable: false));
-            AlterColumn("dbo.IRSNonProfitIndexModels", "EIN", c => c.String(nullable: false));
+            AlterColumn("dbo.IRSNonProfitIndexModels", "EIN", c => c.Int(nullable: false));
             AddPrimaryKey("dbo.IRSNonProfitIndexModels", "DLN");
         }
         

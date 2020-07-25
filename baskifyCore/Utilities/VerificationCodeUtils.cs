@@ -1,4 +1,5 @@
 ﻿using baskifyCore.Models;
+using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using System;
 using System.Collections.Generic;
@@ -140,7 +141,7 @@ namespace baskifyCore.Utilities
             return model.Id;
         }
 
-        public static void SetMFA(UserModel user, bool enabled, long? NewPhoneNum, ApplicationDbContext _context, HttpRequest Request)
+        public static void SetMFA(UserModel user, bool enabled, long? NewPhoneNum, ApplicationDbContext _context, HttpRequest Request, IWebHostEnvironment _env)
         {
             if (enabled && !user.isMFA) //we are turning on MFA
             {
@@ -159,7 +160,7 @@ namespace baskifyCore.Utilities
 
                 //DONT SEND MESSAGE UNTIL LINK CLICKED
 
-                EmailUtils.sendVerificationEmail(user, emailVerification, Request);
+                EmailUtils.sendVerificationEmail(user, emailVerification, Request, _env);
             }
             else //disable MFA
             {
@@ -176,7 +177,7 @@ namespace baskifyCore.Utilities
                 _context.EmailVerification.Add(emailVerification);
                 _context.SaveChanges(); //updates change id
 
-                EmailUtils.sendVerificationEmail(user, emailVerification, Request);
+                EmailUtils.sendVerificationEmail(user, emailVerification, Request, _env);
             }
         }
 

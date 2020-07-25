@@ -41,9 +41,14 @@ namespace baskifyCore.Models
         [Required]
         public AuctionModel AuctionModel { get; set; }
 
+        /// <summary>
+        /// Total before fee
+        /// </summary>
         [Required]
-        public float Amount { get; set; } //USD IN CENTS
+        public int Amount { get; set; } //USD IN CENTS
 
+        [Required]
+        public int Fee { get; set; }
 
         //Billing address info
         [RegularExpression(@"^[-\.A-Za-z]+(\s[-\.A-Za-z]+)*$", ErrorMessage = "Name can only contain alphabetical letters, hyphens, and spaces")]

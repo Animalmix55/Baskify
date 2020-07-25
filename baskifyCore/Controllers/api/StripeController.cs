@@ -14,6 +14,65 @@ using System.Data.Entity;
 namespace baskifyCore.Controllers.api
 {
     [Route("api/[controller]")]
+    public class Stripe : Controller
+    {
+        ApplicationDbContext _context;
+        public Stripe()
+        {
+            _context = new ApplicationDbContext();
+        }
+
+        [Route("getDashboardUrl")]
+        [HttpGet]
+        public ActionResult getDashboardUrl([FromHeader] string authorization)
+        {
+            if (authorization == null)
+                return Unauthorized("Invalid authorization");
+            var user = LoginUtils.getUserFromToken(authorization.Replace("Bearer ", string.Empty), _context);
+
+            if (user == null)
+                return Unauthorized("Invalid login");
+
+            if (string.IsNullOrWhiteSpace(user.StripeCustomerId))
+                return BadRequest("You have not yet configured Stripe");
+
+            var service = new LoginLinkService();
+            var link = service.Create(user.StripeCustomerId);
+
+            return Ok(link.Url);
+        }
+
+        /// <summary>
+        /// Returns the URL necessary to link an account to stripe
+        /// </summary>
+        /// <param name="authorization"></param>
+        /// <returns></returns>
+        [Route("getStripeUrl")]
+        [HttpGet]
+        public ActionResult getStripeLinkUrl([FromHeader] string authorization)
+        {
+            if (authorization == null)
+                return Unauthorized("Invalid authorization");
+            var user = LoginUtils.getUserFromToken(authorization.Replace("Bearer ", string.Empty), _context);
+
+            if(user == null)
+                return Unauthorized("Invalid login");
+
+            if (!string.IsNullOrWhiteSpace(user.StripeCustomerId)) //dont allow the account to be replaced
+                return BadRequest("Account already linked");
+
+            if (user.UserRole != Roles.COMPANY)
+                return BadRequest("Only organizations can add Stripe to their account");
+
+            var state = accountUtils.GetStripeRegistrationState(user, _context);
+
+            var baskifyLandingPage = System.Web.HttpUtility.UrlEncode(LoginUtils.getAbsoluteUrl("/Stripe/completeSignup", Request));
+            var redirectLink = $"https://connect.stripe.com/express/oauth/authorize?redirect_uri={baskifyLandingPage}&client_id={StripeConsts.clientId}&state={state}";
+
+            return Ok(redirectLink);
+        }
+    }
+    [Route("api/[controller]")]
     public class StripeWebHook : Controller
     {
         const string endpointSecret = "whsec_DaiWoTMdSQrYTAl5WJB8Jh8vUjRdKLFr"; //TEST SECRET

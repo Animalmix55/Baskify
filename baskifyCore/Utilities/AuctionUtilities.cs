@@ -1,4 +1,5 @@
-﻿using baskifyCore.Models;
+﻿using baskifyCore.DTOs;
+using baskifyCore.Models;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Mvc;
 using System;
@@ -110,7 +111,7 @@ namespace baskifyCore.Utilities
         /// </summary>
         /// <param name="auctionId"></param>
         /// <param name="_context"></param>
-        public static bool draw(int auctionId, ApplicationDbContext _context, string webRootUrl)
+        public static bool draw(int auctionId, ApplicationDbContext _context, string webRootUrl, IWebHostEnvironment _env)
         {
             var auction = _context.AuctionModel.Find(auctionId);
             if (auction == null)
@@ -118,7 +119,16 @@ namespace baskifyCore.Utilities
 
             _context.Entry(auction).Collection(a => a.Baskets).Query().Include(b => b.Tickets).Include(b => b.photos).Load(); //load baskets and their tickets/photos
             _context.Entry(auction).Reference(a => a.HostUser).Load(); //get auction host info
+
+            if (auction.Baskets == null)
+                return false;
+
+            if (auction.Baskets.Count(b => b.AcceptedByOrg && !b.Draft) == 0)
+                return false; //NO DRAWABLE BASKETS, NO DRAWING
+
+            _context.BasketModel.RemoveRange(auction.Baskets.Where(b => b.Draft || !b.AcceptedByOrg)); //remove all baskets that are drafts or not approved
             auction.DrawDate = DateTime.UtcNow;
+
             foreach(var basket in auction.Baskets)
             {
                 var numTickets = basket.Tickets.Sum(t => t.NumTickets); //adds all the tickets up
@@ -135,7 +145,7 @@ namespace baskifyCore.Utilities
                     {
                         basket.WinnerUsername = ticket.Username;
                         var user = _context.UserModel.Find(ticket.Username);
-                        EmailUtils.sendBasketWinnerEmail(user, basket, auction, webRootUrl);
+                        EmailUtils.sendBasketWinnerEmail(user, basket, auction, _env);
                         break; //escape drawing
                     }
                 }
