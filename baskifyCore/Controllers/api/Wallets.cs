@@ -7,6 +7,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Data.Entity;
 
 namespace baskifyCore.Controllers.api
 {
@@ -14,6 +15,7 @@ namespace baskifyCore.Controllers.api
     {
         public const string publicKey = "pk_test_GBB2UKgj1tlGwykGFvX7xypd00G0GIaBW6";
         public const string secretKey = "sk_test_dNuiju1uhjBr4AhpuZGzfQPd00glKbAVYw";
+        public const string clientId = "ca_HQ3CXmd1Ye5Tapx6jGpFOnRw3JNsqZ7X";
     }
 
     [ApiController]
@@ -44,7 +46,7 @@ namespace baskifyCore.Controllers.api
                 return BadRequest("Invalid credentials");
             if (user.UserRole == Roles.COMPANY)
                 return BadRequest("Organizations cannot buy tickets");
-            var auction = _context.AuctionModel.Find(auctionId);
+            var auction = _context.AuctionModel.Include(a => a.HostUser).Where(a => a.AuctionId == auctionId).FirstOrDefault(); //gets auction AND host
             if (auction == null)
                 return BadRequest("Invalid Auction");
             if (!auction.isLive)
@@ -119,7 +121,8 @@ namespace baskifyCore.Controllers.api
                     user.StripeCustomerId = customer.Id; //add new customer
                 }
 
-                var amount = (long?)(ticketPurchaseDto.NumTickets * auction.TicketCost * 100); //amount in cents
+                var amount = (int)(ticketPurchaseDto.NumTickets * auction.TicketCost * 100); //amount in cents
+                var fee = FundraisingTotalsDto.CalculateFee((int)Math.Round((decimal)amount), 1); //cents
 
                 var options = new PaymentIntentCreateOptions
                 {
@@ -128,7 +131,12 @@ namespace baskifyCore.Controllers.api
                     CaptureMethod = "automatic",
                     ConfirmationMethod = "automatic",
                     Amount = amount, //in cents
-                    Currency = "usd"
+                    Currency = "usd",
+                    ApplicationFeeAmount = fee, //transfer sans fee to user
+                    TransferData = new PaymentIntentTransferDataOptions()
+                    {
+                        Destination = auction.HostUser.StripeCustomerId
+                    }
                 };
                 if (ticketPurchaseDto.SaveCard) //save if requested
                     options.SetupFutureUsage = "on_session";
@@ -141,7 +149,7 @@ namespace baskifyCore.Controllers.api
 
                 var PaymentModel = new PaymentModel()
                 {
-                    Amount = (float)amount,
+                    Amount = amount, //cents
                     PaymentIntentId = paymentIntent.Id,
                     Time = paymentIntent.Created,
                     Username = user.Username,
@@ -150,7 +158,8 @@ namespace baskifyCore.Controllers.api
                     BillingCity = ticketPurchaseDto.BillingCity,
                     BillingState = ticketPurchaseDto.BillingState,
                     BillingZIP = ticketPurchaseDto.BillingZIP,
-                    CardholderName = ticketPurchaseDto.CardholderName
+                    CardholderName = ticketPurchaseDto.CardholderName,
+                    Fee = fee //in cents
                 };
 
                 //create payment in database
@@ -159,7 +168,7 @@ namespace baskifyCore.Controllers.api
 
                 return Ok(new { ClientSecret = paymentIntent.ClientSecret, PaymentMethod = ticketPurchaseDto.PaymentMethodId }); //method will be null if not provided
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 return BadRequest("There was an error processing this payment");
             }

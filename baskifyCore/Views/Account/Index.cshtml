@@ -1,4 +1,8 @@
 ﻿@model baskifyCore.Models.UserModel;
+
+@{
+    ViewData["Title"] = "My Account";
+}
 <!DOCTYPE html>
 
 <script src="~/js/moment-with-locales.js"></script>
@@ -11,7 +15,7 @@
 <html>
 <head>
     <style>
-        #cardTable td{
+        #cardTable td {
             padding: .75rem !important;
         }
     </style>
@@ -32,29 +36,29 @@
             <div id="account" class="tab-pane fade active show">
                 @using (Html.BeginForm("updateValues", "Account", FormMethod.Post, new { @id = "userInfoForm", enctype = "multipart/form-data" }))
                 {
-                    @Html.ValidationSummary(true)
+                @Html.ValidationSummary(true)
                 <fieldset>
                     <legend>Update User Information</legend>
                     @if (Model.UserRole == Roles.USER)
                     {
-                        <div class="form-group">
-                            @Html.LabelFor(Model => Model.FirstName)
-                            @Html.TextBoxFor(Model => Model.FirstName, null, new { @class = "form-control" })
-                            @Html.ValidationMessageFor(Model => Model.FirstName)
-                        </div>
-                        <div class="form-group">
-                            @Html.LabelFor(Model => Model.LastName)
-                            @Html.TextBoxFor(Model => Model.LastName, null, new { @class = "form-control" })
-                            @Html.ValidationMessageFor(Model => Model.LastName)
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.FirstName)
+                        @Html.TextBoxFor(Model => Model.FirstName, null, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(Model => Model.FirstName)
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.LastName)
+                        @Html.TextBoxFor(Model => Model.LastName, null, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(Model => Model.LastName)
 
-                        </div>
+                    </div>
                     }
                     else
                     {
-                        <div class="form-group">
-                            @Html.LabelFor(Model => Model.OrganizationName)
-                            @Html.TextBoxFor(Model => Model.OrganizationName, null, new { @class = "form-control", @readonly = "\"\"" })
-                        </div>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.OrganizationName)
+                        @Html.TextBoxFor(Model => Model.OrganizationName, null, new { @class = "form-control", @readonly = "\"\"" })
+                    </div>
                     }
                     <div class="form-group">
                         @Html.LabelFor(Model => Model.Username)
@@ -67,11 +71,11 @@
                     </div>
                     @if (Model.UserRole == Roles.COMPANY)
                     {
-                        <div class="form-group">
-                            @Html.LabelFor(Model => Model.ContactEmail)
-                            @Html.TextBoxFor(Model => Model.ContactEmail, null, new { @class = "form-control" })
-                            @Html.ValidationMessageFor(Model => Model.ContactEmail)
-                        </div>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.ContactEmail)
+                        @Html.TextBoxFor(Model => Model.ContactEmail, null, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(Model => Model.ContactEmail)
+                    </div>
                     }
                     <div class="form-group">
                         @Html.LabelFor(Model => Model.Address)
@@ -122,6 +126,8 @@
 
             </div>
             <div id="payment" class="tab-pane fade">
+                @if (Model.UserRole == Roles.USER)
+                {
                 <h2>Your Payment Methods</h2>
                 <table id="cardTable" class="table table-hover" style="width:100%;">
                     <thead>
@@ -133,6 +139,28 @@
                         </tr>
                     </thead>
                 </table>
+                }
+                else if (string.IsNullOrWhiteSpace(Model.StripeCustomerId))//display account add button
+                {
+                <h2>Connect to Stripe</h2>
+                <div class="text-muted">Stripe enables us to send you funds from your auctions!</div>
+                <img src="~/Content/stripeConnect.png" style="width:200px; height:auto; cursor:pointer" onclick="linkStripe()" />
+                }
+                else
+                {
+                <div onclick="viewStripeAccount()" style="font-size: 30px;
+                        cursor: pointer;
+                        border: solid black 2px;
+                        border-radius: 10px;
+                        display: flex;
+                        align-items: center;
+                        justify-content: center;
+                        margin-top: 33px;">
+                    View Your Account on
+                    <img src="~/Content/stripeLogo.svg" style="height:58px; width:auto" />
+                </div>
+                }
+
             </div>
         </div>
     </div>
@@ -204,7 +232,7 @@
         });
 
         $("#PhoneNumber").on("keyup", function (e) {
-            var key = e.which || e.keyCode; 
+            var key = e.which || e.keyCode;
             var caretStart = e.target.selectionStart;
             var caretEnd = e.target.selectionStart;
             var val = $(this).val();
@@ -218,7 +246,7 @@
                 }
             }
         });
-    
+
 
         window.history.replaceState(null, "", '/Account');
         $("#Email, #ContactEmail").on("focusout", function (e) { //autofills contact email if empty
@@ -228,6 +256,9 @@
             }
         });
 
+        @if (Model.UserRole == Roles.USER)//only include user payments stuff if is a user
+        {
+        <text>
         cardTable = $("#cardTable");
         cardTable.dataTable({
             ajax: {
@@ -314,7 +345,57 @@
             html += `<div><b>Billing Address: </b>` + paymentMethod.billingDetails.address.line1 + ", " + paymentMethod.billingDetails.address.city + ", " + paymentMethod.billingDetails.address.state + " " + paymentMethod.billingDetails.address.postalCode + `</div>`;
             return html;
         }
-
+        </text>
+        }
+        else if(string.IsNullOrWhiteSpace(Model.StripeCustomerId)){
+        <text>
+            function linkStripe(){
+                //get link
+                $("#PageLoadingModal").css("display", "flex"); //display loading
+                $.ajax({
+                    url: "/api/stripe/getStripeUrl",
+                    method: "get",
+                    beforeSend: function (xhr) { //add token
+                        var token = getCookie("BearerToken");
+                        if (token != "")
+                            xhr.setRequestHeader("Authorization", "Bearer " + token);
+                    },
+                    success: function (data) {
+                        redirect(data); //redirect to stripe link returned by server
+                        $("#PageLoadingModal").css("display", "none"); //display loading
+                    },
+                    error: function () {
+                        $("#PageLoadingModal").css("display", "none"); //display loading
+                    }
+                });
+            }
+        </text>
+        }
+        else
+        {
+            <text>
+        function viewStripeAccount(){
+                //get link
+                $("#PageLoadingModal").css("display", "flex"); //display loading
+                $.ajax({
+                    url: "/api/stripe/getDashboardUrl",
+                    method: "get",
+                    beforeSend: function (xhr) { //add token
+                        var token = getCookie("BearerToken");
+                        if (token != "")
+                            xhr.setRequestHeader("Authorization", "Bearer " + token);
+                    },
+                    success: function (data) {
+                        redirect(data); //redirect to stripe link returned by server
+                        $("#PageLoadingModal").css("display", "none"); //display loading
+                    },
+                    error: function () {
+                        $("#PageLoadingModal").css("display", "none"); //display loading
+                    }
+                });
+            }
+        </text>
+        }
     </script>
 </body>
 

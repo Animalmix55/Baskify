@@ -22,6 +22,8 @@ namespace baskifyCore.Models
         [Display(Name = "Email Pending")]
         PendingEmail,
         [Display(Name = "Other")]
+        StripePending,
+        [Display(Name = "Other")]
         Other
     }
     public static class Roles 

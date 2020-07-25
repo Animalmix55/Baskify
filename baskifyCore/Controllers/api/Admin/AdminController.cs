@@ -9,6 +9,8 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using System.Data.Entity;
 using baskifyCore.DTOs;
+using baskifyCore.Utilities;
+using Microsoft.AspNetCore.Hosting;
 
 namespace baskifyCore.Controllers.api.Admin
 {
@@ -18,9 +20,11 @@ namespace baskifyCore.Controllers.api.Admin
     public class AdminController : ControllerBase
     {
         ApplicationDbContext _context;
-        public AdminController()
+        IWebHostEnvironment _env;
+        public AdminController(IWebHostEnvironment env)
         {
             _context = new ApplicationDbContext();
+            _env = env;
         }
 
         /// <summary>
@@ -166,7 +170,25 @@ namespace baskifyCore.Controllers.api.Admin
 
             _context.SaveChanges();
 
-            //TODO: SEND EMAIL TO CONTINUE STRIPE REGISTRATION
+            if (string.IsNullOrWhiteSpace(user.StripeCustomerId))
+            {
+                var emailVer = new EmailVerificationModel()
+                {
+                    ChangeTime = DateTime.UtcNow,
+                    ChangeType = ChangeTypes.ADDSTRIPE,
+                    CommitId = Guid.NewGuid(),
+                    Username = user.Username,
+                    Payload = ""
+                };
+                
+                user.Locked = true;
+                user.LockReason = LockReason.StripePending; //lock account for stripe to ensure emial validation
+
+                _context.EmailVerification.Add(emailVer);
+                _context.SaveChanges();
+
+                EmailUtils.sendVerificationEmail(user, emailVer, Request, _env);
+            }
 
             return Ok();
         }

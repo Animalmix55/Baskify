@@ -1,0 +1,154 @@
+<script src="C:\Users\Cory\source\repos\baskify\baskifyCore/wwwroot/lib/jquery/dist/jquery.min.js"></script>
+<script src="C:\Users\Cory\source\repos\baskify\baskifyCore\wwwroot\js\moment-with-locales.js"></script>
+<link rel="stylesheet" href="C:\Users\Cory\source\repos\baskify\baskifyCore\wwwroot\lib/bootstrap/dist/css/bootstrap.lux.min.css" />
+<script src="C:\Users\Cory\source\repos\baskify\baskifyCore\wwwroot\lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+
+
+<style>
+    .TrackingContainer, .trackingEditor, .disputeEditor{
+        position: relative;
+        width: 100%;
+        height: 100%;
+        margin-right: 5%;
+        padding: 1% 1% 1% 1%;
+        margin-left: 5%;
+        border: 1px solid rgba(155, 155, 155, .4);
+        border-radius: 5px;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        background: rgba(155,155,155,.2);
+    }
+    
+    .StatusBar{
+        margin-top:auto;
+        height: 40px;
+        width: 85%;
+        border: 1px solid rgba(71, 168, 87, .4);
+        border-radius: 10px;
+        overflow: hidden;
+        display: flex;
+        flex-direction: row;
+        padding-right: 15%;
+        background: rgba(155,155,155,.8);
+        background-image: url('home.svg');
+        background-position: 99% center;
+        background-repeat: no-repeat;
+        background-size: 30px;
+    }
+    
+    .StatusBar.Delivered{
+        width: 100%;
+        padding-right: unset !important;
+    }
+    
+    .StatusBar.Delivered .stage:last-child{
+        width: 100%;
+        padding-right: unset !important;
+        background-image: url('home.svg');
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 80% 80%
+    }
+    
+    .StatusBar .stage:first-child{
+        background-image: url('box.svg');
+        background-repeat: no-repeat;
+        background-position: center;
+        background-size: 80% 80%
+    }
+    
+    .arrow{
+        height: 100%;
+        right: 0;
+        transform: translateX(15px);
+        position: absolute;
+        z-index: 10;
+    }
+    
+    .stage{
+        cursor: pointer;
+        z-index: 0;
+        flex:1;
+        max-width: 30%;
+        height: 100%;
+        background-color: green;
+        -webkit-filter: drop-shadow( 3px 0px 2px rgba(0, 0, 0, .7));
+        filter: drop-shadow( 3px 0px 2px rgba(0, 0, 0, .7));
+    }
+    
+    .stage:hover{
+        background-color: gray;
+    }
+    
+     .stage:hover polygon{
+        fill: gray;
+    }
+    
+    .brandLogo{
+        width: 22%;
+        height: auto;
+        margin-right: auto;
+        align-self: center;
+    }
+    .infoContainer{
+        height: 80%;
+        width:100%;
+        display: flex;
+        justify-content: flex-start;
+    }
+    
+    .infoData{
+        padding: 5px 0px 20px 0px;
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        flex:1;
+        font-family: sans-serif;
+        color: gray;
+        font-weight: bold;
+        flex-wrap: wrap;
+    }
+    
+    .infoItem{
+        flex-basis:100%;
+        text-align: center;
+    }
+    
+    .stageInfo{
+        display: none;
+        padding: 5px 0px 20px 0px;
+        flex-direction: row;
+        align-items: center;
+        justify-content: flex-start;
+        flex:1;
+        font-family: sans-serif;
+        color: gray;
+        font-weight: bold;
+        flex-wrap: wrap;
+    }
+    
+    .stageInfo.Visible{
+        display: flex;
+    }
+    
+    .exitButton{
+        position: absolute;
+        right: 0;
+        top: 0;
+        color: black;
+        cursor: pointer;
+        user-select: none;
+    }
+    
+</style>
+
+<div id="container" style="height: 200px; width: 700px">
+</div>
+
+<script src="./tracking.js"></script>
+<script>
+    var tracker = new Tracker(50, "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJqdGkiOiI5MjNjZWI3YjVkNWM1OWQyZmZmNGJmZTI0ODdmOGU0YzNkZmYyNWQ2MWE2OGNlZGQ4NGJmZjMzMjUzZmFkZGZiIiwiZW1haWwiOiJjb3J5Y2hlcnZlbkBob3RtYWlsLmNvbSIsIm5hbWVpZCI6ImFuaW1hbG1peDU1IiwidW5pcXVlX25hbWUiOiJDb3J5IENoZXJ2ZW4iLCJyb2xlIjoiVXNlciIsInR5cCI6IjAiLCJuYmYiOjE1OTU0NTM3NjAsImV4cCI6MTU5NTU0MDE2MCwiaWF0IjoxNTk1NDUzNzYwLCJpc3MiOiJodHRwczovL3d3dy5iYXNraWZ5LmNvbSIsImF1ZCI6Imh0dHBzOi8vd3d3LmJhc2tpZnkuY29tIn0.wG54nM7Ih5htPZ86sQa4Q6rlide9a4Jznu4MHOEOsIE", "#container");
+    tracker.buildTracker("#container");
+</script>

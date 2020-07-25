@@ -92,6 +92,9 @@ namespace baskifyCore.Controllers.api
                     case LockReason.PendingEmail:
                         error = "Please verify your account using the link emailed to you.";
                         break;
+                    case LockReason.StripePending:
+                        error = "Please add Stripe to your account using the link provided in your email.";
+                        break;
                     case LockReason.Other:
                         error = "Your account is locked. " + e.Message;
                         break;

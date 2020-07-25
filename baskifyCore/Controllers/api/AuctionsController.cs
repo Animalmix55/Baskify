@@ -13,6 +13,7 @@ using baskifyCore.Utilities;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
+using Stripe;
 using static baskifyCore.DTOs.IncomingSearchDto;
 
 namespace baskifyCore.Controllers.api
@@ -23,10 +24,12 @@ namespace baskifyCore.Controllers.api
     {
         ApplicationDbContext _context;
         IWebHostEnvironment _env;
-        public AuctionsController(IWebHostEnvironment env)
+        IHttpContextAccessor _accessor;
+        public AuctionsController(IWebHostEnvironment env, IHttpContextAccessor accessor)
         {
             _context = new ApplicationDbContext();
             _env = env;
+            _accessor = accessor;
         }
 
         /// <summary>
@@ -89,6 +92,30 @@ namespace baskifyCore.Controllers.api
                 permBasketModel = _context.BasketModel.Include(b => b.photos).Include(b => b.SubmittingUser).Include(b => b.Tickets).Include(b => b.Winner).Where(b => b.AuctionId == id).Where(b => !b.Draft && b.AcceptedByOrg).ToList();
             else
                 permBasketModel = _context.BasketModel.Include(b => b.photos).Include(b => b.SubmittingUser).Include(b => b.Tickets).Where(b => b.AuctionId == id).Where(b => !b.Draft).ToList();
+
+            permBasketModel.ForEach(basket => {
+                if (basket.WinnerUsername == null) //set the status accurately
+                    basket.Status = "Not Drawn";
+                else
+                {
+                    if (basket.DisputedShipment)
+                        basket.Status = "Disputed";
+                    else if (basket.Delivered)
+                        basket.Status = "Delivered";
+                    else if (!string.IsNullOrWhiteSpace(basket.TrackingNumber))
+                    {
+                        var dto = TrackingUtils.TrackBasket(basket, _accessor.HttpContext.Connection.RemoteIpAddress.ToString(), _context);
+                        if (dto != null && dto.Delivered)
+                        {
+                            basket.Status = "Delivered";
+                        }
+                        else
+                            basket.Status = "In Transit";
+                    }
+                    else
+                        basket.Status = "Drawn, Not Delivered";
+                }
+            }); //set status
 
             var OrgBasketDto = Mapper.Map<List<PrivBasketDto>>(permBasketModel); //includes donor address and email
 
@@ -218,8 +245,11 @@ namespace baskifyCore.Controllers.api
             if (auction.isDrawn)
                 return BadRequest("Auction already drawn!");
 
+            if (auction.EndTime > DateTime.UtcNow)
+                return BadRequest("Auction has not yet ended!");
+
             //now, they own the auction
-            if (AuctionUtilities.draw(id, _context, LoginUtils.getAbsoluteUrl("/", Request)))
+            if (AuctionUtilities.draw(id, _context, LoginUtils.getAbsoluteUrl("/", Request), _env))
             {
                 _context.SaveChanges();
                 return Ok("Baskets Drawn");
@@ -273,7 +303,7 @@ namespace baskifyCore.Controllers.api
 
                 //ordering round 1
                 int i = 0;
-                OrderItem orderitem = search.order[i];
+                IncomingSearchDto.OrderItem orderitem = search.order[i];
                 IOrderedQueryable<AuctionModel> orderedQuery;
                 switch (search.columns[orderitem.column].name)
                 {
@@ -336,7 +366,8 @@ namespace baskifyCore.Controllers.api
 
                 var resultSet = orderedQuery.ToList();
 
-                resultSet = resultSet.Where(a => SearchUtils.getMiles(user.Latitude, user.Longitude, a.Latitude, a.Longitude) < a.MaxRange).ToList(); //remove results too far away
+                if(user != null)
+                    resultSet = resultSet.Where(a => SearchUtils.getMiles(user.Latitude, user.Longitude, a.Latitude, a.Longitude) < a.MaxRange).ToList(); //remove results too far away
 
                 //order by distance
                 //DISTANCE MUST BE OUTSIDE OF LINQ QUERY
@@ -393,6 +424,60 @@ namespace baskifyCore.Controllers.api
                     error = "An error was encountered, try again"
                 };
                 return BadRequest(returnObject);
+            }
+        }
+
+        [HttpPost]
+        [Route("{id}/payout")]
+        public ActionResult GetPayout([FromHeader] string authorization, [FromRoute] int id)
+        {
+            if (string.IsNullOrWhiteSpace(authorization))
+                return Unauthorized("No authorization");
+
+            var user = LoginUtils.getUserFromToken(authorization.Replace("Bearer ", string.Empty), _context);
+            if(user == null)
+                return Unauthorized("Bad authorization");
+
+            var auction = _context.AuctionModel.Include(a => a.Baskets).Include(a => a.HostUser).Include(a => a.Payments).Where(a => a.AuctionId == id).FirstOrDefault();
+
+            if (auction == null)
+                return NotFound("Auction not found");
+
+            if (auction.HostUsername != user.Username)
+                return BadRequest("You do not own this auction");
+
+            if (auction.EndTime >= DateTime.UtcNow)
+                return BadRequest("Auction in progress");
+
+            if (auction.PaidOut)
+                return BadRequest("Auction already paid out!");
+
+            var auctionPayoutInfo = new FundraisingTotalsDto(auction);
+            if (!auctionPayoutInfo.isPayable)
+                return BadRequest("Requirements not met");
+
+            //now the user owns the auction, it has ended, been drawn, no disputes, appropriate deliverys in 3 days
+            var amount = auction.Payments.Sum(p => p.Amount - p.Fee);
+            var options = new PayoutCreateOptions() {
+                Amount = amount,
+                Currency = "usd"
+            };
+
+            var requestOptions = new RequestOptions();
+            requestOptions.StripeAccount = auction.HostUser.StripeCustomerId;
+
+            var service = new PayoutService();
+
+            try
+            {
+                var payout = service.Create(options, requestOptions); //pays out to connected account
+                auction.PaidOut = true;
+                _context.SaveChanges();
+                return Ok();
+            }
+            catch (Exception e)
+            {
+                return BadRequest("Failed to begin transfer, perhaps balance is pending?");
             }
         }
     }

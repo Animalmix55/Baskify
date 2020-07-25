@@ -1,6 +1,6 @@
 ﻿@model UserModel
 @{
-    ViewData["Title"] = "Index";
+    ViewData["Title"] = "Your Transactions";
 }
 <script src="~/js/moment-with-locales.js"></script>
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.4/css/responsive.dataTables.min.css" />
@@ -9,7 +9,7 @@
 <script type="text/javascript" charset="utf-8" src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
 <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css" />
 <div class="maxWidthContainer">
-    <h2 style="text-align: center;" class="display-4">Your Transactions</h2>
+    <h2 style="text-align: center;" class="display-4 transactionsHeader">Your Transactions</h2>
     <p style="text-align:center;">This is a list of all of your transactions on file with Baskify.</p>
     <table id="transactionTable" style="width:100%">
         <thead>

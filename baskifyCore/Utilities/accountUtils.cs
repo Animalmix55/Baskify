@@ -200,7 +200,7 @@ namespace baskifyCore.Utilities
 
                 bool emailsSent = false;
 
-                emailsSent = EmailUtils.sendVerificationEmail(oldUser, emailChange, req);
+                emailsSent = EmailUtils.sendVerificationEmail(oldUser, emailChange, req, _env);
 
                 if (!emailsSent)
                 {
@@ -253,10 +253,10 @@ namespace baskifyCore.Utilities
                     {
                         numericalNumber = long.Parse(newUser.PhoneNumber.Where(c => char.IsNumber(c)).ToArray());
                     }
-                    VerificationCodeUtils.SetMFA(oldUser, newUser.isMFA, numericalNumber, _context, req);
+                    VerificationCodeUtils.SetMFA(oldUser, newUser.isMFA, numericalNumber, _context, req, _env);
                 }
                 else //disable MFA
-                    VerificationCodeUtils.SetMFA(oldUser, newUser.isMFA, null, _context, req);
+                    VerificationCodeUtils.SetMFA(oldUser, newUser.isMFA, null, _context, req, _env);
             }
 
             if (oldUser.UserRole == Roles.COMPANY)
@@ -340,13 +340,51 @@ namespace baskifyCore.Utilities
 
             var RecoveryBearerToken = LoginUtils.buildToken(user, _context, TokenTypes.PASSWORDRESET).Result;
 
-            var sent = EmailUtils.sendRecoveryEmail(user, RecoveryBearerToken, request);
+            var sent = EmailUtils.sendRecoveryEmail(user, RecoveryBearerToken, request, _env);
 
             if (!sent) //if for some reason there's an error...
                 throw new Exception("Email failed to send");
 
             return true;
 
+        }
+
+        public static string GetStripeRegistrationState(Guid VerifyId, EmailVerificationModel verification, UserModel user, ApplicationDbContext _context)
+        {
+            if (VerifyId == verification.CommitId)
+            {
+                var state = Guid.NewGuid();
+                var RegistrationModel = new StripeRegistrationModel()
+                {
+                    State = state,
+                    Username = user.Username,
+                    EmailVerificationId = verification.ChangeId
+                };
+
+                _context.StripeRegistrationModel.RemoveRange(_context.StripeRegistrationModel.Where(m => m.Username == user.Username)); //remove old registrations
+                _context.StripeRegistrationModel.Add(RegistrationModel);
+                _context.SaveChanges();
+
+                return state.ToString();
+            }
+            else
+                return null;
+        }
+
+        public static string GetStripeRegistrationState(UserModel user, ApplicationDbContext _context)
+        {
+            var state = Guid.NewGuid();
+            var RegistrationModel = new StripeRegistrationModel()
+            {
+                State = state,
+                Username = user.Username,
+            };
+
+            _context.StripeRegistrationModel.RemoveRange(_context.StripeRegistrationModel.Where(m => m.Username == user.Username)); //remove old registrations
+            _context.StripeRegistrationModel.Add(RegistrationModel);
+            _context.SaveChanges();
+
+            return state.ToString();
         }
     }
 

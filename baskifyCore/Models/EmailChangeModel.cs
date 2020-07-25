@@ -16,6 +16,7 @@ namespace baskifyCore.Models
         public const int EMAIL = 1;
         public const int AUCTIONDELETION = 2;
         public const int VERIFYEMAIL = 4;
+        public const int ADDSTRIPE = 5; //used for stripe signup
     }
 
     public class EmailVerificationModel : IValidatableObject

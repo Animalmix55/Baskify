@@ -90,7 +90,6 @@ namespace baskifyCore.Utilities
         }
         /// <summary>
         /// Gets a logged in user if they exist, otherwise throws an exception. Automatically builds a new bearer token into the UserModel.
-        /// Ignore lock will allow access if locked for 30 minutes after account creation (for MFA).
         /// </summary>
         /// <param name="username"></param>
         /// <param name="password"></param>

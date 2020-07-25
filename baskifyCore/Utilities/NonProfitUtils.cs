@@ -29,8 +29,8 @@ namespace baskifyCore.Utilities
             List<IRSNonProfit> results;
             if(int.TryParse(searchString, out ein))
             {
-               //results = _context.IRSNonProfit.Where(np => np.EIN.Contains(searchString)).Take(10).ToList();
-               results = _context.IRSNonProfit.SqlQuery("SELECT TOP(5) * FROM IRSNonProfits WHERE EIN LIKE @ein", new SqlParameter("@ein", $"%{searchString}%")).ToList();
+                //results = _context.IRSNonProfit.Where(np => np.EIN.Contains(searchString)).Take(10).ToList();
+                results = new List<IRSNonProfit>() { _context.IRSNonProfit.Find(ein) };
             }
             else
             {

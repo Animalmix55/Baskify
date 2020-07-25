@@ -2,6 +2,7 @@
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Reflection;
 using System.Threading.Tasks;
 
 namespace baskifyCore.ViewModels
@@ -16,5 +17,6 @@ namespace baskifyCore.ViewModels
         public UserModel User { get; set; }
         public string Contents { get; set; }
         public string rootUrl { set; get; }
+        public string Title { get; set; }
     }
 }

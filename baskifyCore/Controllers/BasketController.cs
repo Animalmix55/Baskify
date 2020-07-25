@@ -401,6 +401,7 @@ namespace baskifyCore.Controllers
         [HttpPost]
         public IActionResult userCreate(Guid Link)
         {
+            var disputes = new List<BasketModel>();
             var user = LoginUtils.getUserFromToken(Request.Cookies["BearerToken"], _context, Response);
             if (user == null)
                 return Content("ERROR: INVALID LOGIN");
@@ -415,6 +416,12 @@ namespace baskifyCore.Controllers
 
             if (AuctionLink.Auction.EndTime < DateTime.UtcNow)
                 return Content("ERROR: AUCTION HAS ENDED"); //can't put a new basket in a terminated auction
+
+            if ((disputes = _context.BasketModel.Include(b => b.AuctionModel).Where(b => b.SubmittingUsername == user.Username && b.AuctionModel.DeliveryType == DeliveryTypes.DeliveryBySubmitter && b.DisputedShipment).ToList()).Count > 0)
+            {
+                var error = $"You cannot create any baskets when you have pending disputes on basket(s): {string.Join(',', disputes.Select(d => d.BasketTitle + $" (in '{d.AuctionModel.Title}')" ))}";
+                return Content(error);
+            }
 
             var basket = basketUtils.getDraftBasket(user, _context, AuctionLink.AuctionId); //get draft, destroy old drafts
 

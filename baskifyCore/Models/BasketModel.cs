@@ -85,10 +85,25 @@ namespace baskifyCore.Models
 
         public PostalCarrier? Carrier { get; set; }
 
+        public DateTime? DeliveryTime { get; set; }
+
+        public bool DisputedShipment { get; set; }
+
+        public string DisputeReason { get; set; }
+
+        public DateTime? DisputeTime { get; set; }
+
         //--------------------------------------------UNMAPPED ATTRIBUTES---------------------------------
 
         [NotMapped]
         public List<string> addImages { get; set; }
+
+
+        /// <summary>
+        /// Used to set privbasketdto status
+        /// </summary>
+        [NotMapped]
+        public string Status { get; set; }
 
         [NotMapped]
         public List<string> removeImages { get; set; }
@@ -96,6 +111,8 @@ namespace baskifyCore.Models
         [NotMapped]
         public TicketModel UserTickets { get; set; } //the tickets for a SPECIFIC user, as needed
 
+        [NotMapped]
+        public int? NumTickets { get { return (Tickets == null ? (int?)null : (int?)Tickets.Sum(t => t.NumTickets)); } }
 
             /*
         {
@@ -111,6 +128,9 @@ namespace baskifyCore.Models
 
             if (!string.IsNullOrWhiteSpace(TrackingNumber) && Carrier == null)
                 yield return new ValidationResult("A postal carrier must be specified!");
+
+            if(Delivered && DeliveryTime == null)
+                yield return new ValidationResult("A delivered basket must have a delivery time!");
         }
     }
 }

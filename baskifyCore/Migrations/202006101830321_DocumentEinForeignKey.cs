@@ -7,6 +7,7 @@
     {
         public override void Up()
         {
+            try { DropForeignKey("dbo.IRSNonProfitDocuments", "EIN", "dbo.IRSNonProfits"); } catch (Exception) { }
             AddForeignKey("dbo.IRSNonProfitDocuments", "EIN", "dbo.IRSNonProfits", "EIN", cascadeDelete: true);
         }
         

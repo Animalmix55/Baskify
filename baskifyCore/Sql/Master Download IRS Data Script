@@ -1,0 +1,38 @@
+CREATE DATABASE SCOPED CREDENTIAL IRSAzureBlobCredential
+WITH IDENTITY = 'SHARED ACCESS SIGNATURE',
+SECRET = 'sp=rl&st=2020-07-24T23:44:41Z&se=2023-07-25T23:44:00Z&sv=2019-12-12&sr=c&sig=JJeTnH76QrjZtwl4fCHDTcvoKS9x0%2BwdqssDgg2fSGc%3D';​
+
+CREATE EXTERNAL DATA SOURCE IRSBlobStorageSource
+WITH ( TYPE = BLOB_STORAGE,
+       LOCATION = 'https://irsdata.blob.core.windows.net/irs',
+       CREDENTIAL= IRSAzureBlobCredential);
+	   
+INSERT INTO IRSNonProfits(EIN, OrganizationName, City, [State], Country)
+SELECT EIN, OrganizationName, City, [State], Country
+  FROM OPENROWSET(
+	BULK  'data-download-pub78.txt',
+	DATA_SOURCE = 'IRSBlobStorageSource',
+	FIRSTROW = 3,
+	LASTROW = 1167122,
+	FORMATFILE='format.fmt',
+	FORMATFILE_DATA_SOURCE = 'IRSBlobStorageSource'
+  ) AS Datafile
+  
+DECLARE @JSON VARCHAR(MAX);
+
+SELECT @JSON = BulkColumn
+FROM OPENROWSET 
+(BULK 'index_2019.json', 
+DATA_SOURCE = 'IRSBlobStorageSource', SINGLE_BLOB, FORMATFILE_DATA_SOURCE = 'IRSBlobStorageSource') 
+AS j;
+
+INSERT INTO IRSNonProfitDocuments
+SELECT EIN, [URL], DLN, TaxPeriod, FormType, NEWID() AS Id
+  FROM OPENJSON (@JSON, '$.Filings2019')
+  WITH (EIN VARCHAR(20) '$.EIN',
+    [URL] VARCHAR(200) '$.URL',
+	OrganizationName VARCHAR(100) '$.OrganizationName',
+	DLN VARCHAR(50) '$.DLN',
+    TaxPeriod VARCHAR(10) '$.TaxPeriod',
+    FormType VARCHAR(10) '$.FormType') as e
+	WHERE EXISTS ((SELECT 1 FROM IRSNonProfits as a WHERE (a.EIN = e.EIN)))

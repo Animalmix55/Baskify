@@ -127,6 +127,13 @@ namespace baskifyCore.Models
         /// </summary>
         public DateTime? DrawDate { get; set; }
 
+        /// <summary>
+        /// If the auction host has been paid yet
+        /// </summary>
+        public bool PaidOut { get; set; }
+
+        public List<PaymentModel> Payments { get; set; }
+
         [NotMapped]
         public IFormFile BannerImage { get; set; }
 
