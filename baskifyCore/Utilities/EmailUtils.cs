@@ -155,6 +155,16 @@ namespace baskifyCore.Utilities
                     subject = "Register with Stripe!";
 
                     return SendEmail(user.Email, subject, getEmailTemplate(subject, OrigEmailText, new List<string>() { "Add Stripe" }, new List<string>() { LoginUtils.getAbsoluteUrl(String.Format("/verify?VerifyId={0}&ChangeId={1}", verificationModel.CommitId, verificationModel.ChangeId), request) }, _env));
+                case ChangeTypes.CONTACTEMAIL:
+                    OrigEmailText += " change your contact email to: <b>" + verificationModel.Payload + "</b>.\n";
+                    OrigEmailText += "If you did not request this change, <b>CHANGE YOUR PASSWORD</b> as this request originates from inside of your account.\n";
+                    OrigEmailText += "If you did request this change, verify it by clicking the button below!";
+
+                    subject = "Your Contact Email Change Request";
+
+                    return SendEmail(verificationModel.Payload, subject,
+                        getEmailTemplate(subject, OrigEmailText, new List<string>() { "Verify Change" }, new List<string>() { LoginUtils.getAbsoluteUrl(String.Format("/verify?VerifyId={0}&ChangeId={1}", verificationModel.CommitId, verificationModel.ChangeId), request) }, _env));
+
             }
             return false;
         }
@@ -218,9 +228,11 @@ namespace baskifyCore.Utilities
                 user.Email = emailChange.Payload;
                 emailChange.Payload = oldEmail; //after commiting, the emailChange object holds the OLD email!
                 emailChange.Committed = true;
+                /* EMAIL ALERTS DISABLED
                 var emailAlert = _context.UserAlert.Find(emailChange.AlertId);
                 //remove email alert, should already be attached
                 _context.UserAlert.Remove(emailAlert);
+                */
                 return "The requested email change was executed";
             }
             else if (VerifyId == emailChange.RevertId) //roll back
@@ -442,10 +454,11 @@ namespace baskifyCore.Utilities
         /// <param name="user"></param>
         /// <param name="_context"></param>
         /// <returns></returns>
-        public static string VerifyEmail(Guid VerifyId, EmailVerificationModel verification, UserModel user, ApplicationDbContext _context)
+        public static string VerifyEmail(Guid VerifyId, EmailVerificationModel verification, UserModel user)
         {
             if (verification.CommitId == VerifyId)
             {
+                verification.Committed = true;
                 if (user.Locked && user.LockReason == LockReason.PendingEmail) //unlock user
                 {
                     user.Locked = false;
@@ -457,6 +470,21 @@ namespace baskifyCore.Utilities
             }
             else
                 return "An unknown error occured, invalid verification code.";
+        }
+
+        public static string VerifyContactEmailChange(Guid VerifyId, EmailVerificationModel verification, UserModel user)
+        {
+            if (verification.ChangeTime.AddDays(5) < DateTime.UtcNow)
+                return "Change request expired after 5 days!";
+
+            if (verification.CommitId == VerifyId)
+            {
+                verification.Committed = true;
+                user.ContactEmail = verification.Payload;
+                return "Contact email updated successfully!";
+            }
+            else
+                return "An unknown error occured, verification code did not match!";
         }
     }
 

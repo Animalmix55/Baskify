@@ -91,8 +91,12 @@ namespace baskifyCore
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
 #if !DEBUG
-            if (!string.IsNullOrEmpty(ConfigurationManager.AppSettings["LogDir"]))
-                Console.SetOut(new System.IO.StreamWriter(ConfigurationManager.AppSettings["LogDir"]));
+            try
+            {
+                if (!string.IsNullOrEmpty(ConfigurationManager.AppSettings["LogDir"]))
+                    Console.SetOut(new System.IO.StreamWriter(ConfigurationManager.AppSettings["LogDir"]));
+            }
+            catch (Exception) { } //in case the file is in use
 #endif
 
             TwilioClient.Init(ConfigurationManager.AppSettings["TwilioAccountSID"], ConfigurationManager.AppSettings["TwilioAuth"]);
@@ -107,11 +111,12 @@ namespace baskifyCore
             }
             else
             {
-                app.UseExceptionHandler("/Home/Error");
+                app.UseExceptionHandler("/error");
                 // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
                 app.UseHsts();
             }
 
+            app.UseStatusCodePagesWithReExecute("/Error","?statusCode={0}");
             app.UseHttpsRedirection();
             app.UseStaticFiles();
 

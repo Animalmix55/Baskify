@@ -85,6 +85,8 @@ namespace baskifyCore.Utilities
         {
             if(VerifyId != verification.CommitId) 
                 return "Invalid Deletion ID!";
+            if (verification.ChangeTime.AddHours(1) < DateTime.UtcNow)
+                return "This change request expired after 1 hour!";
             var auction = _context.AuctionModel.Find(int.Parse(verification.Payload)); //newValue stores the auction id as a string
             if (auction == null)
                 return "Auction Not Found!";

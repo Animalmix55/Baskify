@@ -147,13 +147,15 @@ namespace baskifyCore.Utilities
         /// <param name="newUser"></param>
         /// <param name="_context">Uses context to update the user, alert, and email change entries</param>
         /// <param name="req">Needs the request to produce an email verification link without hardcoding</param>
-        public static void updateUser(UserModel oldUser, UserModel newUser, ApplicationDbContext _context, HttpRequest req, ModelStateDictionary ModelState, Controller controller, IWebHostEnvironment _env)
+        public static string updateUser(UserModel oldUser, UserModel newUser, ApplicationDbContext _context, HttpRequest req, ModelStateDictionary ModelState, Controller controller, IWebHostEnvironment _env)
         {
+            var returnString = "";
+
             Dictionary<string, string> addressDict = validateAddress(newUser.Address, newUser.City, newUser.State, newUser.ZIP);
             if (addressDict["resultStatus"] == "ADDRESS NOT FOUND")
             {
                 ModelState.AddModelError("Address", "Invalid Address");
-                return;
+                return "";
             }
             else
             {
@@ -165,8 +167,43 @@ namespace baskifyCore.Utilities
                 newUser.Longitude = float.Parse(addressDict["lng"]);
             }
 
+            if(oldUser.UserRole == Roles.COMPANY && oldUser.ContactEmail != newUser.ContactEmail)
+            {
+                Guid commitId = Guid.NewGuid();
+
+                var contactEmailChange = new EmailVerificationModel() //this is the email change sent to server
+                {
+                    ChangeTime = DateTime.UtcNow,
+                    ChangeType = ChangeTypes.CONTACTEMAIL, //signals it's an email change
+                    CommitId = commitId,
+                    Committed = false,
+                    Payload = newUser.ContactEmail,
+                    RevertId = new Guid(),
+                    Username = oldUser.Username,
+                    CanRevert = false
+                };
+
+                _context.EmailVerification.RemoveRange(_context.EmailVerification.Where(ev => ev.Username == oldUser.Username && ev.ChangeType == ChangeTypes.CONTACTEMAIL)); //remove old changes
+                _context.EmailVerification.Add(contactEmailChange);
+
+                _context.SaveChanges(); //get email verification id
+
+                var emailsSent = EmailUtils.sendVerificationEmail(oldUser, contactEmailChange, req, _env);
+
+                if (!emailsSent)
+                {
+                    //rollback email change
+                    _context.EmailVerification.Remove(contactEmailChange);
+                    _context.SaveChanges();
+                    throw new Exception("Verification Emails Failed to Send");
+                }
+
+                returnString += "Contact address verification email sent! ";
+            }
+
             if (oldUser.Email != newUser.Email)
             {
+                //DOES NOT ENSURE A CHANGE HASN'T HAPPENED WITHIN 10 DAYS, DO THAT ELSEWHERE
                 Guid commitId = Guid.NewGuid();
                 Guid revokeId = Guid.NewGuid();
 
@@ -182,6 +219,7 @@ namespace baskifyCore.Utilities
                     CanRevert = true
                 };
 
+                /* EMAIL ALERTS ARE OVERWHELMING
                 _context.UserAlert.RemoveRange(_context.UserAlert.Where(a => a.AlertType == "EmailAlert")); //REMOVE ALL OTHER EMAIL ALERTS FIRST
 
                 var EmailAlert = new UserAlertModel()//Add email change alert
@@ -195,6 +233,8 @@ namespace baskifyCore.Utilities
                 _context.UserAlert.Add(EmailAlert);
                 _context.SaveChanges(); //get alert id
                 emailChange.AlertId = EmailAlert.Id; //add alert to email change model
+                */
+
                 _context.EmailVerification.Add(emailChange);
                 _context.SaveChanges(); //get email verification id
 
@@ -206,16 +246,16 @@ namespace baskifyCore.Utilities
                 {
                     //rollback email change
                     _context.EmailVerification.Remove(emailChange);
-                    _context.UserAlert.Remove(EmailAlert);
+                    //_context.UserAlert.Remove(EmailAlert);
                     _context.SaveChanges();
                     throw new Exception("Verification Emails Failed to Send");
                 }
 
-                _context.Entry(oldUser).Reload();
+                returnString += "Email address verification email sent! ";
             }
 
             //To get here, address must be valid and emails must have sent
-            if (oldUser.StripeCustomerId != null && oldUser.Address != newUser.Address)
+            if (oldUser.StripeCustomerId != null && oldUser.Address != newUser.Address && oldUser.UserRole != Roles.COMPANY)
             {
                 var service = new CustomerService();
                 var update = new CustomerUpdateOptions()
@@ -257,12 +297,13 @@ namespace baskifyCore.Utilities
                 }
                 else //disable MFA
                     VerificationCodeUtils.SetMFA(oldUser, newUser.isMFA, null, _context, req, _env);
+
+                returnString += "MFA verification email sent! ";
             }
 
-            if (oldUser.UserRole == Roles.COMPANY)
-                oldUser.ContactEmail = newUser.ContactEmail;
-
             ModelState.Clear();
+
+            return returnString;
         }
 
         /// <summary>
