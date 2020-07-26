@@ -764,7 +764,7 @@
     }
 
     $('#basketTable tbody').on('click', 'td.details-control', function () {
-        var tr = $(this).closest('tr');
+        var tr = $(this).parent('tr');
         var row = basketTable.DataTable().row(tr);
         var basket = row.data();
 

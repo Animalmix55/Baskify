@@ -1,0 +1,51 @@
+﻿@model baskifyCore.Models.ContactModel
+
+<!DOCTYPE html>
+@{
+    ViewData["Title"] = "Contact Us";
+}
+
+<html>
+<head>
+    <meta name="viewport" content="width=device-width" />
+</head>
+<body>
+    <h1 style="margin-top:30px;">Contact Us</h1>
+    <div class="maxWidthContainer">
+        @using (Html.BeginForm("submit", "contact", FormMethod.Post, new { @id = "contactForm", enctype = "multipart/form-data", needsLogin = "false"}))
+        {
+            @Html.ValidationSummary(true)
+        <fieldset>
+            <div class="form-group">
+                @Html.LabelFor(Model => Model.Email)
+                <input type="email" class="form-control" placeholder="Email" name="Email" value="@Model.Email" @if (Model.Email != null) { <text> readonly</text> } />
+                @Html.ValidationMessageFor(Model => Model.Email)
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(Model => Model.Subject)
+                @Html.TextBoxFor(Model => Model.Subject, new { @class = "form-control", @placeholder = "Subject" })
+                @Html.ValidationMessageFor(Model => Model.Subject)
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(Model => Model.Message)
+                @Html.TextAreaFor(Model => Model.Message, 5, 50, new { @class = "form-control", @placeholder = "Enter your message" })
+                @Html.ValidationMessageFor(Model => Model.Message)
+            </div>
+            <input type="hidden" name="Token" />
+            <button class="g-recaptcha btn btn-success"
+                    data-sitekey="@baskifyCore.Utilities.CaptchaConsts.Public"
+                    data-callback='onSubmit'
+                    data-action='submit'>
+                Submit
+            </button>
+        </fieldset>
+        }
+    </div>
+    <script>
+        function onSubmit(token) {
+            $("[name=Token]").val(token);
+            $("#contactForm").submit();
+        }
+    </script>
+</body>
+</html>

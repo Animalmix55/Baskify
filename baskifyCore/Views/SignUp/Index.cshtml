@@ -3,14 +3,15 @@
     ViewData["Title"] = "Signup";
 }
 
-<head>
-    <script src="~/lib/jquery/dist/jquery.min.js"></script>
-    <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
-    <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.lux.min.css" />
-    <link rel="stylesheet" href="~/css/site.css" />
-    <meta name="viewport" content="width=device-width" />
-    <title>Sign Up</title>
-</head>
+    <head>
+        <script src="~/lib/jquery/dist/jquery.min.js"></script>
+        <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
+        <script src="https://www.google.com/recaptcha/api.js?render=@baskifyCore.Utilities.CaptchaConsts.Public"></script>
+        <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.lux.min.css" />
+        <link rel="stylesheet" href="~/css/site.css" />
+        <meta name="viewport" content="width=device-width" />
+        <title>Sign Up</title>
+    </head>
 <body>
     <nav class="navigationBar">
         <a class="navigationBarBrand navBarElement" href="/"><img src="~/Content/Logo.png" style="height:75%; width: auto;" />Baskify</a>
@@ -295,7 +296,9 @@
                         <div id="MFAPopup" style="width:80%">
 
                         </div>
-                        <button type="button" class="btn btn-success nextSlide" onclick="createAccount()" style="width:80%">Skip and Create Account</button>
+                        <input name="Token" type="hidden" />
+                        <button type="button" class="btn btn-success nextSlide g-recaptcha" data-sitekey="@baskifyCore.Utilities.CaptchaConsts.Public"
+                        data-callback='createAccount' style="width:80%">Skip and Create Account</button>
                     </div>
                 </div>
             </form>
@@ -981,7 +984,8 @@
 
         var username;
         var password;
-        function createAccount() {
+        function createAccount(token) {
+            $("[name=Token]").val(token); //add token to form
             data = new FormData($("#signUpForm")[0]);
             $("#PageLoadingModal").css("display", "flex");
             $.ajax({
@@ -1071,7 +1075,13 @@
                     type: @((int)VerificationType.NewPhone)
                 },
                 success: function (id) {
-                    MFAEnroller = new MFAValidator(id, 0 + @((int)VerificationType.NewPhone), $("#Phone").val(), "#MFAPopup", null, (data) => { createAccount() }, hideAltVerification, "MFAValId", "MFASecret", "MFAPhone"); //create valCode instance
+                    MFAEnroller = new MFAValidator(id, 0 + @((int)VerificationType.NewPhone), $("#Phone").val(), "#MFAPopup", null, (data) => {
+                        grecaptcha.ready(function () {
+                            grecaptcha.execute('@baskifyCore.Utilities.CaptchaConsts.Public', { action: 'submit' }).then(function (token) {
+                                createAccount(token); //sends token to programmatically invoke
+                            });
+                        });
+                    }, hideAltVerification, "MFAValId", "MFASecret", "MFAPhone"); //create valCode instance
                     $("#MFAVerificationAlert").css("display", "none");
                     phoneNum = $("#Phone").val();
                 },

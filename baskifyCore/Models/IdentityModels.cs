@@ -36,5 +36,7 @@ namespace baskifyCore.Models
         public DbSet<AnonymousClientModel> AnonymousClientModel { get; set; }
         public DbSet<AccountDocumentsModel> AccountDocumentsModel { get; set; }
         public DbSet<StripeRegistrationModel> StripeRegistrationModel { get; set; }
+
+        public DbSet<ContactModel> ContactModel { get; set; }
     }
 }

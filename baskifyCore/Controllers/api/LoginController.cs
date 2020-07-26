@@ -24,12 +24,15 @@ namespace baskifyCore.Controllers.api
 
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public ActionResult Index([FromForm] string Username, [FromForm] string Password, [FromForm] string redirectUrl)
+        public ActionResult Index([FromForm] string Username, [FromForm] string Password, [FromForm] string redirectUrl, [FromForm] string Token)
         {
             if (string.IsNullOrWhiteSpace(Username) || string.IsNullOrWhiteSpace(Password))
                 return BadRequest("Input fields mustn't be empty");
             try
             {
+                if (!CaptchaUtils.verifyToken(Token))
+                    return BadRequest("Invalid reCAPTCHA!");
+
                 var user = LoginUtils.getUserAsync(Username, Password, _context).Result; //get user model
                 if (user.isMFA)
                 {

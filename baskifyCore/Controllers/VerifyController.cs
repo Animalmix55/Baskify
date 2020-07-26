@@ -26,15 +26,14 @@ namespace baskifyCore.Controllers
         [HttpGet]
         public IActionResult Index(int ChangeId, Guid VerifyId)
         {
+            var userIsTemp = false;
+
             if (VerifyId == null)//if accidentally navigated here, go home
                 return Redirect("/");
 
             var verification = _context.EmailVerification.Find(ChangeId);
 
             var user = LoginUtils.getUserFromToken(Request.Cookies["BearerToken"], _context, Response);
-
-            if (verification?.ChangeType == ChangeTypes.VERIFYEMAIL) //get user for email verification
-                user = _context.UserModel.Find(verification.Username);
 
             if(verification?.ChangeType == ChangeTypes.ADDSTRIPE) //unlock the user
             {
@@ -47,9 +46,16 @@ namespace baskifyCore.Controllers
                 _context.SaveChanges();
             }
 
-            if (user == null)//invalid login state, redirect to login if not verifying email
-                return Redirect("/login?redirectBack=" + HttpUtility.UrlEncode(Request.GetDisplayUrl()));
-
+            if (user == null)//invalid login state, redirect to login if not verifying email or reverting email change
+            {
+                if ((verification?.ChangeType == ChangeTypes.EMAIL && VerifyId == verification?.RevertId) || verification?.ChangeType == ChangeTypes.VERIFYEMAIL)
+                {
+                    user = _context.UserModel.Find(verification.Username);
+                    userIsTemp = true;
+                }
+                else
+                    return Redirect("/login?redirectBack=" + HttpUtility.UrlEncode(Request.GetDisplayUrl()));
+            }
 
             if (verification == null) //reverted changes are deleted or...
             { //some odd issue occured?
@@ -76,14 +82,12 @@ namespace baskifyCore.Controllers
                     case ChangeTypes.EMAIL:
                         ViewData["Alert"] = EmailUtils.VerifyEmailChange(VerifyId, verification, user, _context);
                         break;
-
                     case ChangeTypes.AUCTIONDELETION:
                         ViewData["Alert"] = AuctionUtilities.VerifyDeletion(VerifyId, verification, user, _context, _env.WebRootPath);
                         break;
                     case ChangeTypes.VERIFYEMAIL:
                         ViewData["Alert"] = EmailUtils.VerifyEmail(VerifyId, verification, user);
-                        _context.SaveChanges();
-                        return View("~/Views/Home/Index.cshtml", new UserModel()); //redirect home, NOT logged in
+                        break;
                     case ChangeTypes.ADDSTRIPE:
                         var stateKey = accountUtils.GetStripeRegistrationState(VerifyId, verification, user, _context);
                         var baskifyLandingPage = HttpUtility.UrlEncode(LoginUtils.getAbsoluteUrl("/Stripe/completeSignup", Request));
@@ -95,7 +99,7 @@ namespace baskifyCore.Controllers
                 }
 
                 _context.SaveChanges();
-                return View("~/Views/Home/Index.cshtml", user); //redirect home
+                return View("~/Views/Home/Index.cshtml", !userIsTemp? user : new UserModel()); //redirect home, only provide user if they are logged in initially
             }
             else //MFA change
             {

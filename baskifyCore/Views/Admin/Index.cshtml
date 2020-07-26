@@ -18,7 +18,21 @@
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.lux.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
+    <style>
+        td.details-control {
+            background: url('/Content/details_open.png') no-repeat center center;
+            cursor: pointer;
+        }
 
+        tr.shown td.details-control {
+            background: url('/Content/details_close.png') no-repeat center center;
+        }
+
+        tr.unread{
+            font-weight: bold;
+            background-color: rgba(0,0,0,.07);
+        }
+    </style>
 </head>
 <body>
     <div id="editUser" class="modal">
@@ -196,12 +210,23 @@
         </table>
     </div>
 
+    <div id="messageContextMenu" style="display:none; position:absolute; z-index:100000; border: 1px solid rgba(85, 89, 92, 0.52); background: white">
+        <table class="contextMenu table table-hover">
+            <tbody>
+                <tr class="delete" style="cursor:pointer" onclick="deleteMessage()"><td>Delete</td></tr>
+            </tbody>
+        </table>
+    </div>
+
     <nav class="navigationBar">
         <a class="navigationBarBrand navBarElement" href="/">Baskify</a>
     </nav>
     <ul class="nav nav-tabs">
         <li class="nav-item">
             <a class="nav-link active" data-toggle="tab" href="#users">Accounts</a>
+        </li>
+        <li class="nav-item">
+            <a class="nav-link" data-toggle="tab" href="#ContactSubmissions">Messages</a>
         </li>
     </ul>
     <div id="myTabContent" class="tab-content" style="width:100%">
@@ -223,8 +248,200 @@
                 </thead>
             </table>
         </div>
+        <div id="ContactSubmissions" class="tab-pane fade">
+            <table id="contactTable" class="table table-hover" style="width:100%;">
+                <thead>
+                    <tr>
+                        <th></th>
+                        <th>Subject</th>
+                        <th>Email</th>
+                        <th>Submission Date</th>
+                        <th>Pinned</th>
+                    </tr>
+                </thead>
+            </table>
+        </div>
     </div>
     <script>
+
+        function deleteMessage() {
+            var id = $("#messageContextMenu").data().targetMessage.id;
+            var row = $(`[data-id=${id}]`)[0];
+
+            $.ajax({
+                url: `/api/admin/DeleteMessage/${id}`,
+                method: "post",
+                dataType: false,
+                beforeSend: function (xhr) { //add token
+                    var token = getCookie("Admin");
+                    if (token != "")
+                        xhr.setRequestHeader("Authorization", token);
+                },
+                success: function (data) {
+                    $("#contactTable").DataTable().row(row).remove(); //remove row
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert(xhr.responseText); //alert error
+                }
+            });
+        }
+
+     $("#messageContextMenu").on("click", function (e) {
+            setTimeout(() => { $(this).css("display", "none") }, 500); //hide after .5 secs
+        });
+
+        $(document).on("contextmenu", "#contactTable tr", function (e) {
+            var x = e.pageX;
+            var y = e.pageY;
+
+            var message = $("#contactTable").DataTable().row(this).data();
+
+            var menu = $("#messageContextMenu");
+            menu.data("targetMessage", message); //add user to data
+
+            menu.css({ top: y, left: x, display: "block" });
+            const handler = (e) => {
+                var $box = $('#messageContextMenu');
+                if (e.target.id !== 'messageContextMenu' && !$.contains($box[0], e.target)) {
+                    menu.css({ display: "none" });
+                    $(document).off("click", handler);
+                }
+            }
+            $(document.body).on("click", handler); //adds and removes menu
+
+            return false; //stop propogation
+        });
+
+    $("#contactTable").dataTable({
+        serverSide: true,
+        ajax: {
+            url: "/api/admin/GetMessages",
+            type: "POST",
+            data: function (d) {
+                return JSON.stringify(d);
+            },
+            contentType: "application/json",
+            dataSrc: "data",
+            beforeSend: function (xhr) { //add token
+                var token = getCookie("Admin");
+                if (token != "")
+                    xhr.setRequestHeader("Authorization", token);
+            }
+        },
+        createdRow: function (row, data, dataIndex) {
+            if (!data.read) {
+                $(row).addClass("unread");
+            }
+            $(row).attr("data-id", data.id);
+        },
+        columns: [
+            {
+                className: 'details-control',
+                orderable: false,
+                defaultContent: "",
+                data: null
+            },
+            {
+                name: "Subject",
+                data: "subject",
+                className: 'data',
+                responsivePriority: 1
+            },
+            {
+                name: "Email",
+                data: "email",
+                responsivePriority: 3,
+                className: 'data'
+            },
+            {
+                name: "SubmissionTime",
+                data: "submissionTime",
+                render: function (data, type, row) {
+                    return moment(data).format("MM/DD/YYYY hh:mm");
+                },
+                type: "date",
+                responsivePriority: 6,
+                className: 'data'
+            },
+            {
+                name: "Pinned",
+                data: "pinned",
+                render: function (data, type, row) {
+                    return `<input type="checkbox" onchange="pin(${row.id}, ${!data})" ${data? "checked": ""}>`;
+                },
+                responsivePriority: 5,
+                className: 'data'
+            },
+        ]
+    });
+
+        //dropdown on message table
+        $(document).on("click", "#contactTable .details-control" , function (e) {
+            var tr = $(this).closest("tr");
+            var row = $("#contactTable").DataTable().row(tr);
+
+            if (row.child.isShown()) {
+                // This row is already open - close it
+                row.child.hide();
+                tr.removeClass('shown');
+            }
+            else {
+                // Open this row
+                row.child(`<div>${row.data().message}</div>`).show();
+                tr.addClass('shown');
+                row.child().css("background-color", "white") //no hover coloring
+            }
+        });
+
+        function pin(id, pinned) {
+            $.ajax({
+                url: `/api/admin/PinMessage/${id}`,
+                method: "post",
+                dataType: false,
+                beforeSend: function (xhr) { //add token
+                    var token = getCookie("Admin");
+                    if (token != "")
+                        xhr.setRequestHeader("Authorization", token);
+                },
+                data: { Pinned: pinned },
+                success: function (data) {
+                    $("#contactTable").DataTable().ajax.reload(null, false); //reload table
+                },
+                error: function (xhr, textStatus, errorThrown) {
+                    alert(xhr.responseText); //alert error
+                }
+            });
+        }
+
+        function read(e) {
+            var tr = $(e.target).closest("tr");
+            var data = $("#contactTable").DataTable().row(tr).data();
+
+
+            if (!data.read) {
+                $.ajax({
+                    url: `/api/admin/ReadMessage/${data.id}`,
+                    method: "post",
+                    dataType: false,
+                    beforeSend: function (xhr) { //add token
+                        var token = getCookie("Admin");
+                        if (token != "")
+                            xhr.setRequestHeader("Authorization", token);
+                    },
+                    success: function (i) {
+                        data.read = true;
+                        tr.removeClass("unread"); //reset font weight
+                        $("#contactTable").DataTable().row(tr).data(data); //edit data
+                    },
+                    error: function (xhr, textStatus, errorThrown) {
+                        alert(xhr.responseText); //alert error
+                    }
+                });
+            }
+        }
+
+        $(document).on("click", "#contactTable .details-control", read);
+
         function getCookie(cname) {
             var name = cname + "=";
             var decodedCookie;
