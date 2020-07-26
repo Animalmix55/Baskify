@@ -217,6 +217,9 @@ namespace baskifyCore.Controllers.api
                 }
             }
 
+            if(!CaptchaUtils.verifyToken(signUpDto.Token))
+                ModelState.AddModelError("Token", "Invalid CAPTCHA Response");
+
             if (!ModelState.IsValid)
             {
                 var dictionary = new Dictionary<string, dynamic>();

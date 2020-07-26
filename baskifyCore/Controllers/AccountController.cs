@@ -88,7 +88,12 @@ namespace baskifyCore.Controllers
                     return View("Index", user);
                 }
                 _context.SaveChanges(); //save olduser changes
-                ViewData["Alert"] = $"Account updated! ({updateMessages.Trim()})";
+
+                if (updateMessages != "")
+                    ViewData["Alert"] = $"Account updated! ({updateMessages.Trim()})";
+                else
+                    ViewData["Alert"] = "Account updated!"; //skip parens if no messages
+
                 return View("Index", oldUser);
             }
             else

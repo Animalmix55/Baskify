@@ -138,7 +138,8 @@
 
     $(function () {
         $("body").on("submit", "form[method=post]", function () { //keeps POST forms from submitting with invalid cookies
-            if (tokenNearExpiry()) {
+            var target = $(this);
+            if (tokenNearExpiry() && target.attr("needsLogin") != "false") {
                 openSignOnModal();
                 return false;
             }

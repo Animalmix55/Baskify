@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="~/lib/bootstrap/dist/css/bootstrap.lux.min.css" />
     <link rel="stylesheet" href="~/css/site.css" />
     <meta name="viewport" content="width=device-width" />
+    <script src="https://www.google.com/recaptcha/api.js?render=@baskifyCore.Utilities.CaptchaConsts.Public"></script>
     <title>Login</title>
 </head>
 <body>
@@ -45,9 +46,14 @@
                         <label for="Password">Password</label>
                         <input type="password" name="Password" id="Password" placeholder="Password" class="form-control" />
                         <span class="invalid-feedback" data-valmsg-for="Password" data-valmsg-replace="true"></span>
+                        <input type="hidden" name="Token" />
                     </div>
                     <div style="display: flex;">
-                        <button id="loginButton" type="submit" class="btn btn-primary">Sign In</button>
+                        <button id="loginButton" class="btn btn-primary g-recaptcha" data-sitekey="@baskifyCore.Utilities.CaptchaConsts.Public"
+                                data-callback='addCaptchaToLogin'
+                                data-action='submit'>
+                            Sign In
+                        </button>
                         <a style="align-self: center; margin-left: 10px;" href="/account/forgotpassword">Forgot Password?</a>
                         <div id="loginLoader" class="loading-spinner" style="height: 48px; width: 48px; margin-left: 10px;">
                             <div class="loading-body">
@@ -67,6 +73,11 @@
     </div>
     <script src="~/js/MFAValidator.js"></script>
     <script>
+
+        function addCaptchaToLogin(token) {
+            $("#LoginForm [name=Token]").val(token);
+            $("#LoginForm").submit();
+        }
 
         function backToCredentials() {
             $("#MFAContainer").animate({ //hide MFA form
@@ -95,6 +106,8 @@
                     $("#loginAlert p").html("Login Succeeded!");
                     $("#loginAlert").addClass("alert-success").removeClass("alert-danger").removeClass("alert-warning");
                     $("#loginLoader").css("visibility", "hidden");
+                    $("#Username").addClass("is-valid").removeClass("is-invalid");
+                    $("#Password").addClass("is-valid").removeClass("is-invalid");
                     window.location.href = data.redirect ?? "/"; //redirect
                 },
                 error: function (xhr, textStatus, errorThrown) {

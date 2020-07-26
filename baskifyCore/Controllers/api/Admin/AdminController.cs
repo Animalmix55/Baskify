@@ -229,5 +229,180 @@ namespace baskifyCore.Controllers.api.Admin
             else
                 return Ok(org);
         }
+
+        [HttpPost]
+        [Route("PinMessage/{id}")]
+        public ActionResult PinMessage([FromRoute] int id, [FromForm] bool Pinned)
+        {
+            var message = _context.ContactModel.Find(id);
+            if (message == null)
+                return NotFound();
+
+            message.Pinned = Pinned;
+            _context.SaveChanges();
+
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("ReadMessage/{id}")]
+        public ActionResult ReadMessage([FromRoute] int id)
+        {
+            var message = _context.ContactModel.Find(id);
+            if (message == null)
+                return NotFound();
+
+            message.Read = true;
+            _context.SaveChanges();
+
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("DeleteMessage/{id}")]
+        public ActionResult DeleteMessage([FromRoute] int id)
+        {
+            var message = _context.ContactModel.Find(id);
+            if (message == null)
+                return NotFound();
+
+            _context.ContactModel.Remove(message);
+            _context.SaveChanges();
+
+            return Ok();
+        }
+
+        [HttpPost]
+        [Route("GetMessages")]
+        public ActionResult GetMessages(IncomingSearchDto search)
+        {
+            try
+            {
+                int firstResult = search.start;
+                int maxRecords = search.length;
+
+                var query = _context.ContactModel.AsQueryable();
+
+                var totalNum = query.Count();
+
+                if (!string.IsNullOrWhiteSpace(search.search.value) && !search.search.regex) //avoid regex
+                {
+                    query = query.Where(
+                        a => DbFunctions.Like(a.Email.ToLower(), "%" + search.search.value.ToLower() + "%") ||
+                        DbFunctions.Like(a.Subject.ToLower(), "%" + search.search.value.ToLower() + "%")); //global search
+                }
+
+                foreach (var column in search.columns)
+                {
+                    if (column.searchable && !string.IsNullOrWhiteSpace(column.search.value) && !column.search.regex)
+                    {
+                        switch (column.name)
+                        {
+                            case "Email":
+                                query = query.Where(a => DbFunctions.Like(a.Email.ToLower(), "%" + column.search.value.ToLower() + "%"));
+                                break;
+                            case "Subject":
+                                query = query.Where(a => DbFunctions.Like(a.Subject.ToLower(), "%" + column.search.value.ToLower() + "%"));
+                                break;
+                        }
+                    }
+                }
+
+                //ordering round 1
+                int i = 0;
+                IncomingSearchDto.OrderItem orderitem = search.order[i];
+                IOrderedQueryable<ContactModel> orderedQuery;
+                switch (search.columns[orderitem.column].name)
+                {
+                    case "Email":
+                        if (orderitem.dir == "asc")
+                            orderedQuery = query.OrderBy(a => a.Email);
+                        else
+                            orderedQuery = query.OrderByDescending(a => a.Email);
+                        break;
+                    case "Subject":
+                        if (orderitem.dir == "asc")
+                            orderedQuery = query.OrderBy(a => a.Subject);
+                        else
+                            orderedQuery = query.OrderByDescending(a => a.Subject);
+                        break;
+                    case "SubmissionTime":
+                        if (orderitem.dir == "asc")
+                            orderedQuery = query.OrderBy(a => a.SubmissionTime);
+                        else
+                            orderedQuery = query.OrderByDescending(a => a.SubmissionTime);
+                        break;
+                    default:
+                        orderedQuery = (IOrderedQueryable<ContactModel>)query; //do nothing
+                        break;
+                }
+
+
+                //now thenby
+                for (i = 1; i < search.order.Count; i++)
+                {
+                    orderitem = search.order[i];
+                    switch (search.columns[orderitem.column].name)
+                    {
+
+                        case "Email":
+                            if (orderitem.dir == "asc")
+                                orderedQuery = query.OrderBy(a => a.Email);
+                            else
+                                orderedQuery = query.OrderByDescending(a => a.Email);
+                            break;
+                        case "Subject":
+                            if (orderitem.dir == "asc")
+                                orderedQuery = query.OrderBy(a => a.Subject);
+                            else
+                                orderedQuery = query.OrderByDescending(a => a.Subject);
+                            break;
+                        case "SubmissionTime":
+                            if (orderitem.dir == "asc")
+                                orderedQuery = query.OrderBy(a => a.SubmissionTime);
+                            else
+                                orderedQuery = query.OrderByDescending(a => a.SubmissionTime);
+                            break;
+                    }
+                }
+                //now query is ordered and filtered
+
+                orderedQuery = orderedQuery.OrderBy(c => c.Read).OrderByDescending(c => c.Pinned); //put read at bottom, pinned at top
+
+                var resultSet = orderedQuery.ToList();
+                var recordsFiltered = resultSet.Count;
+
+                if (search.start + search.length < resultSet.Count)
+                    resultSet = resultSet.GetRange(search.start, search.length); //trim down result set
+                else if (search.start + 1 <= resultSet.Count)
+                {
+                    var numRemaining = resultSet.Count - search.start;
+                    resultSet = resultSet.GetRange(search.start, numRemaining);
+                }
+                else
+                    resultSet = new List<ContactModel>(); //empty
+
+                var returnObject = new
+                {
+                    draw = search.draw,
+                    recordsTotal = totalNum,
+                    recordsFiltered = recordsFiltered,
+                    data = resultSet
+                };
+                return Ok(returnObject);
+            }
+            catch (Exception e)
+            {
+                var returnObject = new
+                {
+                    draw = search.draw,
+                    recordsTotal = 0,
+                    recordsFiltered = 0,
+                    data = new List<ContactModel>(),
+                    error = "An error was encountered, try again"
+                };
+                return BadRequest(returnObject);
+            }
+        }
     }
 }

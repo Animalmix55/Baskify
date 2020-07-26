@@ -93,6 +93,11 @@ namespace baskifyCore.DTOs
         public string MFASecret { get; set; }
         public int? MFAValId { get; set; }
 
+        /// <summary>
+        /// ReCAPTCHA token
+        /// </summary>
+        public string Token { get; set; }
+
         public IEnumerable<ValidationResult> Validate(ValidationContext validationContext)
         {
             if (Password != ConfirmPassword)

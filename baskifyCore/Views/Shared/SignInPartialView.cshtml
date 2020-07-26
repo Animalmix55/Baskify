@@ -40,9 +40,12 @@
                         <label for="Password">Password</label>
                         <input type="password" name="Password" id="Password" placeholder="Password" class="form-control" />
                         <span class="invalid-feedback" data-valmsg-for="Password" data-valmsg-replace="true"></span>
+                        <input type="hidden" name="Token" />
                     </div>
                     <div style="display: flex;">
-                        <button id="loginButton" type="submit" class="btn btn-primary">Sign In</button>
+                        <button id="loginButton" class="btn btn-primary g-recaptcha" data-sitekey="@baskifyCore.Utilities.CaptchaConsts.Public"
+                        data-callback='addCaptchaToLogin'
+                        data-action='submit'>Sign In</button>
                         <div id="loginLoader" class="loading-spinner" style="height: 48px; width: 48px; margin-left: 10px;">
                             <div class="loading-body">
                                 <div></div><div></div><div></div>
@@ -66,6 +69,11 @@
 
     <script>
     var MFAField = null;
+
+    function addCaptchaToLogin(token) {
+        $("#LoginForm [name=Token]").val(token);
+        $("#LoginForm").submit();
+    }
 
     function backToCredentials() {
         $("#MFAContainer").animate({ //hide login form
@@ -96,6 +104,9 @@
                     {
                         <text>window.location.reload()</text>
                     }
+
+                    $("#Username").removeClass("is-valid").removeClass("is-invalid");
+                    $("#Password").removeClass("is-valid").removeClass("is-invalid");
 
                     $("#loginAlert").css("display", "none"); //hide alert
                     $("#loginLoader").css("visibility", "hidden");
