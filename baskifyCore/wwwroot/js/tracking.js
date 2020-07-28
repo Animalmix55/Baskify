@@ -188,6 +188,14 @@ class Tracker{
     
     buildTracker(){
         var model = this;
+        $(model.parentSelector).html(`<div class="TrackingContainer">\
+            <div class="loading-spinner trackingLoader" style="height: 100px; width: 100px; display: block; visibility: visible;">\
+                <div class="loading-body">\
+                    <div></div><div></div><div></div>\
+                </div>\
+            </div>\
+        </div>\
+        `);
         var ajaxInput = {
             url: "https://localhost:44331/api/baskets/track/"+this.basketId,
             method: "get",

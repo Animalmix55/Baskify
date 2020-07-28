@@ -38,5 +38,6 @@ namespace baskifyCore.Models
         public DbSet<StripeRegistrationModel> StripeRegistrationModel { get; set; }
 
         public DbSet<ContactModel> ContactModel { get; set; }
+        public DbSet<FAQModel> FAQModel { get; set; }
     }
 }

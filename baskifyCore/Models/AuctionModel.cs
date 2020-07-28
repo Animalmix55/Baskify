@@ -43,6 +43,8 @@ namespace baskifyCore.Models
             EndTime = DateTime.UtcNow.AddDays(5);
             MaxRange = 30;
             TicketCost = 0.40M; //each ticket, by default, costs $.40
+            FeePerTrans = DTOs.Fees.FeePerTrans;
+            FeePercentage = DTOs.Fees.FeePercent;
         }
 
         [Key]
@@ -133,6 +135,16 @@ namespace baskifyCore.Models
         public bool PaidOut { get; set; }
 
         public List<PaymentModel> Payments { get; set; }
+
+        /// <summary>
+        /// IN CENTS
+        /// </summary>
+        public int FeePerTrans { get; set; }
+
+        /// <summary>
+        /// IN PERCENT NOT DECIMAL
+        /// </summary>
+        public float FeePercentage { get; set; }
 
         [NotMapped]
         public IFormFile BannerImage { get; set; }

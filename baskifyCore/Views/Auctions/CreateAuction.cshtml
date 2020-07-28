@@ -3,6 +3,11 @@
     ViewData["Title"] = "Create Auction";
 }
 
+<style>
+    img.unlocked {
+        height: 15px;
+    }
+</style>
 
 <script src="~/js/moment-with-locales.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
@@ -36,6 +41,11 @@
                 @Html.ValidationMessageFor(Model => Model.StartTime)
                 @Html.ValidationMessageFor(Model => Model.EndTime)
             </div>
+            <div class="alert alert-dismissible alert-info">
+                The current fee for auctions is: @Model.FeePerTrans cents per transaction plus @Model.FeePercentage% of all fundraising revenue. Creating this auction will lock in this rate.
+            </div>
+            @Html.HiddenFor(Model => Model.FeePerTrans)
+            @Html.HiddenFor(Model => Model.FeePercentage)
             <div class="form-group">
                 @Html.LabelFor(Model => Model.TicketCost)
                 <div class="input-group mb-3">
@@ -58,38 +68,45 @@
             </div>
             <div class="form-group">
                 @Html.LabelFor(Model => Model.DeliveryType)
+                <img src="/Content/unlock.svg" class="unlocked" data-toggle="tooltip" data-placement="top" title="" data-original-title="This field will lock once the auction is created">
                 @Html.DropDownListFor(Model => Model.DeliveryType, Html.GetEnumSelectList<DeliveryTypes>(), "Select Delivery Type", new { @class = "custom-select" })
                 @Html.ValidationMessageFor(Model => Model.DeliveryType)
             </div>
             <div id="basketRetrievalGroup" class="form-group">
                 @Html.LabelFor(Model => Model.BasketRetrieval)
+                <img src="/Content/unlock.svg" class="unlocked" data-toggle="tooltip" data-placement="top" title="" data-original-title="This field will lock once the auction is created">
                 @Html.DropDownListFor(Model => Model.BasketRetrieval, Html.GetEnumSelectList<BasketRetrieval>(), "Select Retrieval Type", new { @class = "custom-select" })
                 @Html.ValidationMessageFor(Model => Model.BasketRetrieval)
             </div>
             <legend>Where Will You Be Hosting From?</legend>
             <div class="form-group">
                 @Html.LabelFor(Model => Model.Address)
+                <img src="/Content/unlock.svg" class="unlocked" data-toggle="tooltip" data-placement="top" title="" data-original-title="This field will lock once the auction is created">
                 @Html.TextBoxFor(Model => Model.Address, null, new { @class = "form-control" })
                 @Html.ValidationMessageFor(Model => Model.Address)
             </div>
             <div class="form-group">
                 @Html.LabelFor(Model => Model.City)
+                <img src="/Content/unlock.svg" class="unlocked" data-toggle="tooltip" data-placement="top" title="" data-original-title="This field will lock once the auction is created">
                 @Html.TextBoxFor(Model => Model.City, null, new { @class = "form-control" })
                 @Html.ValidationMessageFor(Model => Model.City)
             </div>
             <div class="form-group">
                 @Html.LabelFor(Model => Model.State)
+                <img src="/Content/unlock.svg" class="unlocked" data-toggle="tooltip" data-placement="top" title="" data-original-title="This field will lock once the auction is created">
                 @Html.TextBoxFor(Model => Model.State, null, new { @class = "form-control" })
                 @Html.ValidationMessageFor(Model => Model.State)
             </div>
             <div class="form-group">
                 @Html.LabelFor(Model => Model.ZIP)
+                <img src="/Content/unlock.svg" class="unlocked" data-toggle="tooltip" data-placement="top" title="" data-original-title="This field will lock once the auction is created">
                 @Html.TextBoxFor(Model => Model.ZIP, null, new { @class = "form-control" })
                 @Html.ValidationMessageFor(Model => Model.ZIP)
             </div>
             <label style="color:red;" id="addressValidationResult"></label>
             <div class="form-group">
                 @Html.LabelFor(Model => Model.MaxRange)
+                <img src="/Content/unlock.svg" class="unlocked" data-toggle="tooltip" data-placement="top" title="" data-original-title="This field will lock once the auction is created">
                 <div style="display: flex">
                     @Html.TextBoxFor(Model => Model.MaxRange, null, new { @type = "range", @class = "custom-range", min = AuctionModel.MinDistance, max = AuctionModel.MaxDistance, flex = .9 })
                     <div id="SelectedRange" style="font-weight: bold; flex: .1; white-space: nowrap; margin-left: 6px; min-width: 80px;"><span>30</span> miles</div>
@@ -163,6 +180,8 @@ $("#MaxRange").on("change", function (e) {
         });
 
     $(function () {
+        $("[data-toggle=tooltip]").tooltip();
+
         $("#basketRetrievalGroup").css("display", "none");
 
         $("#DeliveryType").change(); //trigger update
