@@ -4,6 +4,7 @@ using System.Data.Entity;
 using System.IO;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Web;
 using AutoMapper;
 using baskifyCore.Controllers.api;
 using baskifyCore.DTOs;
@@ -119,6 +120,15 @@ namespace baskifyCore.Controllers
                 return View(auction);
             }
 
+            if(auction.FeePercentage != Fees.FeePercent || auction.FeePerTrans != Fees.FeePerTrans)
+            {
+                ViewData["Alert"] = "Auction fees have changed since you started creating your auction. Check the new fees below and resubmit!";
+                ViewData["NavBarOverride"] = user;
+                auction.FeePerTrans = Fees.FeePerTrans;
+                auction.FeePercentage = Fees.FeePercent;
+                return View(auction);
+            }
+
             try {
                 auction.HostUsername = user.Username;
                 auction.Description = auction.Description.Replace(">", String.Empty)
@@ -206,20 +216,6 @@ namespace baskifyCore.Controllers
                 return View("~/Views/Auctions/Index.cshtml", user);
             }
 
-            var addressDict = accountUtils.validateAddress(auction.Address, auction.City, auction.State, auction.ZIP);
-            if (addressDict["resultStatus"] == "ADDRESS NOT FOUND") //now, addresses are validated in the model
-                ModelState.AddModelError("Address", "Address not found");
-            else
-            {
-                auction.Address = addressDict["addressLine1"];
-                auction.City = addressDict["city"];
-                auction.State = addressDict["state"];
-                auction.ZIP = addressDict["zip"];
-                auction.Latitude = float.Parse(addressDict["lat"]);
-                auction.Longitude = float.Parse(addressDict["lng"]);
-            }
-
-
             //at this point, it's their auction, they can edit
             //isLive limits what they can edit...
             var isLive = dbAuction.StartTime < DateTime.UtcNow;
@@ -268,31 +264,18 @@ namespace baskifyCore.Controllers
                 }
             }
 
-            dbAuction.Description = auction.Description.Replace(">", String.Empty)
-                    .Replace("<", String.Empty)
-                    .Replace("\'", String.Empty)
-                    .Replace("\"", String.Empty)
-                    .Replace("&", "and"); //avoid injection
-
+            dbAuction.Description = HttpUtility.HtmlEncode(auction.Description);
             dbAuction.Title = auction.Title;
             if (isLive)
             {
                 dbAuction.EndTime = auction.EndTime; //at this point since start must match the server version, this will be within 31 days
             }
-            else //no restrictions on what can be changed
+            else //no restrictions on what can be changed, AS OF 7/28/2020 CANNOT CHANGE ANY ADDRESS OR DELIVERY/PICKUP INFO AFTER CREATION
             {
-                dbAuction.Address = auction.Address;
-                dbAuction.City = auction.City;
-                dbAuction.State = auction.State;
-                dbAuction.ZIP = auction.ZIP;
                 dbAuction.StartTime = auction.StartTime;
                 dbAuction.EndTime = auction.EndTime;
-                dbAuction.Latitude = auction.Latitude;
-                dbAuction.Longitude = auction.Longitude;
-                dbAuction.MaxRange = auction.MaxRange;
                 dbAuction.MinPurchase = auction.MinPurchase;
                 dbAuction.TicketCost = auction.TicketCost;
-                dbAuction.BasketRetrieval = auction.BasketRetrieval; //can change retrieval from donors before auction starts
             }
             _context.SaveChanges();
 

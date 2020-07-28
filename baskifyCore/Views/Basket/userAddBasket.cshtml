@@ -78,7 +78,7 @@
                 <h5 class="mb-1">@Model.Auction.Title</h5>
                 <small class="text-muted">Starts on @Model.Auction.StartTime.ToShortDateString()</small>
             </div>
-            <small class="text-muted">Hosted By: @Model.Auction.HostUser.OrganizationName</small>
+            <small class="text-muted">Hosted By: @Model.Auction.HostUser.OrganizationName<svg style="padding-left:3px" data-toggle="tooltip" data-placement="right" title="@Model.Auction.HostUser.ContactEmail" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm1 18h-2v-6h-2v-2h4v8zm-1-9.75c-.69 0-1.25-.56-1.25-1.25s.56-1.25 1.25-1.25 1.25.56 1.25 1.25-.56 1.25-1.25 1.25z" /></svg></small>
             <p class="mb-1">@Model.Auction.Description</p>
             @if (Model.Baskets.Count(b => !b.Draft) > 0 && Model.Auction.BasketRetrieval == BasketRetrieval.UserDeliver)//provide address if a basket has been submitted
             {
@@ -140,6 +140,10 @@
     </div>
 </div>
 <script>
+    $(function () {
+        $('[data-toggle="tooltip"]').tooltip(); //enable tooltips
+    })
+
     var basketEditUrl = "/basket/userUpdateAuctionBasket"; //important basket edit POST url
 
     function viewBasket(basketId) {//loads in the basket modal

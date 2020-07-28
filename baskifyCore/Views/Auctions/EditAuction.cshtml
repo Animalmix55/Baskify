@@ -1,6 +1,7 @@
 ﻿@model baskifyCore.Models.AuctionModel
 
 @{
+    var fundrasingStats = new baskifyCore.DTOs.FundraisingTotalsDto(Model);
     ViewData["Title"] = "Edit " + Model.Title;
 }
 
@@ -17,6 +18,20 @@
 <script type="text/javascript" src="https://cdn.datatables.net/plug-ins/1.10.21/sorting/numeric-comma.js"></script>
 <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
 <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
+<style>
+    [readonly], [disabled] {
+        background-image: url(/Content/lock.svg);
+        background-size: 20px 39px;
+        background-origin: content-box;
+        background-repeat: no-repeat;
+        background-position-x: right;
+        background-position-y: center;
+        padding-right: 15px;
+        opacity: 0.7 !important;
+        background-color: #eceeef !important;
+    }
+</style>
 
 <div id="basketDataModal" class="modal">
     @if (ViewData["basket"] != null)//if given a basket, load the modal with it
@@ -75,195 +90,94 @@
                         @Html.TextAreaFor(Model => Model.Description, 5, 50, new { @class = "form-control" })
                         @Html.ValidationMessageFor(Model => Model.Description)
                     </div>
-
+                    <div class="alert alert-dismissible alert-info">
+                        This auction's revenue fee is @Model.FeePerTrans cents per transaction plus @Model.FeePercentage%.
+                    </div>
                     @if (Model.StartTime > DateTime.UtcNow)//auction not yet started
                     {
-                        <div class="form-group">
-                            @Html.Label("Auction Date Range")
-                            <input type="text" id="dateRangePicker" name="datetimes" class="form-control" />
-                            @Html.HiddenFor(Model => Model.StartTime)
-                            @Html.HiddenFor(Model => Model.EndTime)
-                            @Html.ValidationMessageFor(Model => Model.StartTime)
-                            @Html.ValidationMessageFor(Model => Model.EndTime)
-                        </div>
-                        <div class="form-group">
-                            @Html.LabelFor(Model => Model.TicketCost)
-                            <div class="input-group mb-3">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">$</span>
-                                </div>
-                                @Html.TextBoxFor(Model => Model.TicketCost, null, new { @class = "form-control" })
+                    <div class="form-group">
+                        @Html.Label("Auction Date Range")
+                        <input type="text" id="dateRangePicker" name="datetimes" class="form-control" />
+                        @Html.HiddenFor(Model => Model.StartTime)
+                        @Html.HiddenFor(Model => Model.EndTime)
+                        @Html.ValidationMessageFor(Model => Model.StartTime)
+                        @Html.ValidationMessageFor(Model => Model.EndTime)
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.TicketCost)
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">$</span>
                             </div>
-                            @Html.ValidationMessageFor(Model => Model.TicketCost)
+                            @Html.TextBoxFor(Model => Model.TicketCost, null, new { @class = "form-control" })
                         </div>
-                        <div class="form-group">
-                            @Html.LabelFor(Model => Model.MinPurchase)
-                            <div class="input-group mb-3">
-                                <div class="input-group-prepend">
-                                    <span class="input-group-text">$</span>
-                                </div>
-                                @Html.TextBoxFor(Model => Model.MinPurchase, null, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(Model => Model.TicketCost)
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.MinPurchase)
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">$</span>
                             </div>
-                            @Html.ValidationMessageFor(Model => Model.MinPurchase)
+                            @Html.TextBoxFor(Model => Model.MinPurchase, null, new { @class = "form-control" })
                         </div>
-                        <div class="form-group">
-                            @Html.LabelFor(Model => Model.DeliveryType)
-                            @Html.DropDownListFor(Model => Model.DeliveryType, Html.GetEnumSelectList<DeliveryTypes>(), "Select Delivery Type", new { @disabled = "disabled", @class = "custom-select" })
-                            @Html.ValidationMessageFor(Model => Model.DeliveryType)
-                        </div>
-                        @if (Model.DeliveryType == DeliveryTypes.Pickup || Model.DeliveryType == DeliveryTypes.DeliveryByOrg)
-                        {
-                            <div id="basketRetrievalGroup" class="form-group">
-                                @Html.LabelFor(Model => Model.BasketRetrieval)
-                                @Html.DropDownListFor(Model => Model.BasketRetrieval, Html.GetEnumSelectList<BasketRetrieval>(), "Select Retrieval Type", new { @class = "custom-select" })
-                                @Html.ValidationMessageFor(Model => Model.BasketRetrieval)
-                            </div>
-                        }
-                        <legend>Change Starting Address</legend>
-                        <div class="form-group">
-                            @Html.LabelFor(Model => Model.Address)
-                            @Html.TextBoxFor(Model => Model.Address, null, new { @class = "form-control" })
-                            @Html.ValidationMessageFor(Model => Model.Address)
-                        </div>
-                        <div class="form-group">
-                            @Html.LabelFor(Model => Model.City)
-                            @Html.TextBoxFor(Model => Model.City, null, new { @class = "form-control" })
-                            @Html.ValidationMessageFor(Model => Model.City)
-                        </div>
-                        <div class="form-group">
-                            @Html.LabelFor(Model => Model.State)
-                            @Html.TextBoxFor(Model => Model.State, null, new { @class = "form-control" })
-                            @Html.ValidationMessageFor(Model => Model.State)
-                        </div>
-                        <div class="form-group">
-                            @Html.LabelFor(Model => Model.ZIP)
-                            @Html.TextBoxFor(Model => Model.ZIP, null, new { @class = "form-control" })
-                            @Html.ValidationMessageFor(Model => Model.ZIP)
-                        </div>
-                        <label style="color:red;" id="addressValidationResult"></label>
-                        <div class="form-group">
-                            @Html.LabelFor(Model => Model.MaxRange)
-                            <div style="display: flex">
-                                @Html.TextBoxFor(Model => Model.MaxRange, null, new { @type = "range", @class = "custom-range", min = AuctionModel.MinDistance, max = AuctionModel.MaxDistance, flex = .9 })
-                                <div id="SelectedRange" style="font-weight: bold; flex: .1; white-space: nowrap; margin-left: 6px; min-width: 80px;"><span>@Model.MaxRange</span> miles</div>
-                            </div>
-                            @Html.ValidationMessageFor(Model => Model.MaxRange)
-                        </div>
-                        <script>
-                            $("#MaxRange").on("change", function (e) {
-                                if ($("#MaxRange").val() == @AuctionModel.MaxDistance) //unbind the radius if we hit max
-                                    ServiceRadius.setMap(null);
-                                else
-                                    ServiceRadius.setMap(map);
+                        @Html.ValidationMessageFor(Model => Model.MinPurchase)
+                    </div>
+                    <script>
+                        $(function () {
+                            $('input[name="datetimes"]').daterangepicker({
+                                timePicker: true,
+                                startDate: "@Model.StartTime",
+                                endDate: "@Model.EndTime",
+                                locale: {
+                                    format: 'MM/DD/YYYY hh:mm:ss A'
+                                },
+                                dateLimit: {
+                                    'months': 1,
+                                    'days': -1
+                                }
+                            });
 
-                                $("#SelectedRange span").html($("#MaxRange").val() == @AuctionModel.MaxDistance? "&infin;" : $("#MaxRange").val());
-                                    ServiceRadius.setRadius($("#MaxRange").val() * 1609.34)
-                                });
-
-                                $(function () {
-                                    $('input[name="datetimes"]').daterangepicker({
-                                        timePicker: true,
-                                        startDate: "@Model.StartTime",
-                                        endDate: "@Model.EndTime",
-                                        locale: {
-                                            format: 'MM/DD/YYYY hh:mm:ss A'
-                                        },
-                                        dateLimit: {
-                                            'months': 1,
-                                            'days': -1
-                                        }
-                                    });
-
-                                    $("#dateRangePicker").on("change", function () {
-                                        $("#StartTime").val($("#dateRangePicker").val().split(" - ")[0]);
-                                        $("#EndTime").val($("#dateRangePicker").val().split(" - ")[1]);
-                                    });
-
-                                    $("#Address,#City,#State,#ZIP").on("blur", function () {//update address
-                                        if ($("#Address").val() == "" || $("#City").val() == "" || $("#State").val() == "" || $("#ZIP").val() == "") {
-                                            return
-                                        }
-
-                                        $.post("/account/validateAddress",
-                                            {
-                                                Address: $("#Address").val(),
-                                                City: $("#City").val(),
-                                                State: $("#State").val(),
-                                                ZIP: $("#ZIP").val()
-                                            },
-                                            function (data) {
-                                                var dataObject = JSON.parse(data);
-                                                if (dataObject["resultStatus"] != "ADDRESS NOT FOUND") {
-                                                    $("#Address").val(dataObject["addressLine1"]);
-                                                    $("#City").val(dataObject["city"]);
-                                                    $("#State").val(dataObject["state"]);
-                                                    $("#ZIP").val(dataObject["zip"]);
-                                                    var newLocation = { lat: parseFloat(dataObject["lat"]), lng: parseFloat(dataObject["lng"]) }
-                                                    marker.setPosition(newLocation);
-                                                    ServiceRadius.setCenter(newLocation);
-                                                    ServiceRadius.setRadius($("#MaxRange").val() * 1609.34);
-                                                    map.setCenter(newLocation);
-
-                                                    $("#addressValidationResult").html("");
-                                                }
-                                                else {
-                                                    $("#addressValidationResult").html("Address Not Found!");
-                                                }
-                                            });
-                                    });
-                                });
-
-                        </script>
+                            $("#dateRangePicker").on("change", function () {
+                                $("#StartTime").val($("#dateRangePicker").val().split(" - ")[0]);
+                                $("#EndTime").val($("#dateRangePicker").val().split(" - ")[1]);
+                            });
+                        });
+                    </script>
                     }
                     else //this auction has begun!
                     {
-                        <div class="form-group">
-                            @Html.LabelFor(Model => Model.DeliveryType)
-                            @Html.DropDownListFor(Model => Model.DeliveryType, Html.GetEnumSelectList<DeliveryTypes>(), "Select Delivery Type", new { @disabled = "disabled", @class = "custom-select" })
-                            @Html.ValidationMessageFor(Model => Model.DeliveryType)
-                        </div>
-                        @if (Model.DeliveryType == DeliveryTypes.Pickup || Model.DeliveryType == DeliveryTypes.DeliveryByOrg)
-                        {
-                            <div id="basketRetrievalGroup" class="form-group">
-                                @Html.LabelFor(Model => Model.BasketRetrieval)
-                                @Html.DropDownListFor(Model => Model.BasketRetrieval, Html.GetEnumSelectList<BasketRetrieval>(), "Select Retrieval Type", new { @disabled = "disabled", @class = "custom-select" })
-                                @Html.ValidationMessageFor(Model => Model.BasketRetrieval)
+                    <div class="form-group">
+                        @Html.Label("Auction Start Date")
+                        @Html.TextBoxFor(Model => Model.StartTime, new { @readonly = "readonly", @class = "form-control" })
+                        @Html.ValidationMessageFor(Model => Model.StartTime)
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("Auction End Date")
+                        @Html.TextBoxFor(Model => Model.EndTime, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(Model => Model.EndTime)
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.TicketCost)
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">$</span>
                             </div>
-                        }
-                        <div class="form-group">
-                            @Html.Label("Auction Start Date")
-                            @Html.TextBoxFor(Model => Model.StartTime, new { @readonly = "readonly", @class = "form-control" })
-                            @Html.ValidationMessageFor(Model => Model.StartTime)
+                            @Html.TextBoxFor(Model => Model.TicketCost, null, new { @class = "form-control", @readonly = "readonly" })
                         </div>
-                        <div class="form-group">
-                            @Html.Label("Auction End Date")
-                            @Html.TextBoxFor(Model => Model.EndTime, new { @class = "form-control" })
-                            @Html.ValidationMessageFor(Model => Model.EndTime)
+                        @Html.ValidationMessageFor(Model => Model.TicketCost)
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.MinPurchase)
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">$</span>
+                            </div>
+                            @Html.TextBoxFor(Model => Model.MinPurchase, null, new { @class = "form-control", @readonly = "readonly" })
                         </div>
-                        <div class="form-group">
-                            @Html.LabelFor(Model => Model.Address)
-                            @Html.TextBoxFor(Model => Model.Address, new { @readonly = "readonly", @class = "form-control" })
-                        </div>
-                        <div class="form-group">
-                            @Html.LabelFor(Model => Model.City)
-                            @Html.TextBoxFor(Model => Model.City, new { @readonly = "readonly", @class = "form-control" })
-                        </div>
-                        <div class="form-group">
-                            @Html.LabelFor(Model => Model.State)
-                            @Html.TextBoxFor(Model => Model.State, new { @readonly = "readonly", @class = "form-control" })
-                        </div>
-                        <div class="form-group">
-                            @Html.LabelFor(Model => Model.ZIP)
-                            @Html.TextBoxFor(Model => Model.ZIP, new { @readonly = "readonly", @class = "form-control" })
-                        </div>
-                        <div class="form-group">
-                            @Html.LabelFor(Model => Model.MaxRange)
-                            @Html.HiddenFor(Model => Model.MaxRange)
-                            <input class="form-control" value="@Model.MaxRange miles" readonly />
-                        </div>
-
-
-                        <script>
+                        @Html.ValidationMessageFor(Model => Model.MinPurchase)
+                    </div>
+                    <script>
                             $(function () {
                                 $('input[name="EndTime"]').daterangepicker({
                                     singleDatePicker: true,
@@ -281,9 +195,46 @@
                                 });
                             });
 
-                        </script>
-
+                    </script>
                     }
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.DeliveryType)
+                        @Html.DropDownListFor(Model => Model.DeliveryType, Html.GetEnumSelectList<DeliveryTypes>(), "Select Delivery Type", new { @disabled = "disabled", @class = "custom-select" })
+                        @Html.ValidationMessageFor(Model => Model.DeliveryType)
+                        @Html.HiddenFor(Model => Model.DeliveryType)
+                    </div>
+                    @if (Model.DeliveryType == DeliveryTypes.Pickup || Model.DeliveryType == DeliveryTypes.DeliveryByOrg)
+                    {
+                    <div id="basketRetrievalGroup" class="form-group">
+                        @Html.LabelFor(Model => Model.BasketRetrieval)
+                        @Html.DropDownListFor(Model => Model.BasketRetrieval, Html.GetEnumSelectList<BasketRetrieval>(), "Select Retrieval Type", new { @class = "custom-select", @disabled = "disabled" })
+                        @Html.ValidationMessageFor(Model => Model.BasketRetrieval)
+                        @Html.HiddenFor(Model => Model.BasketRetrieval)
+                    </div>
+                    }
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.Address)
+                        @Html.TextBoxFor(Model => Model.Address, new { @readonly = "readonly", @class = "form-control" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.City)
+                        @Html.TextBoxFor(Model => Model.City, new { @readonly = "readonly", @class = "form-control" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.State)
+                        @Html.TextBoxFor(Model => Model.State, new { @readonly = "readonly", @class = "form-control" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.ZIP)
+                        @Html.TextBoxFor(Model => Model.ZIP, new { @readonly = "readonly", @class = "form-control" })
+                    </div>
+                    @Html.HiddenFor(Model => Model.Latitude)
+                    @Html.HiddenFor(Model => Model.Longitude)
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.MaxRange)
+                        @Html.HiddenFor(Model => Model.MaxRange)
+                        <input class="form-control" value="@Model.MaxRange miles" readonly />
+                    </div>
                     <div id="userAddressMap"></div>
 
                     @Html.HiddenFor(Model => Model.AuctionId)
@@ -331,6 +282,20 @@
             <div id="performance" class="tab-pane fade maxWidthContainer">
                 <div id="chartContainer" style="width:100%; height:50vh; position:relative;">
                     <canvas id="salesChart"></canvas>
+                </div>
+                <div class="currentTotals" style="
+                    border-top: 1px solid rgba(0,0,0,.2);
+                    border-bottom: 1px solid rgba(0,0,0,.2);
+                    font-size: 166%;
+                    margin-bottom: 11px;
+                ">
+                    <div style="text-align: center;">
+                        <span style="padding-right: 4px;">Total Fundraised:</span>
+                        <span style="padding-right: 2px;">$@fundrasingStats.TotalFundraised.ToString("N2")</span>
+                        <span class="text-muted" style="font-size: 56%; height: auto;">
+                            (less $@fundrasingStats.Fees.ToString("N2") in fees)
+                        </span>
+                    </div>
                 </div>
                 <table id="salesTable" class="table table-hover" style="width:100%;">
                     <thead>

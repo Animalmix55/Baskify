@@ -146,11 +146,11 @@
                                 </tr>
                                 <tr>
                                     <td align="left" width="75%" style="padding: 6px 12px;font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">Ticket Purchase (x@((int)((Model.Amount / 100) / @Model.AuctionModel.TicketCost)))</td>
-                                    <td align="left" width="25%" style="padding: 6px 12px;font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">$@Math.Round((decimal)(@Model.Amount / 100), 2)</td>
+                                    <td align="left" width="25%" style="padding: 6px 12px;font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">$@Math.Round((decimal)(@Model.Amount / 100), 2).ToString("N2")</td>
                                 </tr>
                                 <tr>
                                     <td align="left" width="75%" style="padding: 12px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px; border-top: 2px dashed #D2C7BA; border-bottom: 2px dashed #D2C7BA;"><strong>Total</strong></td>
-                                    <td align="left" width="25%" style="padding: 12px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px; border-top: 2px dashed #D2C7BA; border-bottom: 2px dashed #D2C7BA;"><strong>$@Math.Round((decimal)(@Model.Amount / 100), 2)</strong></td>
+                                    <td align="left" width="25%" style="padding: 12px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px; border-top: 2px dashed #D2C7BA; border-bottom: 2px dashed #D2C7BA;"><strong>$@Math.Round((decimal)(@Model.Amount / 100), 2).ToString("N2")</strong></td>
                                 </tr>
                             </table>
                         </td>

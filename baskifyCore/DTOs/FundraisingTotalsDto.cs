@@ -1,11 +1,29 @@
 ﻿using baskifyCore.Models;
 using System;
 using System.Collections.Generic;
+using System.Configuration;
 using System.Linq;
 using System.Threading.Tasks;
 
 namespace baskifyCore.DTOs
 {
+    public static class Fees
+    {
+        /// <summary>
+        /// FEE IN PERCENT (NOT DECIMAL)
+        /// </summary>
+        public static readonly float FeePercent;
+        /// <summary>
+        /// Fee IN CENTS
+        /// </summary>
+        public static readonly int FeePerTrans;
+        static Fees()
+        {
+            FeePercent = float.Parse(ConfigurationManager.AppSettings["FeePercent"]);
+            FeePerTrans = int.Parse(ConfigurationManager.AppSettings["FeePerTransaction"]);
+        }
+    }
+
     /// <summary>
     /// Designed to ensure that there is a standard across the board for fees
     /// </summary>
@@ -40,14 +58,26 @@ namespace baskifyCore.DTOs
             MeetsAuctionNotPaidReq = !Auction.PaidOut;
         }
 
-        public static int CalculateFee(int total, int numTransactions)
+        /// <summary>
+        /// Outputs total fee IN CENTS, INPUTS IN CENTS
+        /// </summary>
+        /// <param name="total">IN CENTS</param>
+        /// <param name="numTransactions"></param>
+        /// <returns></returns>
+        public static int CalculateFee(int total, int numTransactions, int FeePerTrans, float FeePercent)
         {
-            var percentage = .049; 
-            var perTrans = 30; //cents
+            var percentage = FeePercent/100.00; //decimal
+            var perTrans = FeePerTrans; //cents
             return (int)Math.Round(total * percentage + numTransactions * perTrans);
         } 
 
+        /// <summary>
+        /// IN DOLLARS
+        /// </summary>
         public Decimal TotalFundraised { get; set; }
+        /// <summary>
+        /// IN DOLLARS
+        /// </summary>
         public Decimal Fees { get; set; }
         public Decimal NetFundraised { get { return (TotalFundraised - Fees); } }
 

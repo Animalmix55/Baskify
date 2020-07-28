@@ -136,7 +136,7 @@ namespace baskifyCore.Controllers.api
                 }
 
                 var amount = (int)(ticketPurchaseDto.NumTickets * auction.TicketCost * 100); //amount in cents
-                var fee = FundraisingTotalsDto.CalculateFee((int)Math.Round((decimal)amount), 1); //cents
+                var fee = FundraisingTotalsDto.CalculateFee((int)Math.Round((decimal)amount), 1, auction.FeePerTrans, auction.FeePercentage); //cents
 
                 var options = new PaymentIntentCreateOptions
                 {

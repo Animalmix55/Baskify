@@ -168,7 +168,7 @@
                         return `<span class="badge badge-pill badge-primary" style="color:red;">&#10004;</span>`;
                     }
                 },
-                responsivePriority: 3,
+                responsivePriority: 6,
                 className: 'data'
             },
             {
@@ -178,7 +178,14 @@
             },
             {
                 data: "auctionModel.hostUser.organizationName",
-                responsivePriority: 6,
+                render: function (data, type, row) {
+                    var html = `<div>`;
+                    html += data;
+                    html += `<svg style="padding-left:3px" data-toggle="tooltip" data-placement="right" title="" data-original-title="` + row.auctionModel.hostUser.contactEmail + `" xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm1 18h-2v-6h-2v-2h4v8zm-1-9.75c-.69 0-1.25-.56-1.25-1.25s.56-1.25 1.25-1.25 1.25.56 1.25 1.25-.56 1.25-1.25 1.25z"/></svg>`;
+                    html += `</div>`;
+                    return html;
+                },
+                responsivePriority: 3,
                 className: "data"
             },
             {
@@ -216,6 +223,13 @@
                 responsivePriority: 3
             }
         ]
+    });
+
+    basketTable.DataTable().on('draw', function () {
+        $('[data-toggle="tooltip"]').tooltip(); //init tooltips on redraw
+    });
+    basketTable.DataTable().on('responsive-display', function () {
+        $('[data-toggle="tooltip"]').tooltip(); //init tooltips on redraw
     });
 
     function viewAcceptedBasket(basketId) {

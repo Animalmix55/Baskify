@@ -65,7 +65,7 @@ else if (Model.AuctionModel.DeliveryType == DeliveryTypes.Pickup)
 <div id="AuctionBody" style="display:flex; flex-wrap:wrap; justify-content:center" class="maxWidthContainer">
     @if (!disablePurchase)
     {
-        <div id="purchaseTicketsButton" style="cursor:pointer; position:fixed; right:10px; bottom:10px; z-index: 9999">
+        <div id="purchaseTicketsButton" style="cursor:pointer; position:fixed; right:10px; bottom:84px; z-index: 9999">
             <img src="~/Content/ticketIcon.png" style="height:94px" />
             <div id="walletBalance" style="font-size:150%; font-weight: bold; position: absolute; text-align:center; top: 50%;left: 50%;transform: translate(-50%, -50%);">
                 @if (Model.Wallet.WalletBalance == 0)

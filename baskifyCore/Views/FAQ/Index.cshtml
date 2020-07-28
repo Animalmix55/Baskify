@@ -1,0 +1,233 @@
+﻿
+@{
+    ViewData["Title"] = "FAQ";
+}
+
+<style>
+    /* width */
+    .FAQResponse::-webkit-scrollbar {
+        width: 3px;
+    }
+
+    /* Track */
+    .FAQResponse::-webkit-scrollbar-track {
+        background: grey;
+    }
+
+    /* Handle */
+    .FAQResponse::-webkit-scrollbar-thumb {
+        background: green;
+    }
+
+    .FAQItem:not(:first-child) {
+        border-top: 1px solid rgba(0,0,0,.06);
+        margin-top: 10px;
+        padding-top: 10px
+    }
+
+    .FAQList {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+
+    .FAQItem {
+        position: relative;
+        width: 85%;
+        overflow: hidden;
+        cursor: pointer;
+        transition: .2s linear max-height;
+        max-height: 100px;
+        display: flex;
+        flex-direction: column;
+    }
+
+    .FAQItem:not(.expanded):not(:hover):after {
+        content: "";
+        position: absolute;
+        z-index: 1;
+        bottom: 0;
+        left: 0;
+        pointer-events: none;
+        background-image: linear-gradient(to bottom, rgba(255,255,255, 0), rgba(255,255,255, 1) 90%);
+        width: 100%;
+        height: 4em;
+    }
+
+    .FAQList .FAQQuestion {
+        font-weight: bold;
+        font-size: 140%
+    }
+
+    .FAQSearch {
+        display: block;
+        max-width: 600px;
+        margin-bottom: 30px;
+        border-radius: 15px;
+    }
+
+    .FAQItem:not(.expanded):hover {
+        max-height: 300px;
+    }
+
+    .FAQItem:not(.expanded):hover .FAQResponse {
+        overflow-y:auto;
+    }
+
+    .FAQResponse {
+        transition-delay: .2s;
+        transition: overflow-y 1s;
+    }
+
+    .FAQItem.expanded {
+        position: fixed;
+        top: 0;
+        bottom: 0;
+        margin: auto;
+        z-index: 999999999;
+        background-color: white;
+        height: initial !important;
+        height: fit-content !important;
+        max-height: unset;
+        padding: 15px;
+        border: 2px solid rgba(0,0,0,.09);
+        cursor: default
+    }
+
+    .backdrop.open {
+        height: 100vh;
+        width: 100vw;
+        position: fixed;
+        background-color: rgba(0,0,0,.08);
+        top: 0;
+        left: 0;
+        z-index: 999999998
+    }
+</style>
+    <h1>Frequently Asked Questions</h1>
+    <div style="display:flex" class="FAQSearch maxWidthContainer ">
+        <input type="text" class="form-control">
+        <button class="btn btn-success" onclick="searchFAQ()">Search</button>
+    </div>
+    <div id="FAQLoadingSpinner" class="loading-spinner" style="height: 80px; width: 80px; left: 0;right: 0;margin: auto; display: none;visibility: visible">
+        <div class="loading-body">
+            <div></div><div></div><div></div>
+        </div>
+    </div>
+    <div class="FAQList maxWidthContainer">
+    </div>
+    <div class="backdrop"></div>
+    <script>
+        $(document).on("click", ".FAQItem", function (e) {
+            $(this).addClass("expanded");
+            $(".FAQList").addClass("expanded");
+            $(".backdrop").addClass("open");
+        });
+
+        $(document).on("click", ".backdrop.open", function () {
+            $(this).removeClass("open");
+            $(".FAQItem.expanded").removeClass("expanded");
+            $(".FAQList").removeClass("expanded");
+        })
+        var FAQs;
+        var searchedFAQs;
+        var currentNumFAQs = 0;
+        $(function () {
+            $("#FAQLoadingSpinner").css("display", "block");
+            grecaptcha.ready(
+                function () {
+                    grecaptcha.execute('@baskifyCore.Utilities.CaptchaConsts.Public', { action: 'submit' }).then(function (token) {
+                        $.ajax({
+                            url: `/api/FAQ/Search?Token=${token}`,
+                            method: "get",
+                            success: function (data) {
+                                $(".FAQList").html("");
+                                FAQs = data;
+                                searchedFAQs = FAQs;
+                                for (var i = 0; i < $(window).height()/70; i++) {
+                                    faqItem = FAQs[i];
+                                    if (faqItem == null)
+                                        break;
+                                    currentNumFAQs++;
+                                    $(".FAQList").append(`\
+                                        <div class="FAQItem">\
+                                            <div class="FAQQuestion">${faqItem.question}</div>\
+                                            <div class="FAQResponse">${faqItem.response}</div>\
+                                        </div>\
+                                    `);
+                                }
+                                $("#FAQLoadingSpinner").css("display", "none");
+                            },
+                            error: function () {
+                                $(".FAQList").html("Error, try again later");
+                            }
+                        });
+                    });
+                });
+        });
+
+        $(window).scroll(function () {
+            if ($(window).scrollTop() + $(window).height() + 200 > $(document).height()) { //within 200 of bottom
+                addMoreFAQs();
+            }
+        });
+
+        function addMoreFAQs() {
+            var startIndex = currentNumFAQs;
+            for (var i = startIndex; i < $(window).height() / 70 + startIndex; i++) {
+                faqItem = searchedFAQs[i];
+                if (faqItem == null)
+                    return; //dont go over
+                currentNumFAQs++;
+                $(".FAQList").append(`\
+                    <div class="FAQItem">\
+                        <div class="FAQQuestion">${faqItem.question}</div>\
+                        <div class="FAQResponse">${faqItem.response}</div>\
+                    </div>\
+                `);
+            }
+        }
+
+        function searchItems(searchString) {
+            if (!searchString || !searchString.trim()) //don't search
+                return FAQs;
+
+            var returnList = [];
+            var regex = new RegExp(searchString.trim(), "ig");
+            for (var item of FAQs) {
+                if (regex.test(item.question) || regex.test(item.response)) {
+                    var newItem = {
+                        question: item.question.replace(regex, `<span style="color:red">${searchString.trim()}</span>`),
+                        response: item.response.replace(regex, `<span style="color:red">${searchString.trim()}</span>`)
+                    }
+                    returnList.push(newItem);
+                }
+            }
+
+            return returnList;
+        }
+
+        function searchFAQ() {
+            $(".FAQList").html("");
+            searchedFAQs = searchItems($(".FAQSearch input").val());
+
+            currentNumFAQs = 0;
+            for (var i = 0; i < $(window).height() / 70; i++) {
+                faqItem = searchedFAQs[i];
+                if (faqItem == null)
+                    break; //dont go over
+                currentNumFAQs++;
+                $(".FAQList").append(`\
+                    <div class="FAQItem">\
+                        <div class="FAQQuestion">${faqItem.question}</div>\
+                        <div class="FAQResponse">${faqItem.response}</div>\
+                    </div>\
+                `);
+            }
+            if (currentNumFAQs == 0) //no results
+                $(".FAQList").html("No Results");
+            
+        }
+    </script>
+
+
