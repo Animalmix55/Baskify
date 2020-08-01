@@ -228,12 +228,22 @@
                         @Html.LabelFor(Model => Model.ZIP)
                         @Html.TextBoxFor(Model => Model.ZIP, new { @readonly = "readonly", @class = "form-control" })
                     </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.States)
+                        <div style="height:112px; background-color:#eceeef !important; opacity: 0.7;overflow: auto; color: #919aa1;width:100%; padding: 6px; padding-right:25px" disabled>
+                            @foreach(var state in Model.TargetStates){
+                            <div>@state.FullName</div>
+                            }
+                        </div>
+                    </div>
+
                     @Html.HiddenFor(Model => Model.Latitude)
                     @Html.HiddenFor(Model => Model.Longitude)
                     <div class="form-group">
                         @Html.LabelFor(Model => Model.MaxRange)
                         @Html.HiddenFor(Model => Model.MaxRange)
-                        <input class="form-control" value="@Model.MaxRange miles" readonly />
+                        <input class="form-control" value="@(Model.MaxRange == AuctionModel.MaxDistance? "Unlimited" : Model.MaxRange.ToString()) miles" readonly />
                     </div>
                     <div id="userAddressMap"></div>
 
@@ -332,6 +342,8 @@
             title: 'Your Organization'
         });
 
+        @if(Model.MaxRange != AuctionModel.MaxDistance){
+        <text>
         ServiceRadius = new google.maps.Circle({
             strokeColor: '#FF0000',
             strokeOpacity: 0.8,
@@ -342,6 +354,8 @@
             center: initCoords,
             radius: @Model.MaxRange * 1609.34 //mile to meter conversion
         });
+        </text>
+        }
     }
 
     var basketTable = $("#basketTable")

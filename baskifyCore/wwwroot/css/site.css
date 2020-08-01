@@ -435,7 +435,6 @@ h4{
 /*---------------AUCTION ADD FORM------------------*/
 #auctionInfoForm{
     width: 60%;
-    min-width: 400px;
     left: 0;
     right: 0;
     margin: auto;

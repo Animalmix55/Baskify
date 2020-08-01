@@ -39,5 +39,8 @@ namespace baskifyCore.Models
 
         public DbSet<ContactModel> ContactModel { get; set; }
         public DbSet<FAQModel> FAQModel { get; set; }
+
+        public DbSet<StateModel> StateModel { get; set; }
+        public DbSet<AuctionInStateModel> AuctionInStateModel { get; set; }
     }
 }

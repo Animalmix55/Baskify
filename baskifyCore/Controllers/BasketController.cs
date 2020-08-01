@@ -189,16 +189,15 @@ namespace baskifyCore.Controllers
             {
                 ViewData["Alert"] = "The basket " + HttpUtility.HtmlEncode(updatedBasket.BasketTitle) + " was not found";
                 AuctionModel userInputtedAuction = null;
-                if ((userInputtedAuction = _context.AuctionModel.Find(updatedBasket.AuctionId)) != null && userInputtedAuction.HostUsername == user.Username)
+                if ((userInputtedAuction = _context.AuctionModel.Include(a => a.Baskets).Include(a => a.Payments).Where(a => a.AuctionId == updatedBasket.AuctionId).FirstOrDefault()) != null && userInputtedAuction.HostUsername == user.Username)
                 {
-                    _context.Entry(userInputtedAuction).Collection(a => a.Baskets).Load();
                     return View("~/Views/Auctions/EditAuction.cshtml", userInputtedAuction); //if the auction is the users' we can send them back
                 }
 
                 return View("~/Views/Home/Index.cshtml", user);
             }
 
-            _context.Entry(dbBasket).Reference(b => b.AuctionModel).Load();
+            var auction = _context.AuctionModel.Include(a => a.Payments).Include(a => a.Baskets).Where(a => a.AuctionId == dbBasket.AuctionId).First();
             if(dbBasket.AuctionModel.HostUsername != user.Username) //if the user doesn't own the auction OR the org has authed, reject
             {
                 ViewData["Alert"] = "You do not have access to this basket";

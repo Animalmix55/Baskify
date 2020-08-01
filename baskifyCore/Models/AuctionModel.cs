@@ -112,6 +112,28 @@ namespace baskifyCore.Models
         [Display(Name = "Basket Retrieval (from donor)")]
         public BasketRetrieval? BasketRetrieval { get; set; }
 
+        public virtual List<AuctionInStateModel> InStateModels { get; set; }
+
+        /// <summary>
+        /// A list of states that are targeted
+        /// </summary>
+        [NotMapped]
+        public List<StateModel> TargetStates { 
+            get {
+                if (InStateModels != null)
+                    return InStateModels.Select(m => m.State).ToList();
+                else
+                    return new List<StateModel>();
+            } 
+        }
+
+        /// <summary>
+        /// For carrying the list of states
+        /// </summary>
+        [NotMapped]
+        [Display(Name = "Target States")]
+        public List<string> States { get; set; }
+
         /// <summary>
         /// Minimum purchase IN DOLLARS
         /// </summary>
