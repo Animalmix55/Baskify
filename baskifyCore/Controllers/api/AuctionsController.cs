@@ -367,7 +367,8 @@ namespace baskifyCore.Controllers.api
                 var resultSet = orderedQuery.ToList();
 
                 if(user != null)
-                    resultSet = resultSet.Where(a => SearchUtils.getMiles(user.Latitude, user.Longitude, a.Latitude, a.Longitude) < a.MaxRange).ToList(); //remove results too far away
+                    resultSet = resultSet.Where(a => (SearchUtils.getMiles(user.Latitude, user.Longitude, a.Latitude, a.Longitude) < a.MaxRange 
+                    || a.MaxRange == AuctionModel.MaxDistance) && a.TargetStates.Any(t => t.Equals(user.State))).ToList(); //remove results too far away or in disallowed states
 
                 //order by distance
                 //DISTANCE MUST BE OUTSIDE OF LINQ QUERY

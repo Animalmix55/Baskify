@@ -66,18 +66,21 @@ namespace baskifyCore.Controllers
 
             ViewData["NavBarOverride"] = user;
             var auctionModel = new AuctionModel() { HostUsername = user.Username };
-            return View(auctionModel);
+            var viewModel = new EditAuctionViewModel() { AllStates = _context.StateModel.ToList(), Auction = auctionModel };
+            return View(viewModel);
         }
 
         [HttpPost]
         public IActionResult createAuction(AuctionModel auction)
         {
+            EditAuctionViewModel viewModel;
             List<AuctionModel> disputes;
             var user = LoginUtils.getUserFromToken(Request.Cookies["BearerToken"], _context, Response);
             if (user == null) {
                 ViewData["LoginAgain"] = true; //require log back in
                 ViewData["NavBarOverride"] = user;
-                return View(auction);
+                viewModel = new EditAuctionViewModel() { AllStates = _context.StateModel.ToList(), Auction = auction };
+                return View(viewModel);
             }
             else if (user.UserRole != Roles.COMPANY)
             {
@@ -93,16 +96,19 @@ namespace baskifyCore.Controllers
             {
                 ViewData["Alert"] = $"You cannot create any auctions when you have pending disputes in auction(s): {string.Join(',', disputes.Select(d => d.Title))}";
                 ViewData["NavBarOverride"] = user;
-                return View(auction);
+                viewModel = new EditAuctionViewModel() { AllStates = _context.StateModel.ToList(), Auction = auction };
+                return View(viewModel);
             }
-                
+            
+            if(auction.States == null || !auction.States.Any(s => s != null))
+                ModelState.AddModelError("Auction.States", "Auction must have at least 1 solicitation state!");
 
             if (auction.StartTime < DateTime.UtcNow)
-                ModelState.AddModelError("StartTime", "Auction cannot have already started!");
+                ModelState.AddModelError("Auction.StartTime", "Auction cannot have already started!");
 
             var addressDict = accountUtils.validateAddress(auction.Address, auction.City, auction.State, auction.ZIP);
             if (addressDict["resultStatus"] == "ADDRESS NOT FOUND") //now, addresses are validated in the model
-                ModelState.AddModelError("Address", "Address not found");
+                ModelState.AddModelError("Auction.Address", "Address not found");
             else
             {
                 auction.Address = addressDict["addressLine1"];
@@ -117,7 +123,8 @@ namespace baskifyCore.Controllers
             {
                 ViewData["Alert"] = "Invalid input! Check your form values and readd any banner!";
                 ViewData["NavBarOverride"] = user;
-                return View(auction);
+                viewModel = new EditAuctionViewModel() { AllStates = _context.StateModel.ToList(), Auction = auction };
+                return View(viewModel);
             }
 
             if(auction.FeePercentage != Fees.FeePercent || auction.FeePerTrans != Fees.FeePerTrans)
@@ -126,7 +133,8 @@ namespace baskifyCore.Controllers
                 ViewData["NavBarOverride"] = user;
                 auction.FeePerTrans = Fees.FeePerTrans;
                 auction.FeePercentage = Fees.FeePercent;
-                return View(auction);
+                viewModel = new EditAuctionViewModel() { AllStates = _context.StateModel.ToList(), Auction = auction };
+                return View(viewModel);
             }
 
             try {
@@ -136,10 +144,21 @@ namespace baskifyCore.Controllers
                     .Replace("\'", String.Empty)
                     .Replace("\"", String.Empty)
                     .Replace("&", "and"); //avoid injection
-                var auctionId = AuctionUtilities.addAuction(auction, user, _context);
+                _context.AuctionModel.Add(auction);
                 if (auction.BannerImage != null)
-                    auction.BannerImageUrl = imageUtilities.uploadFile(auction.BannerImage, _env.WebRootPath, "/Content/Auctions/BannerImages/", 300, 1000, "auctionBanner" + auctionId.ToString()); //save image
+                    auction.BannerImageUrl = imageUtilities.uploadFile(auction.BannerImage, _env.WebRootPath, "/Content/Auctions/BannerImages/", 300, 1000, "auctionBanner" + auction.AuctionId.ToString()); //save image
+                
+                _context.SaveChanges(); //get id for states
+                foreach (var state in auction.States) //set target states
+                {
+                    if (state == null)
+                        continue;
+                    var auctioninstate = new AuctionInStateModel() { Auction = auction, StateAbbrv = state };
+                    _context.AuctionInStateModel.Add(auctioninstate);
+                }
+
                 _context.SaveChanges();
+
                 ViewData["Alert"] = "Auction added successfully!";
                 ViewData["NavBarOverride"] = user;
                 ModelState.Clear();
@@ -147,11 +166,12 @@ namespace baskifyCore.Controllers
                 _context.Entry(user).Collection(u => u.Auctions).Load(); //load auctions for auction list...
                 return View("~/Views/Auctions/Index.cshtml", user);
             }
-            catch (Exception)
+            catch (Exception e)
             {
                 ViewData["NavBarOverride"] = user;
                 ViewData["Alert"] = "An unknown error occurred, please try again...";
-                return View(auction);
+                viewModel = new EditAuctionViewModel() { AllStates = _context.StateModel.ToList(), Auction = auction };
+                return View(viewModel);
             }
 
         }
@@ -197,7 +217,7 @@ namespace baskifyCore.Controllers
             }
 
             ViewData["NavBarOverride"] = user;
-            var dbAuction = _context.AuctionModel.Find(auction.AuctionId);
+            var dbAuction = _context.AuctionModel.Include(a => a.Payments).Include(a => a.Baskets).Where(a => a.AuctionId == auction.AuctionId).FirstOrDefault();
 
             if(dbAuction == null)
             {
@@ -238,8 +258,8 @@ namespace baskifyCore.Controllers
                 auction.EndTime = dbAuction.EndTime;
                 ModelState.AddModelError("EndTime", "The end time must be at least an hour in the future (UTC)");
             }
-            _context.Entry(dbAuction).Collection(a => a.Baskets).Load(); //get baskets...
-            auction.Baskets = dbAuction.Baskets; //give auction baskets
+            auction.Baskets = dbAuction.Baskets; //give auction baskets and payments to avoid errors
+            auction.Payments = dbAuction.Payments;
             auction.BannerImageUrl = dbAuction.BannerImageUrl; //so banner appears on error
             if (!ModelState.IsValid)
             {

@@ -215,29 +215,5 @@ namespace baskifyCore.Controllers
             ViewData["NavBarOverride"] = user; //this allows the navbar to render correctly
             return View("ChangePassword", passwordChange);
         }
-
-        /// <summary>
-        /// Returns the address in a JSON format if is valid, or just a dictionary of resultStatus: "ADDRESS NOT FOUND" otherwise...
-        /// </summary>
-        /// <param name="Address"></param>
-        /// <param name="City"></param>
-        /// <param name="State"></param>
-        /// <param name="ZIP"></param>
-        /// <returns></returns>
-        [HttpPost]
-        public IActionResult validateAddress(string Address, string City, string State, string ZIP)
-        {
-            var user = LoginUtils.getUserFromToken(Request.Cookies["BearerToken"], _context, Response);
-            if (user == null)
-                return Content("ERROR: INVALID LOGIN"); //require people be logged in to avoid abuse...
-
-            var response = accountUtils.validateAddress(Address, City, State, ZIP); //this response will already contain lat and lng
-            if (response.ContainsKey("addressLine1"))
-            {
-                response.Add("GoogleMapUrl", accountUtils.getMapLink(response["addressLine1"], response["city"], response["state"], response["zip"]));
-            }
-
-            return Content(JsonConvert.SerializeObject(response));
-        }
     }
 }
