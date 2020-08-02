@@ -1,0 +1,161 @@
+﻿@model BaskifyClient.ViewModels.UpdateOrgViewModel;
+
+@{
+    ViewData["Title"] = "My Account";
+}
+<!DOCTYPE html>
+
+<script src="~/js/moment-with-locales.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.4/css/responsive.dataTables.min.css" />
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.2.4/js/dataTables.responsive.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css" />
+
+<html>
+<head>
+    <style>
+        #cardTable td {
+            padding: .75rem !important;
+        }
+    </style>
+    <meta name="viewport" content="width=device-width" />
+    <title>Your Account</title>
+</head>
+<body>
+    <div id="accountSettings" class="maxWidthContainer">
+        <div id="account">
+            @using (Html.BeginForm("updateValues", "Account", FormMethod.Post, new { @id = "userInfoForm", enctype = "multipart/form-data" }))
+            {
+            @Html.ValidationSummary(true)
+            <fieldset>
+                <legend>Update User Information</legend>
+                <div class="form-group">
+                    @Html.LabelFor(Model => Model.OrgName)
+                    @Html.TextBoxFor(Model => Model.OrgName, null, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(Model => Model.OrgName)
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(Model => Model.TaxCode)
+                    @Html.TextBoxFor(Model => Model.TaxCode, null, new { @class = "form-control", @placeholder = "501(a-n)(#), etc." })
+                    @Html.ValidationMessageFor(Model => Model.TaxCode)
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(Model => Model.Email)
+                    @Html.TextBoxFor(Model => Model.Email, null, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(Model => Model.Email)
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(Model => Model.Address)
+                    @Html.TextBoxFor(Model => Model.Address, null, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(Model => Model.Address)
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(Model => Model.City)
+                    @Html.TextBoxFor(Model => Model.City, null, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(Model => Model.City)
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(Model => Model.State)
+                    @Html.TextBoxFor(Model => Model.State, null, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(Model => Model.State)
+                </div>
+                <div class="form-group">
+                    @Html.LabelFor(Model => Model.ZIP)
+                    @Html.TextBoxFor(Model => Model.ZIP, null, new { @class = "form-control" })
+                    @Html.ValidationMessageFor(Model => Model.ZIP)
+                </div>
+                <iframe id="userAddressMap" src="@BaskifyClient.Utilities.accountUtils.getMapLink(Model.Address, Model.City, Model.State, Model.ZIP)"></iframe>
+                @Html.HiddenFor(Model => Model.iconUrl)
+                <label for="exampleInputFile">Upload New Icon</label>
+                <div class="form-group" id="imgUploadContainer">
+                    <img src="@Model.iconUrl" id="userIcon" />
+                    <div>
+                        <input type="file" name="Icon" class="form-control-file" id="exampleInputFile" aria-describedby="fileHelp">
+                        <small id="fileHelp" class="form-text text-muted">Upload an image with dimensions that do not exceed 500px by 500px.</small>
+                    </div>
+                </div>
+                <div class="form-group">
+                    @Html.TextBoxFor(Model => Model.PhoneNumber, null, new { @class = "form-control", @placeholder = "Phone Number" })
+                    @Html.ValidationMessageFor(Model => Model.PhoneNumber)
+                </div>
+                <div style="display: flex;">
+                    <button id="loginButton" type="submit" class="btn btn-success btn-lg btn-block">Save Changes</button>
+                </div>
+            </fieldset>
+            }
+
+        </div>
+    </div>
+    <script>
+
+        $("#PhoneNumber").on("input", function (e) {
+            var caretPos = e.target.selectionStart;
+            var val = $(this).val();
+            var justNums = "";
+            for (var j = 0; j < val.length; j++) {
+                if (!isNaN(val.charAt(j)) && val.charAt(j) != " ")
+                    justNums += val.charAt(j);
+            }
+
+            var formatted = "";
+            var charNum = 0;
+            for (var i = 0; i < justNums.length; i++) {
+                var addedChars = 0;
+                var initChar = charNum;
+                switch (charNum) {
+                    case 0:
+                        formatted += "+";
+                        charNum++;
+                        addedChars = 1;
+                        break;
+                    case 2:
+                        formatted += " (";
+                        charNum += 2;
+                        addedChars = 2;
+                        break;
+                    case 7:
+                        formatted += ") ";
+                        charNum += 2;
+                        addedChars = 2;
+                        break;
+                    case 12:
+                        formatted += "-"
+                        charNum += 1;
+                        addedChars = 1;
+                        break;
+                }
+                if (initChar == caretPos - 1) {
+                    caretPos += addedChars;
+                }
+
+                formatted += justNums.charAt(i);
+                charNum++;
+            }
+            $(this).val(formatted.slice(0, 17));
+            caretPos = (caretPos < formatted.length ? caretPos : formatted.length);
+            e.target.setSelectionRange(caretPos, caretPos);
+        });
+
+        $("#PhoneNumber").on("keyup", function (e) {
+            var key = e.which || e.keyCode;
+            var caretStart = e.target.selectionStart;
+            var caretEnd = e.target.selectionStart;
+            var val = $(this).val();
+            if (key == 8 || key == 46) {
+                for (var i = caretStart - 1; i >= 0; i--) //character before caret now
+                {
+                    if (!isNaN(val.charAt(i)) && val.charAt(i) != " ") {
+                        e.target.setSelectionRange(i + 1, i + 1);
+                        return;
+                    }
+                }
+            }
+        });
+
+
+        window.history.replaceState(null, "", '/Account');
+    </script>
+</body>
+
+</html>

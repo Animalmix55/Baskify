@@ -1,0 +1,236 @@
+﻿@model BaskifyClient.Models.UserModel;
+
+@{
+    var LoggedIn = !(Model.UserRole == BaskifyClient.Models.Roles.NONE);
+    var isUser = Model.UserRole == BaskifyClient.Models.Roles.USER;
+    var isOrg = Model.UserRole == BaskifyClient.Models.Roles.COMPANY;
+}
+<nav class="navigationBar">
+    <a class="navigationBarBrand navBarElement" href="/">
+    <img src="~/Content/Logo.png" style="height:75%; width: auto;" />Baskify</a>
+
+    <div class="navBarElement searchBarContainerParent" id="navbarColor03">
+        @using (Html.BeginForm("Index", "Search", FormMethod.Get, new { @class = "form-inline my-2 my-lg-0 searchBarContainer" }))
+        {
+            @Html.TextBox("searchQuery", null, new { @class = "form-control mr-sm-2 searchBar", placeholder = "Search" })
+            <Button Class="btn btn-secondary my-2 my-sm-0 searchButton" type="submit">Search</Button>
+        }
+    </div>
+    <div class="navBarElement navUserContainer">
+
+        <div id="userAccount">
+            @if (Model.UserRole == 1)
+            {
+                <div id="bannerName">@(Model.FirstName + " " + Model.LastName)</div>
+                <div id="bannerRole" style="font-size:60%; color:gray">
+                    User
+                </div>
+            }
+            else if (Model.UserRole == 2)
+            {
+                <div id="bannerName">@Model.OrganizationName</div>
+                <div id="bannerRole" style="font-size:60%; color:gray">
+                    Organization
+                </div>
+            }
+            else
+            {
+                <div id="bannerName"></div>
+                <div id="bannerRole" style="font-size:60%; color:gray">
+                </div>
+            }
+        </div>
+        <img id="bannerIcon" class="userIcon" src="@Model.iconUrl" />
+
+    </div>
+    <div class="userDropdown">
+        <table style="width: inherit">
+            <tr class="dropDownLogged" style="display: @(LoggedIn? "table-row" : "none")"><td onclick="redirect('/account')">My Account</td></tr>
+            <tr class="dropDownUser" style="display: @(isUser? "table-row" : "none")"><td onclick="redirect('/basket/userbaskets')">My Submitted Baskets</td></tr>
+            <tr class="dropDownUser" style="display: @(isUser? "table-row" : "none")"><td onclick="redirect('/auctions/results')">Raffle Results</td></tr>
+            <tr class="dropDownUser" style="display: @(isUser? "table-row" : "none")"><td onclick="redirect('/transactions')">Transactions</td></tr>
+            <tr class="dropDownOrg" style="display: @(isOrg? "table-row" : "none")"><td onclick="redirect('/auctions')">My Auctions</td></tr>
+            <tr class="dropDownLogged" style="display: @(LoggedIn? "table-row" : "none")"><td onclick="redirect('/login/signout')">Sign Out</td></tr>
+
+            <tr class="dropDownNotLogged" style="display: @(!LoggedIn? "table-row" : "none")"><td onclick="openSignOnModal()">Sign In</td></tr>
+            <tr class="dropDownNotLogged" style="display: @(!LoggedIn? "table-row" : "none")"><td onclick="redirect('/signup')">Sign Up</td></tr>
+        </table>
+    </div>
+</nav>
+<div id="SignOnModal" class="modal">
+    @await Html.PartialAsync("SignInPartialView")
+</div>
+<div id="PageLoadingModal" style="z-index:999999">
+    <div class="loading-spinner" style="height: 100px; width: 100px; display: block; visibility: visible;">
+        <div class="loading-body">
+            <div></div><div></div><div></div>
+        </div>
+    </div>
+</div>
+
+<script>
+    function openSignOnModal() {
+        $("#SignOnModal").modal("show");
+    }
+
+    function redirect(dest) {
+        window.location = dest;
+    }
+
+
+    if (checkLoaded())
+        $("#PageLoadingModal").css("display", "none");//hides loading when only navbar is loaded in
+
+    $(window).on("load", function () {
+        $("#PageLoadingModal").css("display", "none");
+    }); //make loading screen until page is loaded fully
+
+
+
+    function checkLoaded() {
+        return document.readyState === "complete";
+    }
+
+    //from query string
+    function getParameterByName(name) {
+        url = window.location.href;
+        name = name.replace(/[\[\]]/g, '\\$&');
+        var regex = new RegExp('[?&]' + name + '(=([^&#]*)|&|#|$)'),
+            results = regex.exec(url);
+        if (!results) return '';
+        if (!results[2]) return '';
+        return decodeURIComponent(results[2].replace(/\+/g, ' '));
+    }
+
+    function UpdateQueryString(key, value, url) {
+        if (!url) url = window.location.href;
+        var re = new RegExp("([?&])" + key + "=.*?(&|#|$)(.*)", "gi"),
+            hash;
+
+        if (re.test(url)) {
+            if (typeof value !== 'undefined' && value !== null) {
+                return url.replace(re, '$1' + key + "=" + value + '$2$3');
+            }
+            else {
+                hash = url.split('#');
+                url = hash[0].replace(re, '$1$3').replace(/(&|\?)$/, '');
+                if (typeof hash[1] !== 'undefined' && hash[1] !== null) {
+                    url += '#' + hash[1];
+                }
+                return url;
+            }
+        }
+        else {
+            if (typeof value !== 'undefined' && value !== null) {
+                var separator = url.indexOf('?') !== -1 ? '&' : '?';
+                hash = url.split('#');
+                url = hash[0] + separator + key + '=' + value;
+                if (typeof hash[1] !== 'undefined' && hash[1] !== null) {
+                    url += '#' + hash[1];
+                }
+                return url;
+            }
+            else {
+                return url;
+            }
+        }
+    }
+
+    $(function () {
+        $("body").on("submit", "form[method=post]", function () { //keeps POST forms from submitting with invalid cookies
+            var target = $(this);
+            if (tokenNearExpiry() && target.attr("needsLogin") != "false") {
+                openSignOnModal();
+                return false;
+            }
+            return true;
+        });
+
+        $(".alert").on('click', ".close", function (e) {
+            if ($(this).closest(".alert").attr("data-dismissable") == "True") //is dismissable
+            {
+                $.ajax({
+                    url: "/api/alert/",
+                    method: "DELETE",
+                    beforeSend: function (xhr) {
+                        xhr.setRequestHeader("Authorization", "Bearer " + getCookie("BearerToken")); //add auth
+                    },
+                    data: { id: $(this).closest(".alert").attr("data-id") } //add id
+                });
+            }
+        });
+    });
+
+    function getCookie(cname) {
+        var name = cname + "=";
+        var decodedCookie;
+        try {
+            decodedCookie = decodeURIComponent(document.cookie);
+        }
+        catch (Exception) {
+            decodedCookie = document.cookie;
+        }
+        var ca = decodedCookie.split(';');
+        for (var i = 0; i < ca.length; i++) {
+            var c = ca[i];
+            while (c.charAt(0) == ' ') {
+                c = c.substring(1);
+            }
+            if (c.indexOf(name) == 0) {
+                return c.substring(name.length, c.length);
+            }
+        }
+        return "";
+    }
+
+    function tokenNearExpiry() {
+        var cookieString = getCookie("BearerToken");
+        if (cookieString == "")
+            return true; //no token
+        var decodedToken = jwt_decode(cookieString);
+        var expirationTime = decodedToken.exp;
+        var minutesLeft = Math.floor(((Date.now() - Date.parse(expirationTime)) / 1000) / 60);
+        if (minutesLeft < 2)
+            return true; //soon to expire token
+        else
+            return false; //good token
+    }
+
+    $(document).on("click", "[data-hide]", function () {
+        $(this).closest("." + $(this).attr("data-hide")).css("display", "none"); //hide all alerts rather than remove
+    });
+</script>
+
+@if (ViewData["LoginAgain"] != null && (bool)ViewData["LoginAgain"])
+{
+    <div class="alert alert-dismissible alert-warning">
+        <button type="button" class="close" data-hide="alert">&times;</button>
+        <h4 class="alert-heading">Woops!</h4>
+        <p class="mb-0">There was an error, please login and resubmit.</p>
+    </div>
+    <script>openSignOnModal()</script>
+}
+
+@if (Model.UserAlerts != null)
+{
+    @foreach (UserAlertModel alert in Model.UserAlerts)//print any alerts to user
+    {
+        <div class="alert alert-dismissible alert-warning" style="margin-bottom: 0;" data-dismissable="@alert.Dismissable" data-id="@alert.Id">
+            <button type="button" class="close" data-hide="alert">&times;</button>
+            <h4 class="alert-heading">@alert.AlertHeader</h4>
+            <p class="mb-0">@alert.AlertBody</p>
+        </div>
+    }
+}
+
+@if (ViewData["Alert"] != null)//used to pass around temporary realtime alerts
+{
+    <div class="alert alert-dismissible alert-warning" style="margin-bottom: 0;">
+        <button type="button" class="close" data-hide="alert">&times;</button>
+        <h4 class="alert-heading">Alert!</h4>
+        <p class="mb-0">@ViewData["Alert"]</p>
+    </div>
+}
+
+
+

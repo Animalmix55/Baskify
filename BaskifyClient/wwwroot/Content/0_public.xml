@@ -1,0 +1,1278 @@
+﻿<?xml version="1.0" encoding="utf-8"?>
+<Return xmlns="http://www.irs.gov/efile" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.irs.gov/efile" returnVersion="2018v3.1">
+  <ReturnHeader binaryAttachmentCnt="0">
+    <ReturnTs>2019-06-24T12:16:03-05:00</ReturnTs>
+    <TaxPeriodEndDt>2018-12-31</TaxPeriodEndDt>
+    <PreparerFirmGrp>
+      <PreparerFirmEIN>208426521</PreparerFirmEIN>
+      <PreparerFirmName>
+        <BusinessNameLine1Txt>KIMBLE</BusinessNameLine1Txt>
+      </PreparerFirmName>
+      <PreparerUSAddress>
+        <AddressLine1Txt>6806 PARAGON PLACE SUITE 250</AddressLine1Txt>
+        <CityNm>RICHMOND</CityNm>
+        <StateAbbreviationCd>VA</StateAbbreviationCd>
+        <ZIPCd>23230</ZIPCd>
+      </PreparerUSAddress>
+    </PreparerFirmGrp>
+    <ReturnTypeCd>990</ReturnTypeCd>
+    <TaxPeriodBeginDt>2018-01-01</TaxPeriodBeginDt>
+    <Filer>
+      <EIN>000000000</EIN>
+      <BusinessName>
+        <BusinessNameLine1Txt>CORY CHERVEN CO</BusinessNameLine1Txt>
+      </BusinessName>
+      <BusinessNameControlTxt>CCO</BusinessNameControlTxt>
+      <PhoneNum>3012023811</PhoneNum>
+      <USAddress>
+        <AddressLine1Txt>59 BRUNCK ROAD.</AddressLine1Txt>
+        <CityNm>LANCASTER</CityNm>
+        <StateAbbreviationCd>NY</StateAbbreviationCd>
+        <ZIPCd>14086</ZIPCd>
+      </USAddress>
+    </Filer>
+    <BusinessOfficerGrp>
+      <PersonNm>CORY CHERVEN</PersonNm>
+      <PersonTitleTxt>PRESIDENT AND CEO</PersonTitleTxt>
+      <PhoneNum>7168604666</PhoneNum>
+      <SignatureDt>2019-06-13</SignatureDt>
+      <DiscussWithPaidPreparerInd>1</DiscussWithPaidPreparerInd>
+    </BusinessOfficerGrp>
+    <PreparerPersonGrp>
+      <PreparerPersonNm>FABIOLA SANTANA</PreparerPersonNm>
+      <PTIN>P00238084</PTIN>
+      <PhoneNum>8046124380</PhoneNum>
+    </PreparerPersonGrp>
+    <FilingSecurityInformation>
+      <IPAddress>
+        <IPv4AddressTxt>50.242.56.77</IPv4AddressTxt>
+      </IPAddress>
+      <IPDt>2019-06-13</IPDt>
+      <IPTm>16:18:38</IPTm>
+      <IPTimezoneCd>ED</IPTimezoneCd>
+      <FilingLicenseTypeCd>P</FilingLicenseTypeCd>
+      <AtSubmissionCreationDeviceId>08285BFAAEAE2D74F24740C44713BD3E303B0FF8</AtSubmissionCreationDeviceId>
+      <AtSubmissionFilingDeviceId>08285BFAAEAE2D74F24740C44713BD3E303B0FF8</AtSubmissionFilingDeviceId>
+    </FilingSecurityInformation>
+    <TaxYr>2018</TaxYr>
+    <BuildTS>2019-02-21 02:37:17Z</BuildTS>
+  </ReturnHeader>
+  <ReturnData documentCnt="11">
+    <IRS990 documentId="RetDoc1038000001" referenceDocumentId="RetDoc1044400001">
+      <PrincipalOfficerNm>DIANA GRAY</PrincipalOfficerNm>
+      <USAddress>
+        <AddressLine1Txt>4340 EAST WEST HIGHWAY NO 905</AddressLine1Txt>
+        <CityNm>BETHESDA</CityNm>
+        <StateAbbreviationCd>MD</StateAbbreviationCd>
+        <ZIPCd>20814</ZIPCd>
+      </USAddress>
+      <GrossReceiptsAmt>5209269</GrossReceiptsAmt>
+      <GroupReturnForAffiliatesInd>0</GroupReturnForAffiliatesInd>
+      <Organization501c3Ind>X</Organization501c3Ind>
+      <WebsiteAddressTxt>WWW.HYDROASSOC.ORG</WebsiteAddressTxt>
+      <TypeOfOrganizationCorpInd>X</TypeOfOrganizationCorpInd>
+      <FormationYr>1986</FormationYr>
+      <LegalDomicileStateCd>CA</LegalDomicileStateCd>
+      <ActivityOrMissionDesc>PROMOTE A CURE FOR HYDROCEPHALUS AND IMPROVE THE LIVES OF THOSE AFFECTED BY THE CONDITION.</ActivityOrMissionDesc>
+      <VotingMembersGoverningBodyCnt>20</VotingMembersGoverningBodyCnt>
+      <VotingMembersIndependentCnt>20</VotingMembersIndependentCnt>
+      <TotalEmployeeCnt>19</TotalEmployeeCnt>
+      <TotalVolunteersCnt>1700</TotalVolunteersCnt>
+      <TotalGrossUBIAmt>0</TotalGrossUBIAmt>
+      <NetUnrelatedBusTxblIncmAmt>0</NetUnrelatedBusTxblIncmAmt>
+      <PYContributionsGrantsAmt>4119272</PYContributionsGrantsAmt>
+      <CYContributionsGrantsAmt>4714395</CYContributionsGrantsAmt>
+      <PYProgramServiceRevenueAmt>0</PYProgramServiceRevenueAmt>
+      <CYProgramServiceRevenueAmt>82052</CYProgramServiceRevenueAmt>
+      <PYInvestmentIncomeAmt>2118</PYInvestmentIncomeAmt>
+      <CYInvestmentIncomeAmt>-3869</CYInvestmentIncomeAmt>
+      <PYOtherRevenueAmt>-257295</PYOtherRevenueAmt>
+      <CYOtherRevenueAmt>-223129</CYOtherRevenueAmt>
+      <PYTotalRevenueAmt>3864095</PYTotalRevenueAmt>
+      <CYTotalRevenueAmt>4569449</CYTotalRevenueAmt>
+      <PYGrantsAndSimilarPaidAmt>1403334</PYGrantsAndSimilarPaidAmt>
+      <CYGrantsAndSimilarPaidAmt>1372039</CYGrantsAndSimilarPaidAmt>
+      <PYBenefitsPaidToMembersAmt>0</PYBenefitsPaidToMembersAmt>
+      <CYBenefitsPaidToMembersAmt>0</CYBenefitsPaidToMembersAmt>
+      <PYSalariesCompEmpBnftPaidAmt>1725833</PYSalariesCompEmpBnftPaidAmt>
+      <CYSalariesCompEmpBnftPaidAmt>1663261</CYSalariesCompEmpBnftPaidAmt>
+      <PYTotalProfFndrsngExpnsAmt>0</PYTotalProfFndrsngExpnsAmt>
+      <CYTotalProfFndrsngExpnsAmt>0</CYTotalProfFndrsngExpnsAmt>
+      <CYTotalFundraisingExpenseAmt>678773</CYTotalFundraisingExpenseAmt>
+      <PYOtherExpensesAmt>1627199</PYOtherExpensesAmt>
+      <CYOtherExpensesAmt>1866682</CYOtherExpensesAmt>
+      <PYTotalExpensesAmt>4756366</PYTotalExpensesAmt>
+      <CYTotalExpensesAmt>4901982</CYTotalExpensesAmt>
+      <PYRevenuesLessExpensesAmt>-892271</PYRevenuesLessExpensesAmt>
+      <CYRevenuesLessExpensesAmt>-332533</CYRevenuesLessExpensesAmt>
+      <TotalAssetsBOYAmt>3179190</TotalAssetsBOYAmt>
+      <TotalAssetsEOYAmt>3033090</TotalAssetsEOYAmt>
+      <TotalLiabilitiesBOYAmt>425582</TotalLiabilitiesBOYAmt>
+      <TotalLiabilitiesEOYAmt>617168</TotalLiabilitiesEOYAmt>
+      <NetAssetsOrFundBalancesBOYAmt>2753608</NetAssetsOrFundBalancesBOYAmt>
+      <NetAssetsOrFundBalancesEOYAmt>2415922</NetAssetsOrFundBalancesEOYAmt>
+      <InfoInScheduleOPartIIIInd>X</InfoInScheduleOPartIIIInd>
+      <MissionDesc>COLLABORATE WITH PATIENTS, CAREGIVERS, RESEARCHERS AND INDUSTRY TO RAISE AWARENESS AND FUND INNOVATIVE HIGH IMPACT RESEARCH TO PREVENT, TREAT, AND ULTIMATELY CURE HYDROCEPHALUS.</MissionDesc>
+      <SignificantNewProgramSrvcInd>0</SignificantNewProgramSrvcInd>
+      <SignificantChangeInd>0</SignificantChangeInd>
+      <ExpenseAmt>1752798</ExpenseAmt>
+      <GrantAmt>1359480</GrantAmt>
+      <Desc>RESEARCHTHE HYDROCEPHALUS ASSOCIATION (HA) REMAINS DEDICATED TO SUPPORTING HIGH QUALITY, HIGH-IMPACT RESEARCH THROUGH CONTINUED SUPPORT OF THE HA PATIENT POWERED INTERACTIVE ENGAGEMENT REGISTRY (HAPPIER), HA NETWORK FOR DISCOVERY SCIENCE (HANDS), HYDROCEPHALUS CLINICAL RESEARCH NETWORK (HCRN), AND ADULT HCRN (AHCRN). HAPPIER PROVIDES PATIENTS AND CAREGIVERS THE OPPORTUNITY TO ENGAGE IN RESEARCH WHILE PROVIDING RESEARCHERS ACCESS TO CRITICAL DATA. HANDS PROVIDES THE CONNECTIONS, TECHNOLOGY, AND TOOLS NEEDED TO SPUR AND SUPPORT INNOVATIVE BASIC AND TRANSLATIONAL RESEARCH, WHILE THE PEDIATRIC FOCUSED HCRN AND ADULT FOCUSED AHCRN PROVIDE THE STRUCTURE AND EXPERTISE NECESSARY TO EFFICIENTLY AND THOROUGHLY TEST THESE NEW TECHNOLOGIES AND CLINICAL THERAPIES WITH THE HIGHEST CLINICAL STANDARDS. BY LINKING BASIC, TRANSLATIONAL, AND CLINICAL RESEARCHERS, HA HAS CREATED A PIPELINE TO MOVE RESEARCH FROM THE BENCH TO THE BEDSIDE.</Desc>
+      <ProgSrvcAccomActy2Grp>
+        <ExpenseAmt>1074665</ExpenseAmt>
+        <GrantAmt>12559</GrantAmt>
+        <Desc>SUPPORT AND EDUCATIONTHE HYDROCEPHALUS ASSOCIATION IS DEEPLY COMMITTED TO IMPROVING THE LIVES OF THOSE AFFECTED BY HYDROCEPHALUS BY PROVIDING DIRECT SUPPORT AS WELL AS EDUCATIONAL RESOURCES IN COLLABORATION WITH A WIDE RANGE OF STAKEHOLDERS TO RAISE AWARENESS AND KNOWLEDGE. IN 2018 HA STAFF PROVIDED ONE-ON-ONE SUPPORT THROUGH PHONE CALLS, EMAILS, AND INTERACTIONS ON SOCIAL MEDIA TOTALING OVER 8,000 TOUCHES. WE GREW ENGAGEMENT IN OUR LOCAL SUPPORT GROUPS - COMMUNITY NETWORKS - BY OVER 20%. IN 2018 WE HAD 44 COMMUNITIES ACROSS THE COUNTRY EMPOWERING PATIENTS AND THEIR FAMILIES THROUGH MEETINGS AND ONLINE DICSUSSIONS. TWO CORNERSTONE EDUCATIONAL PROGRAMS BRING TOGETHER OUR COMMUNITY WITH MEDICAL AND OTHER PROFESSIONALS TO RECEIVE INFORMATION AND ANSWER QUESTIONS. WE REACHED MORE THAN 4,100 PEOPLE THROUGH OUR EDUCATIONAL WEBINARS. OUR FREE WEBINARS COVERED A WIDE RANGE OF TOPICS, FROM NORMAL PRESSURE HYDROCEPHALUS, WHICH AFFECTS OLDER AMERICANS, TO HOW GENETICS CAN IMPACT THE DEVELOPMENT OF HYDROCEPHALUS IN CHILDREN. IN ADDITION, THROUGHOUT THE YEAR, WE PARTNERED WITH LOCAL HOSPITALS TO HOLD EDUCATION DAYS ON HYDROCEPHALUS IN SELECT CITIES ACROSS THE U.S. IN 2018, NEARLY 500 PEOPLE PARTICIPATED IN FREE EDUCATION DAYS, WHICH WERE HELD IN WASHINGTON, D.C.; ST. PETERSBURG, FL; AND BALTIMORE, MD. THESE ONE-DAY EVENTS ARE DESIGNED TO DELIVER EDUCATION, SUPPORT AND NETWORKING OPPORTUNITIES FOR THE HYDROCEPHALUS COMMUNITY. A PAPER SUMMARIZING THE FINDINGS FROM OUR FIRST-EVER TRANSITION SUMMIT WAS PUBLISHED IN THE PRESTIGIOUS JOURNAL OF NEUROSURGERY (JNS). THIS MARKS THE FIRST TIME A MAJOR PAPER WAS PUBLISHED IN AN ACADEMIC JOURNAL COMPREHENSIVELY HIGHLIGHTING THE CHALLENGES FACED BY TEENS AND YOUNG ADULTS WITH HYDROCEPHALUS WHEN TRANSITIONING FROM PEDIATRIC TO ADULT CARE. BEING PUBLISHED IN JNS, THE WORLD'S LEADING JOURNAL IN NEUROSURGERY, WAS A BIG WIN FOR THE HYDROCEPHALUS COMMUNITY BECAUSE IT WILL HELP EDUCATE MEDICAL PROVIDERS ABOUT THIS IMPORTANT ISSUE. THE JNS REACHES BOTH PEDIATRIC AND ADULT PROVIDERS, ALL OF WHOM WILL HAVE CRUCIAL ROLES TO PLAY IN IMPROVING TRANSITION.THE ASSOCIATION CONTINUES TO SUPPORT OUR YOUNG ADULTS' ACADEMIC PURSUITS THROUGH OUR SCHOLARSHIP PROGRAM. ESTABLISHED IN 1994, HA HAS AWARDED 191 SCHOLARSHIPS TO DESERVING FUTURE LEADERS OF THE HYDROCEPHALUS COMMUNITY. IN 2018, HA OFFERED 11 EDUCATIONAL SCHOLARSHIPS TO YOUNG ADULTS LIVING WITH HYDROCEPHALUS WHO EXHIBIT PROMISING LEADERSHIP SKILLS AND ARE INVOLVED IN THEIR COMMUNITIES. A GENEROUS GIFT HONORING</Desc>
+      </ProgSrvcAccomActy2Grp>
+      <ProgSrvcAccomActy3Grp>
+        <ExpenseAmt>624568</ExpenseAmt>
+        <RevenueAmt>82052</RevenueAmt>
+        <Desc>HA NATIONAL CONFERENCEHA CONNECTOUR BIENNIAL CONFERENCE, HA CONNECT, WAS HELD IN JUNE 2018. WITHMORE THAN 70 SESSIONS, 69 PRESENTERS AND MORE THAN 700 ATTENDEES, HACONNECT ENABLES PATIENTS AND FAMILIES TO HAVE AN OPPORTUNITY TO "MEETTHE EXPERTS" ON HYDROCEPHALUS CARE AND TREATMENT, AS WELL AS TO NETWORK WITH OTHER FAMILIES.</Desc>
+      </ProgSrvcAccomActy3Grp>
+      <ProgSrvcAccomActyOtherGrp>
+        <ExpenseAmt>49168</ExpenseAmt>
+        <Desc>ADVOCACYTHE HYDROCEPHALUS ASSOCIATION ADVOCACY STEERING COMMITTEE HAS CONTINUED TO MONITOR AND SUPPORT KEY LEGISLATION THAT WILL BENEFIT THE HYDROCEPHALUS COMMUNITY. HYDROCEPHALUS WAS ONCE AGAIN INCLUDED ON THE LIST OF ELIGIBLE CONDITIONS TO RECEIVE FUNDING UNDER THE CONGRESSIONALLY DIRECTED MEDICAL RESEARCH PROGRAMS (CDMRP) ADMINISTERED BY THE DEPARTMENT OF DEFENSE (D0D). THE CDMRP HAS APPROPRIATIONS OF $360 MILLION, WHICH ARE USED TO FUND THE BEST SCIENTIFIC AND MEDICAL RESEARCH. WE ARE PROUD OF THIS CONTINUED ACCOMPLISHMENT. HA CONTINUES TO BE ACTIVE IN ADVOCACY MEETINGS AND SIGN-ON LETTERS PUT TOGETHER AS PART OF THE NATIONAL HEALTH COUNCIL (NHC), THE RARE DISEASE LEGISLATIVE ASSOCIATES (RDLA), RESEARCH!AMERICA, AND THE NATIONAL HEATH DEFENSE CONSORTIUM. ON SEPT. 13, 2018, WE JOINED HUNDREDS OF HEALTH ORGANIZATIONS ON CAPITOL HILL FOR THE RALLY FOR MEDICAL RESEARCH, WHICH HELPS RAISE AWARENESS ABOUT THE IMPORTANCE OF CONTINUED INVESTMENT IN MEDICAL RESEARCH AT THE NIH. TWENTY-TWO HYDROCEPHALUS ADVOCATES PARTICIPATED IN THE RALLY, WHICH HELD 250 MEETINGS WITH MEMBERS OF CONGRESS WHERE ADVOCATES URGED LAWMAKERS TO INCREASE FUNDING FOR THE NIH BY $2 BILLION IN FY2018.OUR COMMUNITY ALSO CONTINUED TO RAISE OUR VOICES TO BRING MUCH NEEDED ATTENTION AND AWARENESS OF HYDROCEPHALUS THROUGH OUR #NOMOREBS - NO MORE BRAIN SURGERIES - CAMPAIGN. WE ADDED VIDEO VIGNETTES OF HYDROCEPHALUS PATIENTS SHARING THE COMPLEXITIES OF LIVING WITH HYDROCEPHALUS AND THE SHOCKING NUMBER OF BRAIN SURGERIES PATIENTS MUST UNDERGO DURING THEIR LIFETIME DUE TO HYDROCEPHALUS OR ITS MANY COMPLICATIONS. FOR THE MONTH OF SEPTEMBER, HYDROCEPHALUS AWARENESS MONTH, OUR #NOMOREBS CAMPAIGN REACHED OVER 336,000 PEOPLE AND GENERATED NEARLY 65,000 ENGAGEMENTS ON SOCIAL MEDIA. FOR THE LAST FIVE MONTHS OF 2018, THE CAMPAIGN GENERATED 257,720 IMPRESSIONS ON OUR SOCIAL MEDIA CHANNELS (FACEBOOK, TWITTER AND INSTAGRAM) AND 7,698 ENGAGEMENTS. OUR ENGAGEMENTS INCREASED BY 1,097 PERCENT COMPARED TO THE PREVIOUS SIX MONTHS.</Desc>
+      </ProgSrvcAccomActyOtherGrp>
+      <TotalOtherProgSrvcExpenseAmt>49168</TotalOtherProgSrvcExpenseAmt>
+      <TotalProgramServiceExpensesAmt>3501199</TotalProgramServiceExpensesAmt>
+      <DescribedInSection501c3Ind referenceDocumentId="RetDoc1039100001">1</DescribedInSection501c3Ind>
+      <ScheduleBRequiredInd referenceDocumentId="RetDoc1234500001">1</ScheduleBRequiredInd>
+      <PoliticalCampaignActyInd referenceDocumentId="RetDoc1039700001">0</PoliticalCampaignActyInd>
+      <LobbyingActivitiesInd referenceDocumentId="RetDoc1039700001">1</LobbyingActivitiesInd>
+      <SubjectToProxyTaxInd referenceDocumentId="RetDoc1039700001">0</SubjectToProxyTaxInd>
+      <DonorAdvisedFundInd referenceDocumentId="RetDoc1040000001">0</DonorAdvisedFundInd>
+      <ConservationEasementsInd referenceDocumentId="RetDoc1040000001">0</ConservationEasementsInd>
+      <CollectionsOfArtInd referenceDocumentId="RetDoc1040000001">0</CollectionsOfArtInd>
+      <CreditCounselingInd referenceDocumentId="RetDoc1040000001">0</CreditCounselingInd>
+      <TempOrPermanentEndowmentsInd referenceDocumentId="RetDoc1040000001">1</TempOrPermanentEndowmentsInd>
+      <ReportLandBuildingEquipmentInd referenceDocumentId="RetDoc1040000001">1</ReportLandBuildingEquipmentInd>
+      <ReportInvestmentsOtherSecInd referenceDocumentId="RetDoc1040000001">0</ReportInvestmentsOtherSecInd>
+      <ReportProgramRelatedInvstInd referenceDocumentId="RetDoc1040000001">0</ReportProgramRelatedInvstInd>
+      <ReportOtherAssetsInd referenceDocumentId="RetDoc1040000001">0</ReportOtherAssetsInd>
+      <ReportOtherLiabilitiesInd referenceDocumentId="RetDoc1040000001">0</ReportOtherLiabilitiesInd>
+      <IncludeFIN48FootnoteInd referenceDocumentId="RetDoc1040000001">1</IncludeFIN48FootnoteInd>
+      <IndependentAuditFinclStmtInd referenceDocumentId="RetDoc1040000001">1</IndependentAuditFinclStmtInd>
+      <ConsolidatedAuditFinclStmtInd referenceDocumentId="RetDoc1040000001">0</ConsolidatedAuditFinclStmtInd>
+      <SchoolOperatingInd>0</SchoolOperatingInd>
+      <ForeignOfficeInd>0</ForeignOfficeInd>
+      <ForeignActivitiesInd referenceDocumentId="RetDoc1040500001">1</ForeignActivitiesInd>
+      <MoreThan5000KToOrgInd referenceDocumentId="RetDoc1040500001">1</MoreThan5000KToOrgInd>
+      <MoreThan5000KToIndividualsInd referenceDocumentId="RetDoc1040500001">0</MoreThan5000KToIndividualsInd>
+      <ProfessionalFundraisingInd referenceDocumentId="RetDoc1041300001">0</ProfessionalFundraisingInd>
+      <FundraisingActivitiesInd referenceDocumentId="RetDoc1041300001">1</FundraisingActivitiesInd>
+      <GamingActivitiesInd referenceDocumentId="RetDoc1041300001">1</GamingActivitiesInd>
+      <OperateHospitalInd>0</OperateHospitalInd>
+      <GrantsToOrganizationsInd referenceDocumentId="RetDoc1041900001">1</GrantsToOrganizationsInd>
+      <GrantsToIndividualsInd referenceDocumentId="RetDoc1041900001">1</GrantsToIndividualsInd>
+      <ScheduleJRequiredInd referenceDocumentId="RetDoc1042400001">1</ScheduleJRequiredInd>
+      <TaxExemptBondsInd>0</TaxExemptBondsInd>
+      <EngagedInExcessBenefitTransInd>0</EngagedInExcessBenefitTransInd>
+      <PYExcessBenefitTransInd>0</PYExcessBenefitTransInd>
+      <LoanOutstandingInd>0</LoanOutstandingInd>
+      <GrantToRelatedPersonInd>0</GrantToRelatedPersonInd>
+      <BusinessRlnWithOrgMemInd>0</BusinessRlnWithOrgMemInd>
+      <BusinessRlnWithFamMemInd>0</BusinessRlnWithFamMemInd>
+      <BusinessRlnWithOfficerEntInd>0</BusinessRlnWithOfficerEntInd>
+      <DeductibleNonCashContriInd referenceDocumentId="RetDoc1042900001">1</DeductibleNonCashContriInd>
+      <DeductibleArtContributionInd referenceDocumentId="RetDoc1042900001">0</DeductibleArtContributionInd>
+      <TerminateOperationsInd>0</TerminateOperationsInd>
+      <PartialLiquidationInd>0</PartialLiquidationInd>
+      <DisregardedEntityInd>0</DisregardedEntityInd>
+      <RelatedEntityInd>0</RelatedEntityInd>
+      <RelatedOrganizationCtrlEntInd>0</RelatedOrganizationCtrlEntInd>
+      <TrnsfrExmptNonChrtblRltdOrgInd>0</TrnsfrExmptNonChrtblRltdOrgInd>
+      <ActivitiesConductedPrtshpInd>0</ActivitiesConductedPrtshpInd>
+      <ScheduleORequiredInd>1</ScheduleORequiredInd>
+      <IRPDocumentCnt>12</IRPDocumentCnt>
+      <IRPDocumentW2GCnt>0</IRPDocumentW2GCnt>
+      <BackupWthldComplianceInd>1</BackupWthldComplianceInd>
+      <EmployeeCnt>19</EmployeeCnt>
+      <EmploymentTaxReturnsFiledInd>1</EmploymentTaxReturnsFiledInd>
+      <UnrelatedBusIncmOverLimitInd>0</UnrelatedBusIncmOverLimitInd>
+      <ForeignFinancialAccountInd>0</ForeignFinancialAccountInd>
+      <ProhibitedTaxShelterTransInd>0</ProhibitedTaxShelterTransInd>
+      <TaxablePartyNotificationInd>0</TaxablePartyNotificationInd>
+      <NondeductibleContributionsInd>0</NondeductibleContributionsInd>
+      <QuidProQuoContributionsInd>1</QuidProQuoContributionsInd>
+      <QuidProQuoContriDisclInd>1</QuidProQuoContriDisclInd>
+      <Form8282PropertyDisposedOfInd>0</Form8282PropertyDisposedOfInd>
+      <IndoorTanningServicesInd>0</IndoorTanningServicesInd>
+      <SubjToTaxRmnrtnExPrchtPymtInd>0</SubjToTaxRmnrtnExPrchtPymtInd>
+      <SubjectToExcsTaxNetInvstIncInd>0</SubjectToExcsTaxNetInvstIncInd>
+      <InfoInScheduleOPartVIInd>X</InfoInScheduleOPartVIInd>
+      <GoverningBodyVotingMembersCnt>20</GoverningBodyVotingMembersCnt>
+      <IndependentVotingMemberCnt>20</IndependentVotingMemberCnt>
+      <FamilyOrBusinessRlnInd>0</FamilyOrBusinessRlnInd>
+      <DelegationOfMgmtDutiesInd>0</DelegationOfMgmtDutiesInd>
+      <ChangeToOrgDocumentsInd>0</ChangeToOrgDocumentsInd>
+      <MaterialDiversionOrMisuseInd>0</MaterialDiversionOrMisuseInd>
+      <MembersOrStockholdersInd>0</MembersOrStockholdersInd>
+      <ElectionOfBoardMembersInd>0</ElectionOfBoardMembersInd>
+      <DecisionsSubjectToApprovaInd>0</DecisionsSubjectToApprovaInd>
+      <MinutesOfGoverningBodyInd>1</MinutesOfGoverningBodyInd>
+      <MinutesOfCommitteesInd>1</MinutesOfCommitteesInd>
+      <OfficerMailingAddressInd>0</OfficerMailingAddressInd>
+      <LocalChaptersInd>0</LocalChaptersInd>
+      <Form990ProvidedToGvrnBodyInd>1</Form990ProvidedToGvrnBodyInd>
+      <ConflictOfInterestPolicyInd>1</ConflictOfInterestPolicyInd>
+      <AnnualDisclosureCoveredPrsnInd>1</AnnualDisclosureCoveredPrsnInd>
+      <RegularMonitoringEnfrcInd>1</RegularMonitoringEnfrcInd>
+      <WhistleblowerPolicyInd>1</WhistleblowerPolicyInd>
+      <DocumentRetentionPolicyInd>1</DocumentRetentionPolicyInd>
+      <CompensationProcessCEOInd>1</CompensationProcessCEOInd>
+      <CompensationProcessOtherInd>0</CompensationProcessOtherInd>
+      <InvestmentInJointVentureInd>0</InvestmentInJointVentureInd>
+      <StatesWhereCopyOfReturnIsFldCd>AL</StatesWhereCopyOfReturnIsFldCd>
+      <StatesWhereCopyOfReturnIsFldCd>AK</StatesWhereCopyOfReturnIsFldCd>
+      <StatesWhereCopyOfReturnIsFldCd>AR</StatesWhereCopyOfReturnIsFldCd>
+      <StatesWhereCopyOfReturnIsFldCd>CA</StatesWhereCopyOfReturnIsFldCd>
+      <StatesWhereCopyOfReturnIsFldCd>CT</StatesWhereCopyOfReturnIsFldCd>
+      <StatesWhereCopyOfReturnIsFldCd>FL</StatesWhereCopyOfReturnIsFldCd>
+      <StatesWhereCopyOfReturnIsFldCd>GA</StatesWhereCopyOfReturnIsFldCd>
+      <StatesWhereCopyOfReturnIsFldCd>IL</StatesWhereCopyOfReturnIsFldCd>
+      <StatesWhereCopyOfReturnIsFldCd>KS</StatesWhereCopyOfReturnIsFldCd>
+      <StatesWhereCopyOfReturnIsFldCd>KY</StatesWhereCopyOfReturnIsFldCd>
+      <StatesWhereCopyOfReturnIsFldCd>ME</StatesWhereCopyOfReturnIsFldCd>
+      <StatesWhereCopyOfReturnIsFldCd>MD</StatesWhereCopyOfReturnIsFldCd>
+      <StatesWhereCopyOfReturnIsFldCd>MA</StatesWhereCopyOfReturnIsFldCd>
+      <StatesWhereCopyOfReturnIsFldCd>MI</StatesWhereCopyOfReturnIsFldCd>
+      <StatesWhereCopyOfReturnIsFldCd>MN</StatesWhereCopyOfReturnIsFldCd>
+      <StatesWhereCopyOfReturnIsFldCd>MS</StatesWhereCopyOfReturnIsFldCd>
+      <StatesWhereCopyOfReturnIsFldCd>NH</StatesWhereCopyOfReturnIsFldCd>
+      <StatesWhereCopyOfReturnIsFldCd>NJ</StatesWhereCopyOfReturnIsFldCd>
+      <StatesWhereCopyOfReturnIsFldCd>NM</StatesWhereCopyOfReturnIsFldCd>
+      <StatesWhereCopyOfReturnIsFldCd>NY</StatesWhereCopyOfReturnIsFldCd>
+      <StatesWhereCopyOfReturnIsFldCd>NC</StatesWhereCopyOfReturnIsFldCd>
+      <StatesWhereCopyOfReturnIsFldCd>OH</StatesWhereCopyOfReturnIsFldCd>
+      <StatesWhereCopyOfReturnIsFldCd>OK</StatesWhereCopyOfReturnIsFldCd>
+      <StatesWhereCopyOfReturnIsFldCd>OR</StatesWhereCopyOfReturnIsFldCd>
+      <StatesWhereCopyOfReturnIsFldCd>PA</StatesWhereCopyOfReturnIsFldCd>
+      <StatesWhereCopyOfReturnIsFldCd>RI</StatesWhereCopyOfReturnIsFldCd>
+      <StatesWhereCopyOfReturnIsFldCd>SC</StatesWhereCopyOfReturnIsFldCd>
+      <StatesWhereCopyOfReturnIsFldCd>TN</StatesWhereCopyOfReturnIsFldCd>
+      <StatesWhereCopyOfReturnIsFldCd>UT</StatesWhereCopyOfReturnIsFldCd>
+      <StatesWhereCopyOfReturnIsFldCd>VA</StatesWhereCopyOfReturnIsFldCd>
+      <StatesWhereCopyOfReturnIsFldCd>WV</StatesWhereCopyOfReturnIsFldCd>
+      <StatesWhereCopyOfReturnIsFldCd>WI</StatesWhereCopyOfReturnIsFldCd>
+      <StatesWhereCopyOfReturnIsFldCd>CO</StatesWhereCopyOfReturnIsFldCd>
+      <StatesWhereCopyOfReturnIsFldCd>WA</StatesWhereCopyOfReturnIsFldCd>
+      <StatesWhereCopyOfReturnIsFldCd>DC</StatesWhereCopyOfReturnIsFldCd>
+      <OwnWebsiteInd>X</OwnWebsiteInd>
+      <UponRequestInd>X</UponRequestInd>
+      <BooksInCareOfDetail>
+        <PersonNm>DIANA GRAY</PersonNm>
+        <PhoneNum>3012023811</PhoneNum>
+        <USAddress>
+          <AddressLine1Txt>4340 EAST WEST HIGHWAY NO 905</AddressLine1Txt>
+          <CityNm>BETHESDA</CityNm>
+          <StateAbbreviationCd>MD</StateAbbreviationCd>
+          <ZIPCd>20814</ZIPCd>
+        </USAddress>
+      </BooksInCareOfDetail>
+      <Form990PartVIISectionAGrp>
+        <PersonNm>BRETT WEITZ</PersonNm>
+        <TitleTxt>CHAIR</TitleTxt>
+        <AverageHoursPerWeekRt>4.50</AverageHoursPerWeekRt>
+        <IndividualTrusteeOrDirectorInd>X</IndividualTrusteeOrDirectorInd>
+        <OfficerInd>X</OfficerInd>
+        <ReportableCompFromOrgAmt>0</ReportableCompFromOrgAmt>
+        <ReportableCompFromRltdOrgAmt>0</ReportableCompFromRltdOrgAmt>
+        <OtherCompensationAmt>0</OtherCompensationAmt>
+      </Form990PartVIISectionAGrp>
+      <Form990PartVIISectionAGrp>
+        <PersonNm>RICK SMITH</PersonNm>
+        <TitleTxt>DIRECTOR</TitleTxt>
+        <AverageHoursPerWeekRt>3.50</AverageHoursPerWeekRt>
+        <IndividualTrusteeOrDirectorInd>X</IndividualTrusteeOrDirectorInd>
+        <ReportableCompFromOrgAmt>0</ReportableCompFromOrgAmt>
+        <ReportableCompFromRltdOrgAmt>0</ReportableCompFromRltdOrgAmt>
+        <OtherCompensationAmt>0</OtherCompensationAmt>
+      </Form990PartVIISectionAGrp>
+      <Form990PartVIISectionAGrp>
+        <PersonNm>HUGH ALLEN</PersonNm>
+        <TitleTxt>DIRECTOR</TitleTxt>
+        <AverageHoursPerWeekRt>3.50</AverageHoursPerWeekRt>
+        <IndividualTrusteeOrDirectorInd>X</IndividualTrusteeOrDirectorInd>
+        <ReportableCompFromOrgAmt>0</ReportableCompFromOrgAmt>
+        <ReportableCompFromRltdOrgAmt>0</ReportableCompFromRltdOrgAmt>
+        <OtherCompensationAmt>0</OtherCompensationAmt>
+      </Form990PartVIISectionAGrp>
+      <Form990PartVIISectionAGrp>
+        <PersonNm>SALLY BALDUS</PersonNm>
+        <TitleTxt>DIRECTOR</TitleTxt>
+        <AverageHoursPerWeekRt>3.50</AverageHoursPerWeekRt>
+        <IndividualTrusteeOrDirectorInd>X</IndividualTrusteeOrDirectorInd>
+        <ReportableCompFromOrgAmt>0</ReportableCompFromOrgAmt>
+        <ReportableCompFromRltdOrgAmt>0</ReportableCompFromRltdOrgAmt>
+        <OtherCompensationAmt>0</OtherCompensationAmt>
+      </Form990PartVIISectionAGrp>
+      <Form990PartVIISectionAGrp>
+        <PersonNm>PAM FINLAYSON</PersonNm>
+        <TitleTxt>DIRECTOR</TitleTxt>
+        <AverageHoursPerWeekRt>3.50</AverageHoursPerWeekRt>
+        <IndividualTrusteeOrDirectorInd>X</IndividualTrusteeOrDirectorInd>
+        <ReportableCompFromOrgAmt>0</ReportableCompFromOrgAmt>
+        <ReportableCompFromRltdOrgAmt>0</ReportableCompFromRltdOrgAmt>
+        <OtherCompensationAmt>0</OtherCompensationAmt>
+      </Form990PartVIISectionAGrp>
+      <Form990PartVIISectionAGrp>
+        <PersonNm>GUY FISH MD</PersonNm>
+        <TitleTxt>DIRECTOR</TitleTxt>
+        <AverageHoursPerWeekRt>3.50</AverageHoursPerWeekRt>
+        <IndividualTrusteeOrDirectorInd>X</IndividualTrusteeOrDirectorInd>
+        <ReportableCompFromOrgAmt>0</ReportableCompFromOrgAmt>
+        <ReportableCompFromRltdOrgAmt>0</ReportableCompFromRltdOrgAmt>
+        <OtherCompensationAmt>0</OtherCompensationAmt>
+      </Form990PartVIISectionAGrp>
+      <Form990PartVIISectionAGrp>
+        <PersonNm>CLIFF GOLDMAN</PersonNm>
+        <TitleTxt>DIRECTOR</TitleTxt>
+        <AverageHoursPerWeekRt>3.50</AverageHoursPerWeekRt>
+        <IndividualTrusteeOrDirectorInd>X</IndividualTrusteeOrDirectorInd>
+        <ReportableCompFromOrgAmt>0</ReportableCompFromOrgAmt>
+        <ReportableCompFromRltdOrgAmt>0</ReportableCompFromRltdOrgAmt>
+        <OtherCompensationAmt>0</OtherCompensationAmt>
+      </Form990PartVIISectionAGrp>
+      <Form990PartVIISectionAGrp>
+        <PersonNm>MARK HAMILTON MD</PersonNm>
+        <TitleTxt>DIRECTOR</TitleTxt>
+        <AverageHoursPerWeekRt>3.50</AverageHoursPerWeekRt>
+        <IndividualTrusteeOrDirectorInd>X</IndividualTrusteeOrDirectorInd>
+        <ReportableCompFromOrgAmt>0</ReportableCompFromOrgAmt>
+        <ReportableCompFromRltdOrgAmt>0</ReportableCompFromRltdOrgAmt>
+        <OtherCompensationAmt>0</OtherCompensationAmt>
+      </Form990PartVIISectionAGrp>
+      <Form990PartVIISectionAGrp>
+        <PersonNm>JOHN KESTLE MD FRCSC FACS</PersonNm>
+        <TitleTxt>DIRECTOR</TitleTxt>
+        <AverageHoursPerWeekRt>3.50</AverageHoursPerWeekRt>
+        <IndividualTrusteeOrDirectorInd>X</IndividualTrusteeOrDirectorInd>
+        <ReportableCompFromOrgAmt>0</ReportableCompFromOrgAmt>
+        <ReportableCompFromRltdOrgAmt>0</ReportableCompFromRltdOrgAmt>
+        <OtherCompensationAmt>0</OtherCompensationAmt>
+      </Form990PartVIISectionAGrp>
+      <Form990PartVIISectionAGrp>
+        <PersonNm>JOHN LAWRENCE</PersonNm>
+        <TitleTxt>DIRECTOR</TitleTxt>
+        <AverageHoursPerWeekRt>3.50</AverageHoursPerWeekRt>
+        <IndividualTrusteeOrDirectorInd>X</IndividualTrusteeOrDirectorInd>
+        <ReportableCompFromOrgAmt>0</ReportableCompFromOrgAmt>
+        <ReportableCompFromRltdOrgAmt>0</ReportableCompFromRltdOrgAmt>
+        <OtherCompensationAmt>0</OtherCompensationAmt>
+      </Form990PartVIISectionAGrp>
+      <Form990PartVIISectionAGrp>
+        <PersonNm>TERESA MASTRANGELO</PersonNm>
+        <TitleTxt>DIRECTOR</TitleTxt>
+        <AverageHoursPerWeekRt>3.50</AverageHoursPerWeekRt>
+        <IndividualTrusteeOrDirectorInd>X</IndividualTrusteeOrDirectorInd>
+        <ReportableCompFromOrgAmt>0</ReportableCompFromOrgAmt>
+        <ReportableCompFromRltdOrgAmt>0</ReportableCompFromRltdOrgAmt>
+        <OtherCompensationAmt>0</OtherCompensationAmt>
+      </Form990PartVIISectionAGrp>
+      <Form990PartVIISectionAGrp>
+        <PersonNm>BARRETT O'CONNOR</PersonNm>
+        <TitleTxt>DIRECTOR</TitleTxt>
+        <AverageHoursPerWeekRt>3.50</AverageHoursPerWeekRt>
+        <IndividualTrusteeOrDirectorInd>X</IndividualTrusteeOrDirectorInd>
+        <ReportableCompFromOrgAmt>0</ReportableCompFromOrgAmt>
+        <ReportableCompFromRltdOrgAmt>0</ReportableCompFromRltdOrgAmt>
+        <OtherCompensationAmt>0</OtherCompensationAmt>
+      </Form990PartVIISectionAGrp>
+      <Form990PartVIISectionAGrp>
+        <PersonNm>JENNIFER POPE</PersonNm>
+        <TitleTxt>DIRECTOR</TitleTxt>
+        <AverageHoursPerWeekRt>3.50</AverageHoursPerWeekRt>
+        <IndividualTrusteeOrDirectorInd>X</IndividualTrusteeOrDirectorInd>
+        <ReportableCompFromOrgAmt>0</ReportableCompFromOrgAmt>
+        <ReportableCompFromRltdOrgAmt>0</ReportableCompFromRltdOrgAmt>
+        <OtherCompensationAmt>0</OtherCompensationAmt>
+      </Form990PartVIISectionAGrp>
+      <Form990PartVIISectionAGrp>
+        <PersonNm>EILEEN RODGER</PersonNm>
+        <TitleTxt>DIRECTOR</TitleTxt>
+        <AverageHoursPerWeekRt>3.50</AverageHoursPerWeekRt>
+        <IndividualTrusteeOrDirectorInd>X</IndividualTrusteeOrDirectorInd>
+        <ReportableCompFromOrgAmt>0</ReportableCompFromOrgAmt>
+        <ReportableCompFromRltdOrgAmt>0</ReportableCompFromRltdOrgAmt>
+        <OtherCompensationAmt>0</OtherCompensationAmt>
+      </Form990PartVIISectionAGrp>
+      <Form990PartVIISectionAGrp>
+        <PersonNm>MICHAEL WILLIAMS MD</PersonNm>
+        <TitleTxt>DIRECTOR</TitleTxt>
+        <AverageHoursPerWeekRt>3.50</AverageHoursPerWeekRt>
+        <IndividualTrusteeOrDirectorInd>X</IndividualTrusteeOrDirectorInd>
+        <ReportableCompFromOrgAmt>0</ReportableCompFromOrgAmt>
+        <ReportableCompFromRltdOrgAmt>0</ReportableCompFromRltdOrgAmt>
+        <OtherCompensationAmt>0</OtherCompensationAmt>
+      </Form990PartVIISectionAGrp>
+      <Form990PartVIISectionAGrp>
+        <PersonNm>ASEEM CHANDRA</PersonNm>
+        <TitleTxt>IMMEDIATE PAST CHAIR</TitleTxt>
+        <AverageHoursPerWeekRt>3.50</AverageHoursPerWeekRt>
+        <IndividualTrusteeOrDirectorInd>X</IndividualTrusteeOrDirectorInd>
+        <ReportableCompFromOrgAmt>0</ReportableCompFromOrgAmt>
+        <ReportableCompFromRltdOrgAmt>0</ReportableCompFromRltdOrgAmt>
+        <OtherCompensationAmt>0</OtherCompensationAmt>
+      </Form990PartVIISectionAGrp>
+      <Form990PartVIISectionAGrp>
+        <PersonNm>RAYMOND R MOSER JR</PersonNm>
+        <TitleTxt>VICE CHAIR</TitleTxt>
+        <AverageHoursPerWeekRt>3.50</AverageHoursPerWeekRt>
+        <IndividualTrusteeOrDirectorInd>X</IndividualTrusteeOrDirectorInd>
+        <OfficerInd>X</OfficerInd>
+        <ReportableCompFromOrgAmt>0</ReportableCompFromOrgAmt>
+        <ReportableCompFromRltdOrgAmt>0</ReportableCompFromRltdOrgAmt>
+        <OtherCompensationAmt>0</OtherCompensationAmt>
+      </Form990PartVIISectionAGrp>
+      <Form990PartVIISectionAGrp>
+        <PersonNm>SUSAN FIORELLA</PersonNm>
+        <TitleTxt>VICE CHAIR</TitleTxt>
+        <AverageHoursPerWeekRt>3.50</AverageHoursPerWeekRt>
+        <IndividualTrusteeOrDirectorInd>X</IndividualTrusteeOrDirectorInd>
+        <OfficerInd>X</OfficerInd>
+        <ReportableCompFromOrgAmt>0</ReportableCompFromOrgAmt>
+        <ReportableCompFromRltdOrgAmt>0</ReportableCompFromRltdOrgAmt>
+        <OtherCompensationAmt>0</OtherCompensationAmt>
+      </Form990PartVIISectionAGrp>
+      <Form990PartVIISectionAGrp>
+        <PersonNm>JASON PRESTON</PersonNm>
+        <TitleTxt>VICE CHAIR</TitleTxt>
+        <AverageHoursPerWeekRt>3.50</AverageHoursPerWeekRt>
+        <IndividualTrusteeOrDirectorInd>X</IndividualTrusteeOrDirectorInd>
+        <OfficerInd>X</OfficerInd>
+        <ReportableCompFromOrgAmt>0</ReportableCompFromOrgAmt>
+        <ReportableCompFromRltdOrgAmt>0</ReportableCompFromRltdOrgAmt>
+        <OtherCompensationAmt>0</OtherCompensationAmt>
+      </Form990PartVIISectionAGrp>
+      <Form990PartVIISectionAGrp>
+        <PersonNm>TESSA VAN DER WILLIGEN</PersonNm>
+        <TitleTxt>VICE CHAIR</TitleTxt>
+        <AverageHoursPerWeekRt>3.50</AverageHoursPerWeekRt>
+        <IndividualTrusteeOrDirectorInd>X</IndividualTrusteeOrDirectorInd>
+        <OfficerInd>X</OfficerInd>
+        <ReportableCompFromOrgAmt>0</ReportableCompFromOrgAmt>
+        <ReportableCompFromRltdOrgAmt>0</ReportableCompFromRltdOrgAmt>
+        <OtherCompensationAmt>0</OtherCompensationAmt>
+      </Form990PartVIISectionAGrp>
+      <Form990PartVIISectionAGrp>
+        <PersonNm>CRAIG BROWN</PersonNm>
+        <TitleTxt>SENIOR VICE CHAIR</TitleTxt>
+        <AverageHoursPerWeekRt>3.50</AverageHoursPerWeekRt>
+        <IndividualTrusteeOrDirectorInd>X</IndividualTrusteeOrDirectorInd>
+        <ReportableCompFromOrgAmt>0</ReportableCompFromOrgAmt>
+        <ReportableCompFromRltdOrgAmt>0</ReportableCompFromRltdOrgAmt>
+        <OtherCompensationAmt>0</OtherCompensationAmt>
+      </Form990PartVIISectionAGrp>
+      <Form990PartVIISectionAGrp>
+        <PersonNm>MIKE SCHWAB</PersonNm>
+        <TitleTxt>VICE CHAIR</TitleTxt>
+        <AverageHoursPerWeekRt>3.50</AverageHoursPerWeekRt>
+        <IndividualTrusteeOrDirectorInd>X</IndividualTrusteeOrDirectorInd>
+        <ReportableCompFromOrgAmt>0</ReportableCompFromOrgAmt>
+        <ReportableCompFromRltdOrgAmt>0</ReportableCompFromRltdOrgAmt>
+        <OtherCompensationAmt>0</OtherCompensationAmt>
+      </Form990PartVIISectionAGrp>
+      <Form990PartVIISectionAGrp>
+        <PersonNm>MARION WALKER</PersonNm>
+        <TitleTxt>DIRECTOR</TitleTxt>
+        <AverageHoursPerWeekRt>3.50</AverageHoursPerWeekRt>
+        <IndividualTrusteeOrDirectorInd>X</IndividualTrusteeOrDirectorInd>
+        <ReportableCompFromOrgAmt>0</ReportableCompFromOrgAmt>
+        <ReportableCompFromRltdOrgAmt>0</ReportableCompFromRltdOrgAmt>
+        <OtherCompensationAmt>0</OtherCompensationAmt>
+      </Form990PartVIISectionAGrp>
+      <Form990PartVIISectionAGrp>
+        <PersonNm>DIANA GRAY</PersonNm>
+        <TitleTxt>PRESIDENT AND CEO</TitleTxt>
+        <AverageHoursPerWeekRt>54.00</AverageHoursPerWeekRt>
+        <OfficerInd>X</OfficerInd>
+        <ReportableCompFromOrgAmt>200769</ReportableCompFromOrgAmt>
+        <ReportableCompFromRltdOrgAmt>0</ReportableCompFromRltdOrgAmt>
+        <OtherCompensationAmt>7404</OtherCompensationAmt>
+      </Form990PartVIISectionAGrp>
+      <Form990PartVIISectionAGrp>
+        <PersonNm>AMANDA GARZON</PersonNm>
+        <TitleTxt>NATIONAL DIRECTOR OF PROGRAM SERVICES &amp; COMM.</TitleTxt>
+        <AverageHoursPerWeekRt>40.00</AverageHoursPerWeekRt>
+        <HighestCompensatedEmployeeInd>X</HighestCompensatedEmployeeInd>
+        <ReportableCompFromOrgAmt>103688</ReportableCompFromOrgAmt>
+        <ReportableCompFromRltdOrgAmt>0</ReportableCompFromRltdOrgAmt>
+        <OtherCompensationAmt>3150</OtherCompensationAmt>
+      </Form990PartVIISectionAGrp>
+      <TotalReportableCompFromOrgAmt>304457</TotalReportableCompFromOrgAmt>
+      <TotReportableCompRltdOrgAmt>0</TotReportableCompRltdOrgAmt>
+      <TotalOtherCompensationAmt>10554</TotalOtherCompensationAmt>
+      <IndivRcvdGreaterThan100KCnt>2</IndivRcvdGreaterThan100KCnt>
+      <FormerOfcrEmployeesListedInd>0</FormerOfcrEmployeesListedInd>
+      <TotalCompGreaterThan150KInd>1</TotalCompGreaterThan150KInd>
+      <CompensationFromOtherSrcsInd>0</CompensationFromOtherSrcsInd>
+      <CntrctRcvdGreaterThan100KCnt>0</CntrctRcvdGreaterThan100KCnt>
+      <FundraisingAmt>2369001</FundraisingAmt>
+      <GovernmentGrantsAmt>11283</GovernmentGrantsAmt>
+      <AllOtherContributionsAmt>2334111</AllOtherContributionsAmt>
+      <NoncashContributionsAmt>313200</NoncashContributionsAmt>
+      <TotalContributionsAmt>4714395</TotalContributionsAmt>
+      <ProgramServiceRevenueGrp>
+        <Desc>CONFERENCE FEES</Desc>
+        <BusinessCd>900099</BusinessCd>
+        <TotalRevenueColumnAmt>82052</TotalRevenueColumnAmt>
+        <RelatedOrExemptFuncIncomeAmt>82052</RelatedOrExemptFuncIncomeAmt>
+      </ProgramServiceRevenueGrp>
+      <TotalProgramServiceRevenueAmt>82052</TotalProgramServiceRevenueAmt>
+      <InvestmentIncomeGrp>
+        <TotalRevenueColumnAmt>6778</TotalRevenueColumnAmt>
+        <ExclusionAmt>6778</ExclusionAmt>
+      </InvestmentIncomeGrp>
+      <GrossAmountSalesAssetsGrp>
+        <SecuritiesAmt>313200</SecuritiesAmt>
+      </GrossAmountSalesAssetsGrp>
+      <LessCostOthBasisSalesExpnssGrp>
+        <SecuritiesAmt>323847</SecuritiesAmt>
+      </LessCostOthBasisSalesExpnssGrp>
+      <GainOrLossGrp>
+        <SecuritiesAmt>-10647</SecuritiesAmt>
+      </GainOrLossGrp>
+      <NetGainOrLossInvestmentsGrp>
+        <TotalRevenueColumnAmt>-10647</TotalRevenueColumnAmt>
+        <ExclusionAmt>-10647</ExclusionAmt>
+      </NetGainOrLossInvestmentsGrp>
+      <FundraisingGrossIncomeAmt>0</FundraisingGrossIncomeAmt>
+      <ContriRptFundraisingEventAmt>2369001</ContriRptFundraisingEventAmt>
+      <FundraisingDirectExpensesAmt>315973</FundraisingDirectExpensesAmt>
+      <NetIncmFromFundraisingEvtGrp>
+        <TotalRevenueColumnAmt>-315973</TotalRevenueColumnAmt>
+        <ExclusionAmt>-315973</ExclusionAmt>
+      </NetIncmFromFundraisingEvtGrp>
+      <GamingGrossIncomeAmt>53831</GamingGrossIncomeAmt>
+      <GamingDirectExpensesAmt>0</GamingDirectExpensesAmt>
+      <NetIncomeFromGamingGrp>
+        <TotalRevenueColumnAmt>53831</TotalRevenueColumnAmt>
+        <ExclusionAmt>53831</ExclusionAmt>
+      </NetIncomeFromGamingGrp>
+      <GrossSalesOfInventoryAmt>11881</GrossSalesOfInventoryAmt>
+      <CostOfGoodsSoldAmt>0</CostOfGoodsSoldAmt>
+      <NetIncomeOrLossGrp>
+        <TotalRevenueColumnAmt>11881</TotalRevenueColumnAmt>
+        <RelatedOrExemptFuncIncomeAmt>11881</RelatedOrExemptFuncIncomeAmt>
+      </NetIncomeOrLossGrp>
+      <OtherRevenueMiscGrp>
+        <Desc>OTHER INCOME</Desc>
+        <BusinessCd>900099</BusinessCd>
+        <TotalRevenueColumnAmt>27132</TotalRevenueColumnAmt>
+        <RelatedOrExemptFuncIncomeAmt>27132</RelatedOrExemptFuncIncomeAmt>
+      </OtherRevenueMiscGrp>
+      <OtherRevenueTotalAmt>27132</OtherRevenueTotalAmt>
+      <TotalRevenueGrp>
+        <TotalRevenueColumnAmt>4569449</TotalRevenueColumnAmt>
+        <RelatedOrExemptFuncIncomeAmt>121065</RelatedOrExemptFuncIncomeAmt>
+        <UnrelatedBusinessRevenueAmt>0</UnrelatedBusinessRevenueAmt>
+        <ExclusionAmt>-266011</ExclusionAmt>
+      </TotalRevenueGrp>
+      <GrantsToDomesticOrgsGrp>
+        <TotalAmt>1268282</TotalAmt>
+        <ProgramServicesAmt>1268282</ProgramServicesAmt>
+      </GrantsToDomesticOrgsGrp>
+      <GrantsToDomesticIndividualsGrp>
+        <TotalAmt>11000</TotalAmt>
+        <ProgramServicesAmt>11000</ProgramServicesAmt>
+      </GrantsToDomesticIndividualsGrp>
+      <ForeignGrantsGrp>
+        <TotalAmt>92757</TotalAmt>
+        <ProgramServicesAmt>92757</ProgramServicesAmt>
+      </ForeignGrantsGrp>
+      <CompCurrentOfcrDirectorsGrp>
+        <TotalAmt>200769</TotalAmt>
+        <ProgramServicesAmt>100384</ProgramServicesAmt>
+        <ManagementAndGeneralAmt>86331</ManagementAndGeneralAmt>
+        <FundraisingAmt>14054</FundraisingAmt>
+      </CompCurrentOfcrDirectorsGrp>
+      <OtherSalariesAndWagesGrp>
+        <TotalAmt>1192822</TotalAmt>
+        <ProgramServicesAmt>775908</ProgramServicesAmt>
+        <ManagementAndGeneralAmt>247001</ManagementAndGeneralAmt>
+        <FundraisingAmt>169913</FundraisingAmt>
+      </OtherSalariesAndWagesGrp>
+      <PensionPlanContributionsGrp>
+        <TotalAmt>32364</TotalAmt>
+        <ProgramServicesAmt>19567</ProgramServicesAmt>
+        <ManagementAndGeneralAmt>9556</ManagementAndGeneralAmt>
+        <FundraisingAmt>3241</FundraisingAmt>
+      </PensionPlanContributionsGrp>
+      <OtherEmployeeBenefitsGrp>
+        <TotalAmt>137010</TotalAmt>
+        <ProgramServicesAmt>82832</ProgramServicesAmt>
+        <ManagementAndGeneralAmt>40457</ManagementAndGeneralAmt>
+        <FundraisingAmt>13721</FundraisingAmt>
+      </OtherEmployeeBenefitsGrp>
+      <PayrollTaxesGrp>
+        <TotalAmt>100296</TotalAmt>
+        <ProgramServicesAmt>63362</ProgramServicesAmt>
+        <ManagementAndGeneralAmt>24090</ManagementAndGeneralAmt>
+        <FundraisingAmt>12844</FundraisingAmt>
+      </PayrollTaxesGrp>
+      <FeesForServicesLegalGrp>
+        <TotalAmt>67</TotalAmt>
+        <FundraisingAmt>67</FundraisingAmt>
+      </FeesForServicesLegalGrp>
+      <FeesForServicesAccountingGrp>
+        <TotalAmt>75416</TotalAmt>
+        <ManagementAndGeneralAmt>75416</ManagementAndGeneralAmt>
+      </FeesForServicesAccountingGrp>
+      <FeesForServicesOtherGrp>
+        <TotalAmt>273789</TotalAmt>
+        <ProgramServicesAmt>191768</ProgramServicesAmt>
+        <ManagementAndGeneralAmt>20369</ManagementAndGeneralAmt>
+        <FundraisingAmt>61652</FundraisingAmt>
+      </FeesForServicesOtherGrp>
+      <AdvertisingGrp>
+        <TotalAmt>7669</TotalAmt>
+        <ProgramServicesAmt>6478</ProgramServicesAmt>
+        <ManagementAndGeneralAmt>253</ManagementAndGeneralAmt>
+        <FundraisingAmt>938</FundraisingAmt>
+      </AdvertisingGrp>
+      <OfficeExpensesGrp>
+        <TotalAmt>363615</TotalAmt>
+        <ProgramServicesAmt>191902</ProgramServicesAmt>
+        <ManagementAndGeneralAmt>77630</ManagementAndGeneralAmt>
+        <FundraisingAmt>94083</FundraisingAmt>
+      </OfficeExpensesGrp>
+      <InformationTechnologyGrp>
+        <TotalAmt>155256</TotalAmt>
+        <ProgramServicesAmt>109524</ProgramServicesAmt>
+        <ManagementAndGeneralAmt>25832</ManagementAndGeneralAmt>
+        <FundraisingAmt>19900</FundraisingAmt>
+      </InformationTechnologyGrp>
+      <OccupancyGrp>
+        <TotalAmt>110089</TotalAmt>
+        <ProgramServicesAmt>75782</ProgramServicesAmt>
+        <ManagementAndGeneralAmt>19086</ManagementAndGeneralAmt>
+        <FundraisingAmt>15221</FundraisingAmt>
+      </OccupancyGrp>
+      <TravelGrp>
+        <TotalAmt>288626</TotalAmt>
+        <ProgramServicesAmt>179359</ProgramServicesAmt>
+        <ManagementAndGeneralAmt>38418</ManagementAndGeneralAmt>
+        <FundraisingAmt>70849</FundraisingAmt>
+      </TravelGrp>
+      <ConferencesMeetingsGrp>
+        <TotalAmt>389051</TotalAmt>
+        <ProgramServicesAmt>225350</ProgramServicesAmt>
+        <ManagementAndGeneralAmt>6473</ManagementAndGeneralAmt>
+        <FundraisingAmt>157228</FundraisingAmt>
+      </ConferencesMeetingsGrp>
+      <InterestGrp>
+        <TotalAmt>19183</TotalAmt>
+        <ManagementAndGeneralAmt>19183</ManagementAndGeneralAmt>
+      </InterestGrp>
+      <DepreciationDepletionGrp>
+        <TotalAmt>41331</TotalAmt>
+        <ProgramServicesAmt>28472</ProgramServicesAmt>
+        <ManagementAndGeneralAmt>7171</ManagementAndGeneralAmt>
+        <FundraisingAmt>5688</FundraisingAmt>
+      </DepreciationDepletionGrp>
+      <InsuranceGrp>
+        <TotalAmt>19511</TotalAmt>
+        <ProgramServicesAmt>6737</ProgramServicesAmt>
+        <ManagementAndGeneralAmt>12609</ManagementAndGeneralAmt>
+        <FundraisingAmt>165</FundraisingAmt>
+      </InsuranceGrp>
+      <OtherExpensesGrp>
+        <Desc>COST OF MERCHANDISE</Desc>
+        <TotalAmt>31049</TotalAmt>
+        <ProgramServicesAmt>18502</ProgramServicesAmt>
+        <ManagementAndGeneralAmt>337</ManagementAndGeneralAmt>
+        <FundraisingAmt>12210</FundraisingAmt>
+      </OtherExpensesGrp>
+      <OtherExpensesGrp>
+        <Desc>DUES AND SUBSCRIPTIONS</Desc>
+        <TotalAmt>27025</TotalAmt>
+        <ProgramServicesAmt>9563</ProgramServicesAmt>
+        <ManagementAndGeneralAmt>1415</ManagementAndGeneralAmt>
+        <FundraisingAmt>16047</FundraisingAmt>
+      </OtherExpensesGrp>
+      <OtherExpensesGrp>
+        <Desc>SITE EXPENSES</Desc>
+        <TotalAmt>21529</TotalAmt>
+        <ProgramServicesAmt>15664</ProgramServicesAmt>
+        <ManagementAndGeneralAmt>0</ManagementAndGeneralAmt>
+        <FundraisingAmt>5865</FundraisingAmt>
+      </OtherExpensesGrp>
+      <OtherExpensesGrp>
+        <Desc>PRIZE AND AWARD</Desc>
+        <TotalAmt>18472</TotalAmt>
+        <ProgramServicesAmt>16447</ProgramServicesAmt>
+        <ManagementAndGeneralAmt>342</ManagementAndGeneralAmt>
+        <FundraisingAmt>1683</FundraisingAmt>
+      </OtherExpensesGrp>
+      <AllOtherExpensesGrp>
+        <TotalAmt>25004</TotalAmt>
+        <ProgramServicesAmt>11559</ProgramServicesAmt>
+        <ManagementAndGeneralAmt>10041</ManagementAndGeneralAmt>
+        <FundraisingAmt>3404</FundraisingAmt>
+      </AllOtherExpensesGrp>
+      <TotalFunctionalExpensesGrp>
+        <TotalAmt>4901982</TotalAmt>
+        <ProgramServicesAmt>3501199</ProgramServicesAmt>
+        <ManagementAndGeneralAmt>722010</ManagementAndGeneralAmt>
+        <FundraisingAmt>678773</FundraisingAmt>
+      </TotalFunctionalExpensesGrp>
+      <CashNonInterestBearingGrp>
+        <BOYAmt>1579969</BOYAmt>
+        <EOYAmt>1209975</EOYAmt>
+      </CashNonInterestBearingGrp>
+      <PledgesAndGrantsReceivableGrp>
+        <BOYAmt>1047444</BOYAmt>
+        <EOYAmt>1349313</EOYAmt>
+      </PledgesAndGrantsReceivableGrp>
+      <InventoriesForSaleOrUseGrp>
+        <BOYAmt>20869</BOYAmt>
+        <EOYAmt>33709</EOYAmt>
+      </InventoriesForSaleOrUseGrp>
+      <PrepaidExpensesDefrdChargesGrp>
+        <BOYAmt>76927</BOYAmt>
+        <EOYAmt>62386</EOYAmt>
+      </PrepaidExpensesDefrdChargesGrp>
+      <LandBldgEquipCostOrOtherBssAmt>178253</LandBldgEquipCostOrOtherBssAmt>
+      <LandBldgEquipAccumDeprecAmt>126417</LandBldgEquipAccumDeprecAmt>
+      <LandBldgEquipBasisNetGrp>
+        <BOYAmt>93167</BOYAmt>
+        <EOYAmt>51836</EOYAmt>
+      </LandBldgEquipBasisNetGrp>
+      <InvestmentsPubTradedSecGrp>
+        <BOYAmt>315902</BOYAmt>
+        <EOYAmt>317527</EOYAmt>
+      </InvestmentsPubTradedSecGrp>
+      <OtherAssetsTotalGrp>
+        <BOYAmt>44912</BOYAmt>
+        <EOYAmt>8344</EOYAmt>
+      </OtherAssetsTotalGrp>
+      <TotalAssetsGrp>
+        <BOYAmt>3179190</BOYAmt>
+        <EOYAmt>3033090</EOYAmt>
+      </TotalAssetsGrp>
+      <AccountsPayableAccrExpnssGrp>
+        <BOYAmt>214493</BOYAmt>
+        <EOYAmt>475748</EOYAmt>
+      </AccountsPayableAccrExpnssGrp>
+      <GrantsPayableGrp>
+        <BOYAmt>211089</BOYAmt>
+        <EOYAmt>141420</EOYAmt>
+      </GrantsPayableGrp>
+      <TotalLiabilitiesGrp>
+        <BOYAmt>425582</BOYAmt>
+        <EOYAmt>617168</EOYAmt>
+      </TotalLiabilitiesGrp>
+      <OrganizationFollowsSFAS117Ind>X</OrganizationFollowsSFAS117Ind>
+      <UnrestrictedNetAssetsGrp>
+        <BOYAmt>504823</BOYAmt>
+        <EOYAmt>38656</EOYAmt>
+      </UnrestrictedNetAssetsGrp>
+      <TemporarilyRstrNetAssetsGrp>
+        <BOYAmt>2157667</BOYAmt>
+        <EOYAmt>2286148</EOYAmt>
+      </TemporarilyRstrNetAssetsGrp>
+      <PermanentlyRstrNetAssetsGrp>
+        <BOYAmt>91118</BOYAmt>
+        <EOYAmt>91118</EOYAmt>
+      </PermanentlyRstrNetAssetsGrp>
+      <TotalNetAssetsFundBalanceGrp>
+        <BOYAmt>2753608</BOYAmt>
+        <EOYAmt>2415922</EOYAmt>
+      </TotalNetAssetsFundBalanceGrp>
+      <TotLiabNetAssetsFundBalanceGrp>
+        <BOYAmt>3179190</BOYAmt>
+        <EOYAmt>3033090</EOYAmt>
+      </TotLiabNetAssetsFundBalanceGrp>
+      <ReconcilationRevenueExpnssAmt>-332533</ReconcilationRevenueExpnssAmt>
+      <NetUnrlzdGainsLossesInvstAmt>-5153</NetUnrlzdGainsLossesInvstAmt>
+      <OtherChangesInNetAssetsAmt>0</OtherChangesInNetAssetsAmt>
+      <InfoInScheduleOPartXIIInd>X</InfoInScheduleOPartXIIInd>
+      <MethodOfAccountingAccrualInd>X</MethodOfAccountingAccrualInd>
+      <AccountantCompileOrReviewInd>0</AccountantCompileOrReviewInd>
+      <FSAuditedInd>1</FSAuditedInd>
+      <FSAuditedBasisGrp>
+        <SeparateBasisFinclStmtInd>X</SeparateBasisFinclStmtInd>
+      </FSAuditedBasisGrp>
+      <AuditCommitteeInd>1</AuditCommitteeInd>
+      <FederalGrantAuditRequiredInd>0</FederalGrantAuditRequiredInd>
+    </IRS990>
+    <IRS990ScheduleA documentId="RetDoc1039100001">
+      <PublicOrganization170Ind>X</PublicOrganization170Ind>
+      <GiftsGrantsContriRcvd170Grp>
+        <CurrentTaxYearMinus4YearsAmt>3366289</CurrentTaxYearMinus4YearsAmt>
+        <CurrentTaxYearMinus3YearsAmt>3357377</CurrentTaxYearMinus3YearsAmt>
+        <CurrentTaxYearMinus2YearsAmt>4595007</CurrentTaxYearMinus2YearsAmt>
+        <CurrentTaxYearMinus1YearAmt>4119272</CurrentTaxYearMinus1YearAmt>
+        <CurrentTaxYearAmt>4714395</CurrentTaxYearAmt>
+        <TotalAmt>20152340</TotalAmt>
+      </GiftsGrantsContriRcvd170Grp>
+      <TotalCalendarYear170Grp>
+        <CurrentTaxYearMinus4YearsAmt>3366289</CurrentTaxYearMinus4YearsAmt>
+        <CurrentTaxYearMinus3YearsAmt>3357377</CurrentTaxYearMinus3YearsAmt>
+        <CurrentTaxYearMinus2YearsAmt>4595007</CurrentTaxYearMinus2YearsAmt>
+        <CurrentTaxYearMinus1YearAmt>4119272</CurrentTaxYearMinus1YearAmt>
+        <CurrentTaxYearAmt>4714395</CurrentTaxYearAmt>
+        <TotalAmt>20152340</TotalAmt>
+      </TotalCalendarYear170Grp>
+      <SubstantialContributorsTotAmt>2319854</SubstantialContributorsTotAmt>
+      <PublicSupportTotal170Amt>17832486</PublicSupportTotal170Amt>
+      <GrossInvestmentIncome170Grp>
+        <CurrentTaxYearMinus4YearsAmt>10889</CurrentTaxYearMinus4YearsAmt>
+        <CurrentTaxYearMinus3YearsAmt>7534</CurrentTaxYearMinus3YearsAmt>
+        <CurrentTaxYearMinus2YearsAmt>6143</CurrentTaxYearMinus2YearsAmt>
+        <CurrentTaxYearMinus1YearAmt>5407</CurrentTaxYearMinus1YearAmt>
+        <CurrentTaxYearAmt>6778</CurrentTaxYearAmt>
+        <TotalAmt>36751</TotalAmt>
+      </GrossInvestmentIncome170Grp>
+      <OtherIncome170Grp>
+        <CurrentTaxYearMinus4YearsAmt>8245</CurrentTaxYearMinus4YearsAmt>
+        <CurrentTaxYearMinus3YearsAmt>6294</CurrentTaxYearMinus3YearsAmt>
+        <CurrentTaxYearMinus2YearsAmt>1101</CurrentTaxYearMinus2YearsAmt>
+        <CurrentTaxYearMinus1YearAmt>21154</CurrentTaxYearMinus1YearAmt>
+        <CurrentTaxYearAmt>27132</CurrentTaxYearAmt>
+        <TotalAmt>63926</TotalAmt>
+      </OtherIncome170Grp>
+      <TotalSupportAmt>20253017</TotalSupportAmt>
+      <GrossReceiptsRltdActivitiesAmt>332171</GrossReceiptsRltdActivitiesAmt>
+      <PublicSupportCY170Pct>0.88050</PublicSupportCY170Pct>
+      <PublicSupportPY170Pct>0.91240</PublicSupportPY170Pct>
+      <ThirtyThrPctSuprtTestsCY170Ind>X</ThirtyThrPctSuprtTestsCY170Ind>
+      <Form990ScheduleAPartVIGrp>
+        <FormAndLineReferenceDesc>SCHEDULE A, PART II, LINE 10, EXPLANATION FOR OTHER INCOME:</FormAndLineReferenceDesc>
+        <ExplanationTxt>MISCELLANEOUS RECEIPTS 2010 AMOUNT: $ 4,780. 2011 AMOUNT: $ 3,864. 2012 AMOUNT: $ 5,949. 2013 AMOUNT: $ 15,351. 2014 AMOUNT: $ 8,245. 2015 AMOUNT: $ 6,294 2016 AMOUNT: $ 1,101 2017 AMOUNT: $ 21,154 2018 AMOUNT: $ 27,132</ExplanationTxt>
+      </Form990ScheduleAPartVIGrp>
+    </IRS990ScheduleA>
+    <IRS990ScheduleB documentId="RetDoc1234500001" />
+    <IRS990ScheduleC documentId="RetDoc1039700001">
+      <VolunteersInd>1</VolunteersInd>
+      <PaidStaffOrManagementInd>1</PaidStaffOrManagementInd>
+      <MediaAdvertisementsInd>0</MediaAdvertisementsInd>
+      <MailingsMembersInd>1</MailingsMembersInd>
+      <MailingsMembersAmt>0</MailingsMembersAmt>
+      <PublicationsOrBroadcastInd>1</PublicationsOrBroadcastInd>
+      <PublicationsOrBroadcastAmt>1200</PublicationsOrBroadcastAmt>
+      <GrantsOtherOrganizationsInd>0</GrantsOtherOrganizationsInd>
+      <DirectContactLegislatorsInd>1</DirectContactLegislatorsInd>
+      <DirectContactLegislatorsAmt>0</DirectContactLegislatorsAmt>
+      <RalliesDemonstrationsInd>1</RalliesDemonstrationsInd>
+      <RalliesDemonstrationsAmt>300</RalliesDemonstrationsAmt>
+      <OtherActivitiesInd>0</OtherActivitiesInd>
+      <TotalLobbyingExpendituresAmt>1500</TotalLobbyingExpendituresAmt>
+      <NotDescribedSection501c3Ind>0</NotDescribedSection501c3Ind>
+      <SupplementalInformationDetail>
+        <FormAndLineReferenceDesc>PART II-B, LINE 1:</FormAndLineReferenceDesc>
+        <ExplanationTxt>AS PART OF OUR PROGRAM TO EDUCATE CONGRESS AND OTHERS ABOUT THE NEEDS OF HYDROCEPHALUS PATIENTS AND THEIR FAMILIES, AND TO ADVOCATE FOR MORE FUNDING FOR HYDROCEPHALUS RESEARCH, THE HYDROCEPHALUS ASSOCIATION PARTICIPATED IN A NUMBER OF COALITIONS (INCLUDING THE NATIONAL HEALTH COUNCIL, RESEARCH AMERICA, AND THE NATIONAL ORGANIZATION FOR RARE DISEASES). VOLUNTEERS AND STAFF PARTICIPATED IN THE NIH NON-PROFIT FORUM. THE ASSOCIATION STAFF HAS TRAINED VOLUNTEERS ON HOW TO TALK WITH THEIR ELECTED OFFICIALS. VOLUNTEERS AND STAFF FOR THE ASSOCIATION SPOKE WITH SEVERAL CONGRESSIONAL OFFICES ABOUT THE NEEDS FOR MORE RESEARCH FUNDING AND FOR THE INCLUSION OF HYDROCEPHALUS AMONG THE LIST OF CONDITIONS ELIGIBLE FOR THE CDMRP PROGRAM THROUGH THE DEPARTMENT OF DEFENSE. WE PARTICIPATED IN ONE RALLY DAY HOSTED BY OTHER ORGANIZATIONS WITH MEMBERS OF OUR PATIENT COMMUNITY. WE ALSO EDUCATED CONGRESSIONAL REPRESENTATIVES ABOUT THE CHALLENGES OF LIVING WITH HYDROCEPHALUS AND THE NEED FOR BETTER TREATMENTS, WHICH COULD BE IDENTIFIED THROUGH INCREASED RESEARCH FUNDING. TO DO THIS EDUCATION, WE HOSTED ONLINE AND IN-PERSON LEARNING SESSIONS.</ExplanationTxt>
+      </SupplementalInformationDetail>
+    </IRS990ScheduleC>
+    <IRS990ScheduleD documentId="RetDoc1040000001">
+      <CYEndwmtFundGrp>
+        <BeginningYearBalanceAmt>91118</BeginningYearBalanceAmt>
+        <InvestmentEarningsOrLossesAmt>456</InvestmentEarningsOrLossesAmt>
+        <GrantsOrScholarshipsAmt>456</GrantsOrScholarshipsAmt>
+        <EndYearBalanceAmt>91118</EndYearBalanceAmt>
+      </CYEndwmtFundGrp>
+      <CYMinus1YrEndwmtFundGrp>
+        <BeginningYearBalanceAmt>91118</BeginningYearBalanceAmt>
+        <InvestmentEarningsOrLossesAmt>1564</InvestmentEarningsOrLossesAmt>
+        <GrantsOrScholarshipsAmt>1564</GrantsOrScholarshipsAmt>
+        <EndYearBalanceAmt>91118</EndYearBalanceAmt>
+      </CYMinus1YrEndwmtFundGrp>
+      <CYMinus2YrEndwmtFundGrp>
+        <BeginningYearBalanceAmt>91118</BeginningYearBalanceAmt>
+        <EndYearBalanceAmt>91118</EndYearBalanceAmt>
+      </CYMinus2YrEndwmtFundGrp>
+      <CYMinus3YrEndwmtFundGrp>
+        <BeginningYearBalanceAmt>81118</BeginningYearBalanceAmt>
+        <ContributionsAmt>10000</ContributionsAmt>
+        <EndYearBalanceAmt>91118</EndYearBalanceAmt>
+      </CYMinus3YrEndwmtFundGrp>
+      <CYMinus4YrEndwmtFundGrp>
+        <BeginningYearBalanceAmt>81118</BeginningYearBalanceAmt>
+        <InvestmentEarningsOrLossesAmt>628</InvestmentEarningsOrLossesAmt>
+        <GrantsOrScholarshipsAmt>628</GrantsOrScholarshipsAmt>
+        <EndYearBalanceAmt>81118</EndYearBalanceAmt>
+      </CYMinus4YrEndwmtFundGrp>
+      <PrmnntEndowmentBalanceEOYPct>1.00000</PrmnntEndowmentBalanceEOYPct>
+      <EndowmentsHeldUnrelatedOrgInd>0</EndowmentsHeldUnrelatedOrgInd>
+      <EndowmentsHeldRelatedOrgInd>0</EndowmentsHeldRelatedOrgInd>
+      <EquipmentGrp>
+        <OtherCostOrOtherBasisAmt>60658</OtherCostOrOtherBasisAmt>
+        <DepreciationAmt>51463</DepreciationAmt>
+        <BookValueAmt>9195</BookValueAmt>
+      </EquipmentGrp>
+      <OtherLandBuildingsGrp>
+        <OtherCostOrOtherBasisAmt>117595</OtherCostOrOtherBasisAmt>
+        <DepreciationAmt>74954</DepreciationAmt>
+        <BookValueAmt>42641</BookValueAmt>
+      </OtherLandBuildingsGrp>
+      <TotalBookValueLandBuildingsAmt>51836</TotalBookValueLandBuildingsAmt>
+      <FootnoteTextInd>X</FootnoteTextInd>
+      <TotalRevEtcAuditedFinclStmtAmt>4662563</TotalRevEtcAuditedFinclStmtAmt>
+      <NetUnrealizedGainsInvstAmt>-5153</NetUnrealizedGainsInvstAmt>
+      <DonatedServicesAndUseFcltsAmt>98267</DonatedServicesAndUseFcltsAmt>
+      <RevenueNotReportedAmt>93114</RevenueNotReportedAmt>
+      <RevenueSubtotalAmt>4569449</RevenueSubtotalAmt>
+      <RevenueNotReportedFinclStmtAmt>0</RevenueNotReportedFinclStmtAmt>
+      <TotalRevenuePerForm990Amt>4569449</TotalRevenuePerForm990Amt>
+      <TotExpnsEtcAuditedFinclStmtAmt>5000249</TotExpnsEtcAuditedFinclStmtAmt>
+      <DonatedServicesUseFcltsAmt>98267</DonatedServicesUseFcltsAmt>
+      <ExpensesNotReportedAmt>98267</ExpensesNotReportedAmt>
+      <ExpensesSubtotalAmt>4901982</ExpensesSubtotalAmt>
+      <ExpensesNotRptFinclStmtAmt>0</ExpensesNotRptFinclStmtAmt>
+      <TotalExpensesPerForm990Amt>4901982</TotalExpensesPerForm990Amt>
+      <SupplementalInformationDetail>
+        <FormAndLineReferenceDesc>PART X, LINE 2:</FormAndLineReferenceDesc>
+        <ExplanationTxt>THE ASSOCIATION IS A QUALIFYING NONPROFIT ORGANIZATION AS DEFINED IN SECTION 501(C)(3) OF THE INTERNAL REVENUE CODE AND THE TAX STATUTES OF CALIFORNIA, AND THEREFORE IS EXEMPT FROM FEDERAL AND STATE INCOME TAXES. ACCORDINGLY, THE ACCOMPANYING FINANCIAL STATEMENTS DO NOT REFLECT A PROVISION OR LIABILITY FOR FEDERAL AND STATE INCOME TAXES. THE ASSOCIATION DOES NOT BELIEVE IT HAS ANY UNCERTAIN TAX POSITIONS AS OF DECEMBER 31, 2018. FISCAL YEARS ENDING ON OR AFTER 2015 REMAIN SUBJECT TO EXAMINATION BY FEDERAL AND STATE AUTHORITIES.</ExplanationTxt>
+      </SupplementalInformationDetail>
+      <SupplementalInformationDetail>
+        <FormAndLineReferenceDesc>PART V, LINE 4:</FormAndLineReferenceDesc>
+        <ExplanationTxt>THE ORGANIZATION USES ENDOWMENT FUNDS FOR EDUCATIONAL SCHOLARSHIPS TO YOUNG ADULTS WITH HYDROCEPHALUS.</ExplanationTxt>
+      </SupplementalInformationDetail>
+    </IRS990ScheduleD>
+    <IRS990ScheduleF documentId="RetDoc1040500001">
+      <GrantRecordsMaintainedInd>1</GrantRecordsMaintainedInd>
+      <AccountActivitiesOutsideUSGrp>
+        <RegionTxt>NORTH AMERICA - CANADA AND MEXICO, BUT NOT THE UNITED STATES</RegionTxt>
+        <OfficesCnt>0</OfficesCnt>
+        <EmployeeCnt>0</EmployeeCnt>
+        <TypeOfActivitiesConductedTxt>GRANT TO RECIPIENT</TypeOfActivitiesConductedTxt>
+        <RegionTotalExpendituresAmt>92757</RegionTotalExpendituresAmt>
+      </AccountActivitiesOutsideUSGrp>
+      <SubtotalOfficesCnt>0</SubtotalOfficesCnt>
+      <SubtotalEmployeesCnt>0</SubtotalEmployeesCnt>
+      <ContinuationTotalOfficeCnt>0</ContinuationTotalOfficeCnt>
+      <ContinuationTotalEmployeeCnt>0</ContinuationTotalEmployeeCnt>
+      <TotalOfficeCnt>0</TotalOfficeCnt>
+      <TotalEmployeeCnt>0</TotalEmployeeCnt>
+      <SubtotalSpentAmt>92757</SubtotalSpentAmt>
+      <ContinuationSpentAmt>0</ContinuationSpentAmt>
+      <TotalSpentAmt>92757</TotalSpentAmt>
+      <GrantsToOrgOutsideUSGrp>
+        <RegionTxt>NORTH AMERICA</RegionTxt>
+        <PurposeOfGrantTxt>TO FUND THE CLINICAL RESEARCH SITE FOR THE ADULT HYDROCEPHALUS CLINICAL RESEARCH NETWORK</PurposeOfGrantTxt>
+        <CashGrantAmt>42757</CashGrantAmt>
+        <MannerOfCashDisbursementTxt>CHECK</MannerOfCashDisbursementTxt>
+      </GrantsToOrgOutsideUSGrp>
+      <GrantsToOrgOutsideUSGrp>
+        <RegionTxt>NORTH AMERICA</RegionTxt>
+        <PurposeOfGrantTxt>TO FUND THE CLINICAL RESEARCH SITE FOR THE ADULT HYDROCEPHALUS CLINICAL RESEARCH NETWORK</PurposeOfGrantTxt>
+        <CashGrantAmt>50000</CashGrantAmt>
+        <MannerOfCashDisbursementTxt>CHECK</MannerOfCashDisbursementTxt>
+      </GrantsToOrgOutsideUSGrp>
+      <TransferToForeignCorpInd>0</TransferToForeignCorpInd>
+      <InterestInForeignTrustInd>0</InterestInForeignTrustInd>
+      <ForeignCorpOwnershipInd>0</ForeignCorpOwnershipInd>
+      <PassiveForeignInvestmestCoInd>0</PassiveForeignInvestmestCoInd>
+      <ForeignPartnershipInd>0</ForeignPartnershipInd>
+      <BoycottCountriesInd>0</BoycottCountriesInd>
+      <SupplementalInformationDetail>
+        <FormAndLineReferenceDesc>PART I, LINE 2:</FormAndLineReferenceDesc>
+        <ExplanationTxt>GRANTEES PROVIDE PROGRESS REPORTS AND THESE ARE MONITORED AGAINST OUR RESEARCH OBJECTIVES. THESE ARE THEN REVIEWED BY SENIOR STAFF AND MEMBERS OF THE RESEARCH COMMITTEE.</ExplanationTxt>
+      </SupplementalInformationDetail>
+    </IRS990ScheduleF>
+    <IRS990ScheduleG documentId="RetDoc1041300001">
+      <FundraisingEventInformationGrp>
+        <Event1Nm>IN STITCHES</Event1Nm>
+        <GrossReceiptsEvent1Amt>303670</GrossReceiptsEvent1Amt>
+        <CharitableContriEvent1Amt>303670</CharitableContriEvent1Amt>
+        <OtherDirectExpensesEvent1Amt>80253</OtherDirectExpensesEvent1Amt>
+        <Event2Nm>LA WALK 2018</Event2Nm>
+        <GrossReceiptsEvent2Amt>190055</GrossReceiptsEvent2Amt>
+        <CharitableContriEvent2Amt>190055</CharitableContriEvent2Amt>
+        <OtherDirectExpensesEvent2Amt>7943</OtherDirectExpensesEvent2Amt>
+        <OtherEventsTotalCnt>44</OtherEventsTotalCnt>
+        <GrossReceiptsOtherEventsAmt>1875276</GrossReceiptsOtherEventsAmt>
+        <CharitableContriOtherEventsAmt>1875276</CharitableContriOtherEventsAmt>
+        <OthDirectExpnssOtherEventsAmt>227777</OthDirectExpnssOtherEventsAmt>
+        <GrossReceiptsTotalAmt>2369001</GrossReceiptsTotalAmt>
+        <CharitableContributionsTotAmt>2369001</CharitableContributionsTotAmt>
+        <OthDirectExpnssTotalEventsAmt>315973</OthDirectExpnssTotalEventsAmt>
+        <DirectExpenseSummaryEventsAmt>315973</DirectExpenseSummaryEventsAmt>
+        <NetIncomeSummaryAmt>-315973</NetIncomeSummaryAmt>
+      </FundraisingEventInformationGrp>
+      <GamingInformationGrp>
+        <GrossRevenueOtherGamingAmt>53831</GrossRevenueOtherGamingAmt>
+        <VolunteerLaborOtherGamingInd>1</VolunteerLaborOtherGamingInd>
+        <VolunteerLaborOtherGamingPct>1.00000</VolunteerLaborOtherGamingPct>
+        <GrossRevenueTotalGamingAmt>53831</GrossRevenueTotalGamingAmt>
+        <NetGamingIncomeSummaryAmt>53831</NetGamingIncomeSummaryAmt>
+      </GamingInformationGrp>
+      <StatesWhereGamingConductedCd>NC</StatesWhereGamingConductedCd>
+      <StatesWhereGamingConductedCd>TN</StatesWhereGamingConductedCd>
+      <StatesWhereGamingConductedCd>IL</StatesWhereGamingConductedCd>
+      <StatesWhereGamingConductedCd>SC</StatesWhereGamingConductedCd>
+      <StatesWhereGamingConductedCd>CA</StatesWhereGamingConductedCd>
+      <StatesWhereGamingConductedCd>NY</StatesWhereGamingConductedCd>
+      <StatesWhereGamingConductedCd>OR</StatesWhereGamingConductedCd>
+      <StatesWhereGamingConductedCd>FL</StatesWhereGamingConductedCd>
+      <StatesWhereGamingConductedCd>KS</StatesWhereGamingConductedCd>
+      <StatesWhereGamingConductedCd>PA</StatesWhereGamingConductedCd>
+      <StatesWhereGamingConductedCd>AL</StatesWhereGamingConductedCd>
+      <StatesWhereGamingConductedCd>CO</StatesWhereGamingConductedCd>
+      <StatesWhereGamingConductedCd>OH</StatesWhereGamingConductedCd>
+      <StatesWhereGamingConductedCd>KS</StatesWhereGamingConductedCd>
+      <StatesWhereGamingConductedCd>AZ</StatesWhereGamingConductedCd>
+      <StatesWhereGamingConductedCd>UT</StatesWhereGamingConductedCd>
+      <StatesWhereGamingConductedCd>MN</StatesWhereGamingConductedCd>
+      <LicensedInd>1</LicensedInd>
+      <LicenseSuspendedEtcInd>0</LicenseSuspendedEtcInd>
+      <GamingWithNonmembersInd>1</GamingWithNonmembersInd>
+      <MemberOfOtherEntityInd>0</MemberOfOtherEntityInd>
+      <GamingOtherFacilityPct>1.00000</GamingOtherFacilityPct>
+      <PersonsWithBooksName>
+        <BusinessNameLine1Txt>RANDI COREY</BusinessNameLine1Txt>
+      </PersonsWithBooksName>
+      <PersonsWithBooksUSAddress>
+        <AddressLine1Txt>4340 EAST WEST HIGHWAY SUITE 905</AddressLine1Txt>
+        <CityNm>BETHESDA</CityNm>
+        <StateAbbreviationCd>MD</StateAbbreviationCd>
+        <ZIPCd>20814</ZIPCd>
+      </PersonsWithBooksUSAddress>
+      <CntrctWith3rdPrtyForGameRevInd>0</CntrctWith3rdPrtyForGameRevInd>
+      <GamingManagerPersonNm>RANDI COREY</GamingManagerPersonNm>
+      <GamingManagerServicesProvTxt>DIRECTOR OF SPECIAL EVENTS AND MANAGES THE WALK PROGRAM WHOSE VOLUNTEERS CONDUCT THE RAFFLES</GamingManagerServicesProvTxt>
+      <CharitableDistributionRqrInd>1</CharitableDistributionRqrInd>
+      <DistributedAmt>53831</DistributedAmt>
+    </IRS990ScheduleG>
+    <IRS990ScheduleI documentId="RetDoc1041900001">
+      <GrantRecordsMaintainedInd>1</GrantRecordsMaintainedInd>
+      <RecipientTable>
+        <RecipientBusinessName>
+          <BusinessNameLine1Txt>BOSTON CHILDRENS HOSPITAL</BusinessNameLine1Txt>
+        </RecipientBusinessName>
+        <USAddress>
+          <AddressLine1Txt>PO BOX 414413</AddressLine1Txt>
+          <CityNm>BOSTON</CityNm>
+          <StateAbbreviationCd>MA</StateAbbreviationCd>
+          <ZIPCd>02241</ZIPCd>
+        </USAddress>
+        <RecipientEIN>104277441</RecipientEIN>
+        <IRCSectionDesc>501(C)(3)</IRCSectionDesc>
+        <CashGrantAmt>99000</CashGrantAmt>
+        <PurposeOfGrantTxt>MECHANISMS OF HYDROCEPHALUS RESEARCH GRANT - TO FUND BASIC RESEARCH ON HYDROCEPHALUS</PurposeOfGrantTxt>
+      </RecipientTable>
+      <RecipientTable>
+        <RecipientBusinessName>
+          <BusinessNameLine1Txt>CLEVELAND CLINIC FOUNDATION</BusinessNameLine1Txt>
+        </RecipientBusinessName>
+        <USAddress>
+          <AddressLine1Txt>9500 EUCLID AVE DESK JJ36</AddressLine1Txt>
+          <CityNm>CLEVELAND</CityNm>
+          <StateAbbreviationCd>OH</StateAbbreviationCd>
+          <ZIPCd>44195</ZIPCd>
+        </USAddress>
+        <RecipientEIN>912153073</RecipientEIN>
+        <IRCSectionDesc>501(C)(3)</IRCSectionDesc>
+        <CashGrantAmt>39262</CashGrantAmt>
+        <PurposeOfGrantTxt>TO FUND THE CLINICAL RESEARCH SITE FOR THE ADULT HYDROCEPHALUS CLINICAL RESEARCH NETWORK</PurposeOfGrantTxt>
+      </RecipientTable>
+      <RecipientTable>
+        <RecipientBusinessName>
+          <BusinessNameLine1Txt>JOHNS HOPKINS UNIVERSITY</BusinessNameLine1Txt>
+        </RecipientBusinessName>
+        <USAddress>
+          <AddressLine1Txt>733 N BROADWAY SUITE 117</AddressLine1Txt>
+          <CityNm>BALTIMORE</CityNm>
+          <StateAbbreviationCd>MD</StateAbbreviationCd>
+          <ZIPCd>21205</ZIPCd>
+        </USAddress>
+        <RecipientEIN>520595110</RecipientEIN>
+        <IRCSectionDesc>501(C)(3)</IRCSectionDesc>
+        <CashGrantAmt>27886</CashGrantAmt>
+        <PurposeOfGrantTxt>MECHANISMS OF HYDROCEPHALUS RESEARCH GRANT - TO FUND BASIC RESEARCH ON HYDROCEPHALUS</PurposeOfGrantTxt>
+      </RecipientTable>
+      <RecipientTable>
+        <RecipientBusinessName>
+          <BusinessNameLine1Txt>PRIMARY CHILDREN'S FOUNDATION</BusinessNameLine1Txt>
+        </RecipientBusinessName>
+        <USAddress>
+          <AddressLine1Txt>36 SOUTH STATE STREET SUITE 1600</AddressLine1Txt>
+          <CityNm>SALT LAKE CITY</CityNm>
+          <StateAbbreviationCd>UT</StateAbbreviationCd>
+          <ZIPCd>84111</ZIPCd>
+        </USAddress>
+        <RecipientEIN>870453633</RecipientEIN>
+        <IRCSectionDesc>501(C)(3)</IRCSectionDesc>
+        <CashGrantAmt>346551</CashGrantAmt>
+        <PurposeOfGrantTxt>TO FUND THE CLINICAL RESEARCH SITE FOR THE ADULT HYDROCEPHALUS CLINICAL RESEARCH NETWORK</PurposeOfGrantTxt>
+      </RecipientTable>
+      <RecipientTable>
+        <RecipientBusinessName>
+          <BusinessNameLine1Txt>SCINTILLON INSTITUTE</BusinessNameLine1Txt>
+        </RecipientBusinessName>
+        <USAddress>
+          <AddressLine1Txt>6868 NANCY RIDGE DRIVE</AddressLine1Txt>
+          <CityNm>SAN DIEGO</CityNm>
+          <StateAbbreviationCd>CA</StateAbbreviationCd>
+          <ZIPCd>92121</ZIPCd>
+        </USAddress>
+        <RecipientEIN>454323888</RecipientEIN>
+        <IRCSectionDesc>501(C)(3)</IRCSectionDesc>
+        <CashGrantAmt>99000</CashGrantAmt>
+        <PurposeOfGrantTxt>MECHANISMS OF HYDROCEPHALUS RESEARCH GRANT - TO FUND BASIC RESEARCH ON HYDROCEPHALUS</PurposeOfGrantTxt>
+      </RecipientTable>
+      <RecipientTable>
+        <RecipientBusinessName>
+          <BusinessNameLine1Txt>SEATTLE CHILDRENS HOPSITAL</BusinessNameLine1Txt>
+        </RecipientBusinessName>
+        <USAddress>
+          <AddressLine1Txt>PO BOX 5371 M/S S-200</AddressLine1Txt>
+          <CityNm>SEATTLE</CityNm>
+          <StateAbbreviationCd>WA</StateAbbreviationCd>
+          <ZIPCd>98145</ZIPCd>
+        </USAddress>
+        <RecipientEIN>910564748</RecipientEIN>
+        <IRCSectionDesc>501(C)(3)</IRCSectionDesc>
+        <CashGrantAmt>50000</CashGrantAmt>
+        <PurposeOfGrantTxt>MECHANISMS OF HYDROCEPHALUS RESEARCH GRANT - TO FUND BASIC RESEARCH ON HYDROCEPHALUS</PurposeOfGrantTxt>
+      </RecipientTable>
+      <RecipientTable>
+        <RecipientBusinessName>
+          <BusinessNameLine1Txt>UNIVERISTY OF UTAH</BusinessNameLine1Txt>
+        </RecipientBusinessName>
+        <USAddress>
+          <AddressLine1Txt>75 SOUTH 2000 EAST RAB 211</AddressLine1Txt>
+          <CityNm>SALT LAKE CITY</CityNm>
+          <StateAbbreviationCd>UT</StateAbbreviationCd>
+          <ZIPCd>84108</ZIPCd>
+        </USAddress>
+        <RecipientEIN>876000525</RecipientEIN>
+        <IRCSectionDesc>501(C)(3)</IRCSectionDesc>
+        <CashGrantAmt>261824</CashGrantAmt>
+        <PurposeOfGrantTxt>TO FUND THE CLINICAL RESEARCH SITE FOR THE ADULT HYDROCEPHALUS CLINICAL RESEARCH NETWORK</PurposeOfGrantTxt>
+      </RecipientTable>
+      <RecipientTable>
+        <RecipientBusinessName>
+          <BusinessNameLine1Txt>WASHINGTON UNIVERSITY</BusinessNameLine1Txt>
+        </RecipientBusinessName>
+        <USAddress>
+          <AddressLine1Txt>700 ROSEDALE AVENUE</AddressLine1Txt>
+          <CityNm>ST LOUIS</CityNm>
+          <StateAbbreviationCd>MO</StateAbbreviationCd>
+          <ZIPCd>63112</ZIPCd>
+        </USAddress>
+        <RecipientEIN>430653611</RecipientEIN>
+        <IRCSectionDesc>501(C)(3)</IRCSectionDesc>
+        <CashGrantAmt>196074</CashGrantAmt>
+        <PurposeOfGrantTxt>MECHANISMS OF HYDROCEPHALUS RESEARCH GRANT - TO FUND BASIC RESEARCH ON HYDROCEPHALUS</PurposeOfGrantTxt>
+      </RecipientTable>
+      <RecipientTable>
+        <RecipientBusinessName>
+          <BusinessNameLine1Txt>WAYNE STATE UNIVERSITY</BusinessNameLine1Txt>
+        </RecipientBusinessName>
+        <USAddress>
+          <AddressLine1Txt>5057 WOODWARD AVENUE 13TH FLOOR</AddressLine1Txt>
+          <CityNm>DETROIT</CityNm>
+          <StateAbbreviationCd>MI</StateAbbreviationCd>
+          <ZIPCd>48203</ZIPCd>
+        </USAddress>
+        <RecipientEIN>386028429</RecipientEIN>
+        <IRCSectionDesc>501(C)(3)</IRCSectionDesc>
+        <CashGrantAmt>50000</CashGrantAmt>
+        <PurposeOfGrantTxt>MECHANISMS OF HYDROCEPHALUS RESEARCH GRANT - TO FUND BASIC RESEARCH ON HYDROCEPHALUS</PurposeOfGrantTxt>
+      </RecipientTable>
+      <RecipientTable>
+        <RecipientBusinessName>
+          <BusinessNameLine1Txt>YALE UNIVERSITY</BusinessNameLine1Txt>
+        </RecipientBusinessName>
+        <USAddress>
+          <AddressLine1Txt>PO BOX 1873</AddressLine1Txt>
+          <CityNm>NEW HAVEN</CityNm>
+          <StateAbbreviationCd>CT</StateAbbreviationCd>
+          <ZIPCd>06508</ZIPCd>
+        </USAddress>
+        <RecipientEIN>060646973</RecipientEIN>
+        <IRCSectionDesc>501(C)(3)</IRCSectionDesc>
+        <CashGrantAmt>97126</CashGrantAmt>
+        <PurposeOfGrantTxt>MECHANISMS OF HYDROCEPHALUS RESEARCH GRANT - TO FUND BASIC RESEARCH ON HYDROCEPHALUS</PurposeOfGrantTxt>
+      </RecipientTable>
+      <GrantsOtherAsstToIndivInUSGrp>
+        <GrantTypeTxt>SCHOLARSHIP</GrantTypeTxt>
+        <RecipientCnt>11</RecipientCnt>
+        <CashGrantAmt>11000</CashGrantAmt>
+      </GrantsOtherAsstToIndivInUSGrp>
+      <SupplementalInformationDetail>
+        <FormAndLineReferenceDesc>PART I, LINE 2:</FormAndLineReferenceDesc>
+        <ExplanationTxt>GRANTEES PROVIDE PROGRESS REPORTS AND THESE ARE MONITORED AGAINST OUR RESEARCH OBJECTIVES. THESE ARE THEN REVIEWED BY SENIOR STAFF AND MEMBERS OF THE RESEARCH COMMITTEE.</ExplanationTxt>
+      </SupplementalInformationDetail>
+    </IRS990ScheduleI>
+    <IRS990ScheduleJ documentId="RetDoc1042400001">
+      <SubstantiationRequiredInd>1</SubstantiationRequiredInd>
+      <Form990OfOtherOrganizationsInd>X</Form990OfOtherOrganizationsInd>
+      <WrittenEmploymentContractInd>X</WrittenEmploymentContractInd>
+      <CompensationSurveyInd>X</CompensationSurveyInd>
+      <BoardOrCommitteeApprovalInd>X</BoardOrCommitteeApprovalInd>
+      <SeverancePaymentInd>0</SeverancePaymentInd>
+      <SupplementalNonqualRtrPlanInd>0</SupplementalNonqualRtrPlanInd>
+      <EquityBasedCompArrngmInd>0</EquityBasedCompArrngmInd>
+      <CompBasedOnRevenueOfFlngOrgInd>0</CompBasedOnRevenueOfFlngOrgInd>
+      <CompBsdOnRevRelatedOrgsInd>0</CompBsdOnRevRelatedOrgsInd>
+      <CompBsdNetEarnsFlngOrgInd>0</CompBsdNetEarnsFlngOrgInd>
+      <CompBsdNetEarnsRltdOrgsInd>0</CompBsdNetEarnsRltdOrgsInd>
+      <AnyNonFixedPaymentsInd>0</AnyNonFixedPaymentsInd>
+      <InitialContractExceptionInd>0</InitialContractExceptionInd>
+      <RltdOrgOfficerTrstKeyEmplGrp>
+        <PersonNm>DIANA GRAY</PersonNm>
+        <TitleTxt>PRESIDENT AND CEO</TitleTxt>
+        <BaseCompensationFilingOrgAmt>200769</BaseCompensationFilingOrgAmt>
+        <CompensationBasedOnRltdOrgsAmt>0</CompensationBasedOnRltdOrgsAmt>
+        <BonusFilingOrganizationAmount>0</BonusFilingOrganizationAmount>
+        <BonusRelatedOrganizationsAmt>0</BonusRelatedOrganizationsAmt>
+        <OtherCompensationFilingOrgAmt>0</OtherCompensationFilingOrgAmt>
+        <OtherCompensationRltdOrgsAmt>0</OtherCompensationRltdOrgsAmt>
+        <DeferredCompensationFlngOrgAmt>7404</DeferredCompensationFlngOrgAmt>
+        <DeferredCompRltdOrgsAmt>0</DeferredCompRltdOrgsAmt>
+        <NontaxableBenefitsFilingOrgAmt>0</NontaxableBenefitsFilingOrgAmt>
+        <NontaxableBenefitsRltdOrgsAmt>0</NontaxableBenefitsRltdOrgsAmt>
+        <TotalCompensationFilingOrgAmt>208173</TotalCompensationFilingOrgAmt>
+        <TotalCompensationRltdOrgsAmt>0</TotalCompensationRltdOrgsAmt>
+        <CompReportPrior990FilingOrgAmt>0</CompReportPrior990FilingOrgAmt>
+        <CompReportPrior990RltdOrgsAmt>0</CompReportPrior990RltdOrgsAmt>
+      </RltdOrgOfficerTrstKeyEmplGrp>
+    </IRS990ScheduleJ>
+    <IRS990ScheduleM documentId="RetDoc1042900001">
+      <SecuritiesPubliclyTradedGrp>
+        <NonCashCheckboxInd>X</NonCashCheckboxInd>
+        <ContributionCnt>12</ContributionCnt>
+        <NoncashContributionsRptF990Amt>313200</NoncashContributionsRptF990Amt>
+        <MethodOfDeterminingRevenuesTxt>FAIR MARKET VALUE</MethodOfDeterminingRevenuesTxt>
+      </SecuritiesPubliclyTradedGrp>
+      <AnyPropertyThatMustBeHeldInd>0</AnyPropertyThatMustBeHeldInd>
+      <ReviewProcessUnusualNCGiftsInd>1</ReviewProcessUnusualNCGiftsInd>
+      <ThirdPartiesUsedInd>1</ThirdPartiesUsedInd>
+      <SupplementalInformationDetail>
+        <FormAndLineReferenceDesc>PART I, LINE 32B:</FormAndLineReferenceDesc>
+        <ExplanationTxt>THE ORGANIZATION USES UBS TO SELL ANY STOCK DONATIONS RECEIVED.</ExplanationTxt>
+      </SupplementalInformationDetail>
+    </IRS990ScheduleM>
+    <IRS990ScheduleO documentId="RetDoc1044400001">
+      <SupplementalInformationDetail>
+        <FormAndLineReferenceDesc>FORM 990, PART VI, SECTION A, LINE 1</FormAndLineReferenceDesc>
+        <ExplanationTxt>ACCORDING TO OUR BYLAWS, THE EXECUTIVE COMMITTEE, UNLESS LIMITED IN A RESOLUTION OF THE BOARD, SHALL HAVE AND MAY EXERCISE ALL OF THE AUTHORITY OF THE BOARD IN THE MANAGEMENT OF THE BUSINESS AND AFFAIRS OF THE CORPORATION BETWEEN MEETINGS OF THE BOARD.</ExplanationTxt>
+      </SupplementalInformationDetail>
+      <SupplementalInformationDetail>
+        <FormAndLineReferenceDesc>FORM 990, PART VI, SECTION B, LINE 11B</FormAndLineReferenceDesc>
+        <ExplanationTxt>ALL BOARD MEMBERS RECEIVE AN ELECTRONIC OR PAPER COPY OF THE IRS FORM 990 PRIOR TO ITS SUBMISSION. BOARD MEMBERS MUST SUBMIT ANY QUESTIONS OR CHANGES TO THE CHIEF EXECUTIVE OFFICER, WHO SUBMITS THE CHANGES TO THE TAX PREPARER.</ExplanationTxt>
+      </SupplementalInformationDetail>
+      <SupplementalInformationDetail>
+        <FormAndLineReferenceDesc>FORM 990, PART VI, SECTION B, LINE 12C</FormAndLineReferenceDesc>
+        <ExplanationTxt>EACH YEAR BOARD MEMBERS GET A COPY OF THE CONFLICT OF INTEREST POLICY AND A DISCLOSURE FORM TO FILL OUT WITH DETAILS OF ANY POSSIBLE CONFLICTS THAT MAY EXIST.</ExplanationTxt>
+      </SupplementalInformationDetail>
+      <SupplementalInformationDetail>
+        <FormAndLineReferenceDesc>FORM 990, PART VI, SECTION B, LINE 15A</FormAndLineReferenceDesc>
+        <ExplanationTxt>THE PROCESS FOR DETERMINING THE COMPENSATION FOR THE CHIEF EXECUTIVE OFFICER (WHO IS ALSO IN CHARGE OF FINANCIAL MANAGEMENT OF THE ORGANIZATION) POSITION INCLUDES THE FOLLOWING STEPS: 1) THE BOARD CHAIR AND CHIEF EXECUTIVE OFFICER EACH COLLECT COMPARABLE SALARY INFORMATION (E.G., SALARY STUDIES). 2) THE BOARD CHAIR MAKES A RECOMMENDATION FOR CEO COMPENSATION TO THE EXECUTIVE COMMITTEE. 3) EXECUTIVE COMMITTEE MEMBERS (WITHOUT A CONFLICT OF INTEREST) VOTE ON THE RECOMMENDATION BY THE BOARD CHAIR FOR PROPOSED CEO COMPENSATION, AND A RECORD OF THE VOTE IS RECORDED IN EXECUTIVE COMMITTEE MINUTES.</ExplanationTxt>
+      </SupplementalInformationDetail>
+      <SupplementalInformationDetail>
+        <FormAndLineReferenceDesc>FORM 990, PART VI, SECTION C, LINE 18</FormAndLineReferenceDesc>
+        <ExplanationTxt>FORM 990 IS AVAILABLE ON THE HYDROCEPHALUS ASSOCIATION WEBSITE AT HTTP://WWW.HYDROASSOC.ORG/ABOUT-US/WHO-WE-ARE/FINANCIAL-REPORTS/</ExplanationTxt>
+      </SupplementalInformationDetail>
+      <SupplementalInformationDetail>
+        <FormAndLineReferenceDesc>FORM 990, PART VI, SECTION C, LINE 19</FormAndLineReferenceDesc>
+        <ExplanationTxt>THE ORGANIZATION'S GOVERNING DOCUMENTS, CONFLICT OF INTEREST POLICY, AND FINANCIAL STATEMENTS ARE AVAILABLE TO THE PUBLIC AT THE ORGANIZATION'S OFFICE OR ON THE ORGANIZATION'S WEBSITE UPON REQUEST.</ExplanationTxt>
+      </SupplementalInformationDetail>
+      <SupplementalInformationDetail>
+        <FormAndLineReferenceDesc>FORM 990, PART XII, LINE 2C:</FormAndLineReferenceDesc>
+        <ExplanationTxt>THE AUDIT COMMITTEE SELECTS AND OVERSEES AN INDEPENDENT ACCCOUNTING FIRM TO CONDUCT THE AUDIT. NO CHANGE IN THE SELECTION METHOD OCCURRED THIS YEAR.</ExplanationTxt>
+      </SupplementalInformationDetail>
+    </IRS990ScheduleO>
+  </ReturnData>
+</Return>

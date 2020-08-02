@@ -1,0 +1,261 @@
+﻿@model BaskifyClient.ViewModels.EditAuctionViewModel
+@{
+    ViewData["Title"] = "Create Auction";
+}
+
+<style>
+    img.unlocked {
+        height: 15px;
+    }
+</style>
+
+<script src="~/js/moment-with-locales.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<script src="https://maps.googleapis.com/maps/api/js?key=@BaskifyClient.Utilities.AuctionUtilities.getGoogleAPI()&callback=initMap" defer></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
+<div id="accountSettings">
+    <div class="goBack">Back to <a href="/auctions">Auctions</a></div>
+    <div id="accountSettingContainer">
+        @using (Html.BeginForm("createAuction", "auctions", FormMethod.Post, new { @id = "auctionInfoForm", enctype = "multipart/form-data" }))
+        {
+            @Html.ValidationSummary(true)
+        <fieldset>
+            <legend>Auction Information</legend>
+            <div class="form-group">
+                @Html.LabelFor(Model => Model.Auction.Title)
+                @Html.TextBoxFor(Model => Model.Auction.Title, null, new { @class = "form-control" })
+                @Html.ValidationMessageFor(Model => Model.Auction.Title)
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(Model => Model.Auction.Description)
+                @Html.TextAreaFor(Model => Model.Auction.Description, 5, 50, new { @class = "form-control" })
+                @Html.ValidationMessageFor(Model => Model.Auction.Description)
+            </div>
+            <div class="form-group">
+                @Html.Label("Auction Date Range")
+                <input type="text" id="dateRangePicker" name="datetimes" class="form-control" />
+                @Html.HiddenFor(Model => Model.Auction.StartTime)
+                @Html.HiddenFor(Model => Model.Auction.EndTime)
+                @Html.ValidationMessageFor(Model => Model.Auction.StartTime)
+                @Html.ValidationMessageFor(Model => Model.Auction.EndTime)
+            </div>
+            <div class="alert alert-dismissible alert-info">
+                The current fee for auctions is: @Model.Auction.FeePerTrans cents per transaction plus @Model.Auction.FeePercentage% of all fundraising revenue. Creating this auction will lock in this rate.
+            </div>
+            @Html.HiddenFor(Model => Model.Auction.FeePerTrans)
+            @Html.HiddenFor(Model => Model.Auction.FeePercentage)
+            <div class="form-group">
+                @Html.LabelFor(Model => Model.Auction.TicketCost)
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">$</span>
+                    </div>
+                    @Html.TextBoxFor(Model => Model.Auction.TicketCost, null, new { @class = "form-control" })
+                </div>
+                @Html.ValidationMessageFor(Model => Model.Auction.TicketCost)
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(Model => Model.Auction.MinPurchase)
+                <div class="input-group mb-3">
+                    <div class="input-group-prepend">
+                        <span class="input-group-text">$</span>
+                    </div>
+                    @Html.TextBoxFor(Model => Model.Auction.MinPurchase, null, new { @class = "form-control" })
+                </div>
+                @Html.ValidationMessageFor(Model => Model.Auction.MinPurchase)
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(Model => Model.Auction.DeliveryType)
+                <img src="/Content/unlock.svg" class="unlocked" data-toggle="tooltip" data-placement="top" title="" data-original-title="This field will lock once the auction is created">
+                @Html.DropDownListFor(Model => Model.Auction.DeliveryType, Html.GetEnumSelectList<DeliveryTypes>(), "Select Delivery Type", new { @class = "custom-select" })
+                @Html.ValidationMessageFor(Model => Model.Auction.DeliveryType)
+            </div>
+            <div id="basketRetrievalGroup" class="form-group">
+                @Html.LabelFor(Model => Model.Auction.BasketRetrieval)
+                <img src="/Content/unlock.svg" class="unlocked" data-toggle="tooltip" data-placement="top" title="" data-original-title="This field will lock once the auction is created">
+                @Html.DropDownListFor(Model => Model.Auction.BasketRetrieval, Html.GetEnumSelectList<BasketRetrieval>(), "Select Retrieval Type", new { @class = "custom-select" })
+                @Html.ValidationMessageFor(Model => Model.Auction.BasketRetrieval)
+            </div>
+            <legend>Where Will You Be Hosting From?</legend>
+            <div class="form-group">
+                @Html.LabelFor(Model => Model.Auction.Address)
+                <img src="/Content/unlock.svg" class="unlocked" data-toggle="tooltip" data-placement="top" title="" data-original-title="This field will lock once the auction is created">
+                @Html.TextBoxFor(Model => Model.Auction.Address, null, new { @class = "form-control" })
+                @Html.ValidationMessageFor(Model => Model.Auction.Address)
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(Model => Model.Auction.City)
+                <img src="/Content/unlock.svg" class="unlocked" data-toggle="tooltip" data-placement="top" title="" data-original-title="This field will lock once the auction is created">
+                @Html.TextBoxFor(Model => Model.Auction.City, null, new { @class = "form-control" })
+                @Html.ValidationMessageFor(Model => Model.Auction.City)
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(Model => Model.Auction.State)
+                <img src="/Content/unlock.svg" class="unlocked" data-toggle="tooltip" data-placement="top" title="" data-original-title="This field will lock once the auction is created">
+                @Html.TextBoxFor(Model => Model.Auction.State, null, new { @class = "form-control" })
+                @Html.ValidationMessageFor(Model => Model.Auction.State)
+            </div>
+            <div class="form-group">
+                @Html.LabelFor(Model => Model.Auction.ZIP)
+                <img src="/Content/unlock.svg" class="unlocked" data-toggle="tooltip" data-placement="top" title="" data-original-title="This field will lock once the auction is created">
+                @Html.TextBoxFor(Model => Model.Auction.ZIP, null, new { @class = "form-control" })
+                @Html.ValidationMessageFor(Model => Model.Auction.ZIP)
+            </div>
+            <label style="color:red;" id="addressValidationResult"></label>
+            <legend>Where Are Your Contributors?</legend>
+
+            <div class="form-group">
+                @Html.LabelFor(Model => Model.Auction.States)
+                <img src="/Content/unlock.svg" class="unlocked" data-toggle="tooltip" data-placement="top" title="" data-original-title="This field will lock once the auction is created">
+                <svg style="padding-left:3px" data-toggle="tooltip" data-placement="right" title="Select the states where you have solicitation priviledges, if you do not know where you can solicit legally, contact your organization's legal counsel. On Windows, use SHIFT or CTRL to select multiple states." xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm1 18h-2v-6h-2v-2h4v8zm-1-9.75c-.69 0-1.25-.56-1.25-1.25s.56-1.25 1.25-1.25 1.25.56 1.25 1.25-.56 1.25-1.25 1.25z" /></svg>
+                @Html.DropDownListFor(Model => Model.Auction.States, new MultiSelectList(Model.AllStates, "Abbrv", "FullName", Model.Auction.TargetStates), "Select Targetable States", new { @class = "custom-select", multiple="multiple" })
+                @Html.ValidationMessageFor(Model => Model.Auction.States)
+            </div>
+
+            <div class="form-group">
+                @Html.LabelFor(Model => Model.Auction.MaxRange)
+                <img src="/Content/unlock.svg" class="unlocked" data-toggle="tooltip" data-placement="top" title="" data-original-title="This field will lock once the auction is created">
+                <div style="display: flex">
+                    @Html.TextBoxFor(Model => Model.Auction.MaxRange, null, new { @type = "range", @class = "custom-range", min = AuctionModel.MinDistance, max = AuctionModel.MaxDistance, flex = .9 })
+                    <div id="SelectedRange" style="font-weight: bold; flex: .1; white-space: nowrap; margin-left: 6px; min-width: 80px;"><span>@Model.Auction.MaxRange</span> miles</div>
+                </div>
+                @Html.ValidationMessageFor(Model => Model.Auction.MaxRange)
+            </div>
+            <div id="userAddressMap"></div>
+            @Html.HiddenFor(Model => Model.Auction.HostUsername)
+            <label for="exampleInputFile">Upload a Banner Picture</label>
+            <div class="form-group">
+                @Html.TextBoxFor(Model => Model.Auction.BannerImage, new { @type = "file", @class = "form-control-file", @id = "inputBannerFile" })
+                <small id="fileHelp" class="form-text text-muted">Upload an image that encapsulates your goal! Recommended: 300px x 1000px</small>
+            </div>
+            <div style="display: flex;">
+                <button id="submitButton" type="submit" class="btn btn-success btn-lg btn-block">Create Auction</button>
+            </div>
+        </fieldset>
+        }
+
+    </div>
+</div>
+<script>
+    var ServiceRadius;
+    var map;
+    var marker;
+    function initMap() {
+        // Create the map.
+        var initCoords = { lat: @Model.Auction.Latitude, lng: @Model.Auction.Longitude };
+
+        map = new google.maps.Map(document.getElementById('userAddressMap'), {
+            zoom: 10,
+            center: initCoords,
+            mapTypeId: 'terrain'
+        });
+
+        marker = new google.maps.Marker({
+            position: initCoords,
+            map: map,
+            title: 'Your Organization'
+        });
+
+        ServiceRadius = new google.maps.Circle({
+            strokeColor: '#FF0000',
+            strokeOpacity: 0.8,
+            strokeWeight: 2,
+            fillColor: '#FF0000',
+            fillOpacity: 0.35,
+            map: map,
+            center: initCoords,
+            radius: @Model.Auction.MaxRange * 1609.34 //mile to meter conversion
+        });
+    }
+
+    $("#Auction_MaxRange").on("change", function (e) {
+        if ($("#Auction_MaxRange").val() == @AuctionModel.MaxDistance) //unbind the radius if we hit max
+            ServiceRadius.setMap(null);
+        else
+            ServiceRadius.setMap(map);
+
+        $("#SelectedRange span").html($("#Auction_MaxRange").val() == @AuctionModel.MaxDistance ? "&infin;" : $("#Auction_MaxRange").val());
+        ServiceRadius.setRadius($("#Auction_MaxRange").val() * 1609.34)
+    });
+
+    $("#Auction_DeliveryType").on("change", function (e) {
+        if ($(this).val() == @((int)DeliveryTypes.Pickup) || $(this).val() == @((int)DeliveryTypes.DeliveryByOrg))
+            $("#basketRetrievalGroup").css("display", "block");
+        else {
+            $("#basketRetrievalGroup").css("display", "none");
+            $("#Auction_BasketRetrieval").val("");
+        }
+    });
+
+    $(function () {
+        $("[data-toggle=tooltip]").tooltip();
+
+        $("#basketRetrievalGroup").css("display", "none");
+
+        $("#Auction_DeliveryType").change(); //trigger update
+
+        initMap()
+        $('input[name="datetimes"]').daterangepicker({
+            timePicker: true,
+            startDate: "@Model.Auction.StartTime",
+            endDate: "@Model.Auction.EndTime",
+            locale: {
+                format: 'MM/DD/YYYY hh:mm:ss A'
+            },
+            dateLimit: {
+                'months': 1,
+                'days': -1
+            }
+        });
+
+        //updates the address field with validation info
+        $("#Auction_Address,#Auction_City,#Auction_State,#Auction_ZIP").on("blur", function () {
+            if ($("#Auction_Address").val() == "" || $("#Auction_City").val() == "" || $("#Auction_State").val() == "" || $("#Auction_ZIP").val() == "") {
+                return
+            }
+
+            $.ajax({
+                url: "/api/validateAddress",
+                method: "post",
+                data: {
+                    Address: $("#Auction_Address").val(),
+                    City: $("#Auction_City").val(),
+                    State: $("#Auction_State").val(),
+                    ZIP: $("#Auction_ZIP").val()
+                },
+                beforeSend: function (xhr) { //add token
+                    var token = getCookie("BearerToken");
+                    if (token != "")
+                        xhr.setRequestHeader("Authorization", "Bearer " + token);
+                },
+                success: function (data) {
+                    $("#Auction_Address").val(data["addressLine1"]);
+                    $("#Auction_City").val(data["city"]);
+                    $("#Auction_State").val(data["state"]);
+                    $("#Auction_ZIP").val(data["zip"]);
+
+                    var newLocation = { lat: parseFloat(data["lat"]), lng: parseFloat(data["lng"]) }
+                    marker.setPosition(newLocation);
+                    ServiceRadius.setCenter(newLocation);
+                    ServiceRadius.setRadius($("#Auction_MaxRange").val() * 1609.34);
+                    map.setCenter(newLocation);
+
+                    $("#addressValidationResult").html("");
+                },
+                error: function () {
+                    $("#addressValidationResult").html("Address Not Found!");
+                }
+            });
+        });
+
+    });
+
+    $("#dateRangePicker").on("change", function (e) {
+        $("#Auction_StartTime").val($("#dateRangePicker").val().split(" - ")[0]);
+        $("#Auction_EndTime").val($("#dateRangePicker").val().split(" - ")[1]);
+    });
+    window.history.replaceState(null, "", '/auctions/createauction');
+</script>
+

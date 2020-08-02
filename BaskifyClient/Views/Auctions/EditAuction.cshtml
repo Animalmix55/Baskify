@@ -1,0 +1,698 @@
+﻿@model BaskifyClient.Models.AuctionModel
+
+@{
+    var fundrasingStats = new BaskifyClient.DTOs.FundraisingTotalsDto(Model);
+    ViewData["Title"] = "Edit " + Model.Title;
+}
+
+<script src="~/galleria/galleria.min.js"></script>
+<script src="~/js/moment-with-locales.js"></script>
+<script src="~/Chart/Chart.bundle.min.js"></script>
+<script type="text/javascript" charset="utf8" src="https://cdn.datatables.net/1.10.21/js/jquery.dataTables.min.js"></script>
+<script type="text/javascript" charset="utf-8" src="https://cdn.datatables.net/1.10.21/js/dataTables.bootstrap4.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.10.21/css/dataTables.bootstrap4.min.css" />
+<script src="https://maps.googleapis.com/maps/api/js?key=@BaskifyClient.Utilities.AuctionUtilities.getGoogleAPI()" defer></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/responsive/2.2.4/css/responsive.dataTables.min.css" />
+<script src="https://cdn.datatables.net/responsive/2.2.4/js/dataTables.responsive.min.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/momentjs/latest/moment.min.js"></script>
+<script type="text/javascript" src="https://cdn.datatables.net/plug-ins/1.10.21/sorting/numeric-comma.js"></script>
+<script type="text/javascript" src="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.min.js"></script>
+<link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/npm/daterangepicker/daterangepicker.css" />
+
+<style>
+    [readonly], [disabled] {
+        background-image: url(/Content/lock.svg);
+        background-size: 20px 39px;
+        background-origin: content-box;
+        background-repeat: no-repeat;
+        background-position-x: right;
+        background-position-y: center;
+        padding-right: 15px;
+        opacity: 0.7 !important;
+        background-color: #eceeef !important;
+    }
+</style>
+
+<div id="basketDataModal" class="modal">
+    @if (ViewData["basket"] != null)//if given a basket, load the modal with it
+    {
+        await Html.RenderPartialAsync("BasketModalPartialView", ViewData["basket"]);
+        <script>$("#basketDataModal").modal("toggle")</script>
+    }
+</div>
+
+<div id="accountSettings">
+    <div id="accountSettingContainer">
+        <div id="auctionAddLink" class="alert alert-dismissible alert-info">
+            <button type="button" class="close" data-hide="alert">&times;</button>
+            @if (Model.Link == null)
+            {
+                <span>Your auction does not yet have a sharable link for donors to upload baskets, click <a style="color:white; font-weight: bold; cursor: pointer;" onclick="getAuctionLink()">HERE</a> to get one!</span>
+            }
+            else
+            {
+                <span>Your sharable basket upload link is: <a href="/auctions/addBasket/@Model.Link.Link">@BaskifyClient.Utilities.LoginUtils.getAbsoluteUrl("/auctions/addBasket/" + Model.Link.Link.ToString(), Context.Request)</a></span>
+            }
+        </div>
+        <div class="goBack">Back to <a href="/auctions">Auctions</a></div>
+
+        @if (!String.IsNullOrWhiteSpace(Model.BannerImageUrl))
+        {
+            <img class="AuctionBannerImage" src="@Model.BannerImageUrl" />
+        }
+        <button type="button" class="btn btn-primary btn-sm" style="position: fixed;bottom: 0;left: 0;right: 0;margin: auto;z-index: 1000;width: 100%;max-width: 200px;height: 50px;font-size: 100%;" onclick="viewBasket(-1)">Add New Basket</button>
+        <ul class="nav nav-tabs" id="AuctionNavTabs">
+            <li class="nav-item">
+                <a class="nav-link active" data-toggle="tab" href="#auctionInfo">Auction Info</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#baskets">Baskets</a>
+            </li>
+            <li class="nav-item">
+                <a class="nav-link" data-toggle="tab" href="#performance">Performance</a>
+            </li>
+        </ul>
+        <div id="myTabContent" class="tab-content">
+            <div class="tab-pane fade active show" id="auctionInfo">
+                @using (Html.BeginForm("editAuction", "auctions", FormMethod.Post, new { @id = "auctionInfoForm", enctype = "multipart/form-data" }))
+                {
+                    @Html.ValidationSummary(true)
+
+                <fieldset>
+                    <legend>Auction Information</legend>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.Title)
+                        @Html.TextBoxFor(Model => Model.Title, null, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(Model => Model.Title)
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.Description)
+                        @Html.TextAreaFor(Model => Model.Description, 5, 50, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(Model => Model.Description)
+                    </div>
+                    <div class="alert alert-dismissible alert-info">
+                        This auction's revenue fee is @Model.FeePerTrans cents per transaction plus @Model.FeePercentage%.
+                    </div>
+                    @if (Model.StartTime > DateTime.UtcNow)//auction not yet started
+                    {
+                    <div class="form-group">
+                        @Html.Label("Auction Date Range")
+                        <input type="text" id="dateRangePicker" name="datetimes" class="form-control" />
+                        @Html.HiddenFor(Model => Model.StartTime)
+                        @Html.HiddenFor(Model => Model.EndTime)
+                        @Html.ValidationMessageFor(Model => Model.StartTime)
+                        @Html.ValidationMessageFor(Model => Model.EndTime)
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.TicketCost)
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">$</span>
+                            </div>
+                            @Html.TextBoxFor(Model => Model.TicketCost, null, new { @class = "form-control" })
+                        </div>
+                        @Html.ValidationMessageFor(Model => Model.TicketCost)
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.MinPurchase)
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">$</span>
+                            </div>
+                            @Html.TextBoxFor(Model => Model.MinPurchase, null, new { @class = "form-control" })
+                        </div>
+                        @Html.ValidationMessageFor(Model => Model.MinPurchase)
+                    </div>
+                    <script>
+                        $(function () {
+                            $('input[name="datetimes"]').daterangepicker({
+                                timePicker: true,
+                                startDate: "@Model.StartTime",
+                                endDate: "@Model.EndTime",
+                                locale: {
+                                    format: 'MM/DD/YYYY hh:mm:ss A'
+                                },
+                                dateLimit: {
+                                    'months': 1,
+                                    'days': -1
+                                }
+                            });
+
+                            $("#dateRangePicker").on("change", function () {
+                                $("#StartTime").val($("#dateRangePicker").val().split(" - ")[0]);
+                                $("#EndTime").val($("#dateRangePicker").val().split(" - ")[1]);
+                            });
+                        });
+                    </script>
+                    }
+                    else //this auction has begun!
+                    {
+                    <div class="form-group">
+                        @Html.Label("Auction Start Date")
+                        @Html.TextBoxFor(Model => Model.StartTime, new { @readonly = "readonly", @class = "form-control" })
+                        @Html.ValidationMessageFor(Model => Model.StartTime)
+                    </div>
+                    <div class="form-group">
+                        @Html.Label("Auction End Date")
+                        @Html.TextBoxFor(Model => Model.EndTime, new { @class = "form-control" })
+                        @Html.ValidationMessageFor(Model => Model.EndTime)
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.TicketCost)
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">$</span>
+                            </div>
+                            @Html.TextBoxFor(Model => Model.TicketCost, null, new { @class = "form-control", @readonly = "readonly" })
+                        </div>
+                        @Html.ValidationMessageFor(Model => Model.TicketCost)
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.MinPurchase)
+                        <div class="input-group mb-3">
+                            <div class="input-group-prepend">
+                                <span class="input-group-text">$</span>
+                            </div>
+                            @Html.TextBoxFor(Model => Model.MinPurchase, null, new { @class = "form-control", @readonly = "readonly" })
+                        </div>
+                        @Html.ValidationMessageFor(Model => Model.MinPurchase)
+                    </div>
+                    <script>
+                            $(function () {
+                                $('input[name="EndTime"]').daterangepicker({
+                                    singleDatePicker: true,
+                                    showDropdowns: true,
+                                    locale: {
+                                        format: 'MM/DD/YYYY hh:mm:ss A'
+                                    },
+                                    minYear: @DateTime.Today.Year,
+                                    maxYear: @DateTime.Today.Year,
+                                    timePicker: true,
+                                    minDate: "@DateTime.UtcNow.AddHours(1)",
+                                    maxDate: "@Model.StartTime.AddDays(31)",
+                                    drops: "up",
+                                    startDate: "@Model.EndTime"
+                                });
+                            });
+
+                    </script>
+                    }
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.DeliveryType)
+                        @Html.DropDownListFor(Model => Model.DeliveryType, Html.GetEnumSelectList<DeliveryTypes>(), "Select Delivery Type", new { @disabled = "disabled", @class = "custom-select" })
+                        @Html.ValidationMessageFor(Model => Model.DeliveryType)
+                        @Html.HiddenFor(Model => Model.DeliveryType)
+                    </div>
+                    @if (Model.DeliveryType == DeliveryTypes.Pickup || Model.DeliveryType == DeliveryTypes.DeliveryByOrg)
+                    {
+                    <div id="basketRetrievalGroup" class="form-group">
+                        @Html.LabelFor(Model => Model.BasketRetrieval)
+                        @Html.DropDownListFor(Model => Model.BasketRetrieval, Html.GetEnumSelectList<BasketRetrieval>(), "Select Retrieval Type", new { @class = "custom-select", @disabled = "disabled" })
+                        @Html.ValidationMessageFor(Model => Model.BasketRetrieval)
+                        @Html.HiddenFor(Model => Model.BasketRetrieval)
+                    </div>
+                    }
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.Address)
+                        @Html.TextBoxFor(Model => Model.Address, new { @readonly = "readonly", @class = "form-control" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.City)
+                        @Html.TextBoxFor(Model => Model.City, new { @readonly = "readonly", @class = "form-control" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.State)
+                        @Html.TextBoxFor(Model => Model.State, new { @readonly = "readonly", @class = "form-control" })
+                    </div>
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.ZIP)
+                        @Html.TextBoxFor(Model => Model.ZIP, new { @readonly = "readonly", @class = "form-control" })
+                    </div>
+
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.States)
+                        <div style="height:112px; background-color:#eceeef !important; opacity: 0.7;overflow: auto; color: #919aa1;width:100%; padding: 6px; padding-right:25px" disabled>
+                            @foreach(var state in Model.TargetStates){
+                            <div>@state.FullName</div>
+                            }
+                        </div>
+                    </div>
+
+                    @Html.HiddenFor(Model => Model.Latitude)
+                    @Html.HiddenFor(Model => Model.Longitude)
+                    <div class="form-group">
+                        @Html.LabelFor(Model => Model.MaxRange)
+                        @Html.HiddenFor(Model => Model.MaxRange)
+                        <input class="form-control" value="@(Model.MaxRange == AuctionModel.MaxDistance? "Unlimited" : Model.MaxRange.ToString()) miles" readonly />
+                    </div>
+                    <div id="userAddressMap"></div>
+
+                    @Html.HiddenFor(Model => Model.AuctionId)
+                    @Html.HiddenFor(Model => Model.HostUsername)
+
+                    <label for="exampleInputFile">Update Your Banner!</label>
+                    <div class="form-group">
+                        @Html.TextBoxFor(Model => Model.BannerImage, new { @type = "file", @class = "form-control-file", @id = "inputBannerFile" })
+                        <small id="fileHelp" class="form-text text-muted">Upload an image that encapsulates your goal! Recommended: 300px x 1000px</small>
+                    </div>
+                    <div style="display: flex;">
+                        <button id="updateButton" type="submit" class="btn btn-success btn-lg btn-block">Update Auction</button>
+                    </div>
+                </fieldset>
+                }
+                @if (Model.StartTime > DateTime.UtcNow)
+                {
+                    using (Html.BeginForm("deleteAuction", "Auctions", FormMethod.Post, new { @id = "deleteAuctionForm" }))
+                    {
+                        @Html.HiddenFor(Model => Model.AuctionId, new { @id = "deleteAuctionId" });
+                        <div style="display: flex;">
+                            <button id="deleteButton" type="submit" class="btn btn-danger btn-lg btn-block">Delete Auction</button>
+                        </div>
+                    }
+                }
+            </div>
+            <div class="tab-pane fade" id="baskets" style="overflow-x: hidden;">
+                <table id="basketTable" class="table table-hover" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th></th>
+                            <th>Basket Name</th>
+                            <th>Verified</th>
+                            <th>Submitting User</th>
+                            <th>Submission Date</th>
+                            <th>Tickets Submitted</th>
+                            <th></th>
+                            <th>Submitter Email</th>
+                            <th>Submitter Name</th>
+                            <th>Submitter Address</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+            <div id="performance" class="tab-pane fade maxWidthContainer">
+                <div id="chartContainer" style="width:100%; height:50vh; position:relative;">
+                    <canvas id="salesChart"></canvas>
+                </div>
+                <div class="currentTotals" style="
+                    border-top: 1px solid rgba(0,0,0,.2);
+                    border-bottom: 1px solid rgba(0,0,0,.2);
+                    font-size: 166%;
+                    margin-bottom: 11px;
+                ">
+                    <div style="text-align: center;">
+                        <span style="padding-right: 4px;">Total Fundraised:</span>
+                        <span style="padding-right: 2px;">$@fundrasingStats.TotalFundraised.ToString("N2")</span>
+                        <span class="text-muted" style="font-size: 56%; height: auto;">
+                            (less $@fundrasingStats.Fees.ToString("N2") in fees)
+                        </span>
+                    </div>
+                </div>
+                <table id="salesTable" class="table table-hover" style="width:100%;">
+                    <thead>
+                        <tr>
+                            <th>Info</th>
+                            <th>Date</th>
+                            <th>Amount</th>
+                            <th>User</th>
+                        </tr>
+                    </thead>
+                </table>
+            </div>
+        </div>
+    </div>
+</div>
+<script>
+
+    var ServiceRadius;
+    var map;
+    var marker;
+    function initMap() {
+        // Create the map.
+        var initCoords = { lat: @Model.Latitude, lng: @Model.Longitude };
+
+        map = new google.maps.Map(document.getElementById('userAddressMap'), {
+            zoom: 10,
+            center: initCoords,
+            mapTypeId: 'terrain'
+        });
+
+        marker = new google.maps.Marker({
+            position: initCoords,
+            map: map,
+            title: 'Your Organization'
+        });
+
+        @if(Model.MaxRange != AuctionModel.MaxDistance){
+        <text>
+        ServiceRadius = new google.maps.Circle({
+            strokeColor: '#FF0000',
+            strokeOpacity: 0.8,
+            strokeWeight: 2,
+            fillColor: '#FF0000',
+            fillOpacity: 0.35,
+            map: map,
+            center: initCoords,
+            radius: @Model.MaxRange * 1609.34 //mile to meter conversion
+        });
+        </text>
+        }
+    }
+
+    var basketTable = $("#basketTable")
+    function viewBasket(id) {//loads in the basket modal
+        $.post("/basket/viewModal", { basketID: id, auctionID: @Model.AuctionId },
+            function (data) {
+                if (!data.startsWith("ERROR")) {
+                    $("#basketDataModal").html(data);
+                    $("#basketDataModal").modal("show");
+                }
+                else if(data == "ERROR: INVALID LOGIN"){
+                    openSignOnModal(); //get signin
+                }
+                else if(id != -1)
+                    $("#basketRow-"+id+" .rowError").html("ERROR");
+            }
+        );
+    }
+
+    function deleteBasket(id) {//deletes the given basket
+        $.post("/basket/delete", { basketID: id, auctionID: @Model.AuctionId },
+            function (data) {
+                if (!data.startsWith("ERROR")) {
+                    basketTable.DataTable()
+                        .row($("#basketRow-" + id))
+                        .remove()
+                        .draw();//empty row
+                }
+                else {
+                    $("#basketRow-" + id + " .rowError").html("ERROR");
+                }
+            }
+        );
+    }
+
+    function verifyBasket(id) {
+    $.post("/Basket/verifyBasket", { basketId: id },
+        function (data) {
+            if (!data.startsWith("ERROR")) {
+                $("#verifyWarning").remove();
+                basketTable.DataTable().ajax.reload();
+            }
+            else {
+                $("#verifyWarning .mb-0").html("Verification failed!");
+            }
+        });
+    }
+
+    $(document).ready(function () {
+        initMap(); //load map
+        loadChart(); //load performance tab
+        $('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
+            localStorage.setItem('activeTab', $(e.target).attr('href'));
+        });
+        var activeTab = localStorage.getItem('activeTab');
+        if (activeTab) {
+            $("#AuctionNavTabs a").removeClass("active");
+            $('a[href="' + activeTab + '"]').addClass("active");
+            $('#myTabContent').children().removeClass('active show')
+            $(activeTab).addClass('active show');
+        }
+    }); //sets the appropriate open tab
+
+    var basketEditUrl = "/basket/orgUpdateBasket"; //important basket edit POST url
+
+    $(function () {
+        Galleria.loadTheme('/galleria/themes/classic/galleria.classic.js');
+        Galleria.configure({
+            imageCrop: false,
+            _toggleInfo: false,
+            lightbox: true,
+            transition: 'fade'
+        });
+    }()); //loads galleria
+
+    function getAuctionLink() {
+        $.post("/auctions/getBasketShareLink", { auctionID: @Model.AuctionId},
+            function (data) {
+                if (data.startsWith("ERROR"))
+                    $("#auctionAddLink span").html(data);
+                else if (data.startsWith("http"))
+                    $("#auctionAddLink span").html("Your sharable basket upload link is: <a href='" + data + "'>"+ data +"</a>");
+        });
+    }
+
+    $("#auctionInfoForm").on("submit", function () { $("#PageLoadingModal").css("display", "flex"); }); //queue loading
+
+    //Datatables
+    basketTable.dataTable({
+        ajax: {
+            url: "/api/auctions/@Model.AuctionId/detailedBaskets",
+            type: "GET",
+            dataSrc: "",
+            beforeSend: function (xhr) { //add token
+                var token = getCookie("BearerToken");
+                if (token != "")
+                    xhr.setRequestHeader("Authorization", "Bearer " + token);
+            }
+        },
+        responsive: {
+            details: {
+                type: 'column'
+            }
+        },
+        createdRow: function (row, data, dataIndex) {
+            if (data["acceptedByOrg"])
+                $(row).addClass("table-success");
+            else
+                $(row).addClass("table-danger");
+            $(row).attr("id", "basketRow-" + data["basketId"]);
+            $(row).find(".data").attr("onclick", "viewBasket(" + data["basketId"] + ")"); //only data rows
+            $(row).css("cursor", "pointer");
+        },
+        columns: [
+            {
+                className: 'control',
+                orderable: false,
+                defaultContent: "",
+                data: null
+            },
+            {
+                data: "basketTitle",
+                className: 'data',
+                responsivePriority: 1
+            },
+            {
+                data: "acceptedByOrg",
+                render: function (data, type, row) {
+                    if (!data)
+                        return `<span class="badge badge-pill badge-primary" style="color:green">&#10006;</span>`
+                    else {
+                        return `<span class="badge badge-pill badge-primary" style="color:red;">&#10004;</span>`;
+                    }
+                },
+                responsivePriority: 3,
+                className: 'data'
+            },
+            {
+                data: "submittingUser.username",
+                responsivePriority: 4,
+                className: 'data'
+            },
+            {
+                data: "submissionDate",
+                render: function (data, type, row) {
+                    return new Date(data + 'Z').toUTCString();
+                },
+                type: "date",
+                responsivePriority: 5,
+                className: 'data'
+            },
+            {
+                data: "numTickets",
+                responsivePriority: 6
+            },
+            {
+                data: "acceptedByOrg",
+                render: function (data, type, row) {
+                    if (!data || "@(Model.StartTime > DateTime.UtcNow)" == "True") {
+                        return `<button type="button" class="close" onclick="deleteBasket(` + row.basketId + `)" aria-label="Close">\
+                                                    <span aria-hidden="true">&times;</span>\
+                                                </button>\
+                                                <span class="rowError"></span>`
+                    }
+                    else return "";
+                },
+                orderable: false,
+                responsivePriority: 2
+            },
+            {
+                data: "submittingUser.email",
+                className:"none"
+            },
+            {//name
+                data: "submittingUser",
+                render: function (data, type, row) {
+                    if (data.firstName != "")
+                        return data.firstName + " " + data.lastName;
+                    else
+                        return "You"; //organizations have no name
+                },
+                className: "none"
+            },
+            {//address 
+                data: "submittingUser",
+                render: function (data, type, row) {
+                    if (data.address != null) {
+                        return data.address + ", " + data.city + ", " + data.state + " " + data.zip;
+                    }
+                    else
+                        return "Hidden";
+                },
+                className: "none"
+            }
+        ]
+    });
+
+    $('a[data-toggle="tab"]').on('shown.bs.tab', function (e) { //when tab is fully visible
+        var table = $(".table").DataTable();
+        table.draw(); //redraw to avoid issues
+        table.responsive.recalc(); //recalculate width for responsiveness
+    });
+
+    //PERFORMANCE TAB
+    var salesData;
+    function loadChart() {
+        var ctx = $('#salesChart');
+
+        var startDate = new Date(Date.parse("@Model.StartTime.Date"));
+        var endDate = new Date(Date.parse("@Model.EndTime.Date"));
+        $.ajax({
+            url: "/api/data/auction/@Model.AuctionId",
+            beforeSend: function (xhr) { //add token
+                var token = getCookie("BearerToken");
+                if (token != "")
+                    xhr.setRequestHeader("Authorization", "Bearer " + token);
+            },
+            success: function (data) {
+                salesData = data;
+                var data = [];
+
+                for (var key in salesData) {
+                    data.push({
+                        x: key,
+                        y: salesData[key]["amount"] / 100 //in cents
+                    });
+                }
+
+                let chart = new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        datasets: [{
+                            label: 'Sales',
+                            backgroundColor: 'rgba(210, 235, 245, 1)',
+                            data: data
+                        }],
+                    },
+                    options: {
+                        maintainAspectRatio: false,
+                        tooltips: {
+                            callbacks: {
+                                label: function (tooltipObj, data) {
+                                    var sales = tooltipObj.value;
+                                    var label = "$" + parseInt(sales).toFixed(2);
+                                    return label;
+                                },
+                                title: function (tooltipObjs, data) {
+                                    var date = tooltipObjs[0].label;
+                                    date = moment(date).format("MM/DD/YYYY");
+                                    return date;
+                                }
+                            }
+                        },
+                        lengend: {
+                            display: false
+                        },
+                        title: {
+                            display: true,
+                            fontSize: 20,
+                            text: "Ticket Sales"
+                        },
+                        responsive: true,
+                        scales: {
+                            yAxes: [{
+                                ticks: {
+                                    Min: 0,
+                                    callback: function (value, index, values) {
+                                        return "$" + parseInt(value).toFixed(2);
+                                    }
+                                },
+                                scaleLabel: {
+                                    display: true,
+                                    labelString: "Sales (USD)"
+                                }
+                            }],
+                            xAxes: [{
+                                type: 'time',
+                                distribution: 'linear',
+                                time: {
+                                    unit: 'day'
+                                }
+                            }]
+                        }
+                    }
+                });
+
+                var tableData = [];
+                for (var day of Object.values(salesData)) {
+                    for (var transaction of day["breakdown"]) {
+                        tableData.push(transaction);
+                    }
+                }
+                var tableContainer = $("#salesTable");
+                tableContainer.DataTable({
+                    data: tableData,
+                    responsive: {
+                        details: {
+                            type: 'column'
+                        }
+                    },
+                    columns: [
+                        {
+                            searchable: false,
+                            targets: 0,
+                            className: 'control',
+                            orderable: false,
+                            defaultContent: "",
+                            data: null
+                        },
+                        {
+                            data: "time",
+                            render: function (data, type, row) {
+                                return moment(data).format("MM/DD hh:mm");
+                            },
+                            responsivePriority: 2
+                        },
+                        {
+                            data: "amount",
+                            render: function (data, type, row) {
+                                return `$${(data / 100.00).toFixed(2)} <span style="font-size: 70%">(-$${(row.fee / 100).toFixed(2)} fee)</span>`;
+                            },
+                            responsivePriority: 1
+                        },
+                        {
+                            data: "username",
+                            responsivePriority: 3
+                        }
+                    ]
+                });
+            },
+            error: function (xhr) {
+                ctx.html(xhr.responseText);
+            }
+        });
+
+    }
+
+    window.history.replaceState(null, "", '/auctions/editAuction/@Model.AuctionId'); //always keeps URL functioning
+</script>
+
