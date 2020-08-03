@@ -112,18 +112,21 @@ namespace baskifyCore.Models
         [Display(Name = "Basket Retrieval (from donor)")]
         public BasketRetrieval? BasketRetrieval { get; set; }
 
-        public virtual List<AuctionInStateModel> InStateModels { get; set; }
+        public virtual List<AuctionInCountyModel> InCountyModels { get; set; }
+
+        [Display(Name = "Target Postal Codes")]
+        public virtual List<AuctionInZIP> InZIPModels { get; set; }
 
         /// <summary>
-        /// A list of states that are targeted
+        /// A list of counties that are targeted
         /// </summary>
         [NotMapped]
-        public List<StateModel> TargetStates { 
+        public List<CountyModel> TargetCounties { 
             get {
-                if (InStateModels != null)
-                    return InStateModels.Select(m => m.State).ToList();
+                if (InCountyModels != null)
+                    return InCountyModels.Select(m => m.County).ToList();
                 else
-                    return new List<StateModel>();
+                    return new List<CountyModel>();
             } 
         }
 
@@ -131,8 +134,14 @@ namespace baskifyCore.Models
         /// For carrying the list of states
         /// </summary>
         [NotMapped]
-        [Display(Name = "Target States")]
-        public List<string> States { get; set; }
+        [Display(Name = "Target Counties")]
+        public string Counties { get; set; }
+
+        /// <summary>
+        /// A list of ZIPs that the auction targets
+        /// </summary>
+        [NotMapped]
+        public List<string> TargetZIP { get; set; }
 
         /// <summary>
         /// Minimum purchase IN DOLLARS
@@ -204,7 +213,7 @@ namespace baskifyCore.Models
                 yield return new ValidationResult(String.Format("Ticket price must not exceed ${0}", MaxPrice), new[] { "TicketCost" });
 
             if (DeliveryType != DeliveryTypes.DeliveryBySubmitter && BasketRetrieval == null)
-                yield return new ValidationResult("Must specify how baskets arrive at auction location");
+                yield return new ValidationResult("Must specify how baskets arrive at auction location", new[] { "BasketRetrieval" });
 
             if (DeliveryType == DeliveryTypes.DeliveryBySubmitter)
                 BasketRetrieval = null; //make sure no retrieval is specified for a submitter delivery

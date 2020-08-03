@@ -581,5 +581,47 @@ namespace baskifyCore.Controllers
 
             return Ok();
         }
+
+        [Route("{id}/sendDonorReceipt")]
+        [HttpPost]
+        public ActionResult sendDonorReceipt([FromRoute] int id, [FromHeader] string authorization)
+        {
+            if (authorization == null)
+                return Unauthorized("No authorization");
+            var user = LoginUtils.getUserFromToken(authorization.Replace("Bearer ", string.Empty), _context);
+            if (user == null)
+                return Unauthorized("Bad authorization");
+
+            var basket = _context.BasketModel.Include(b => b.AuctionModel.HostUser).Include(b => b.SubmittingUser).Where(b => b.BasketId == id).FirstOrDefault();
+            if (basket == null)
+                return BadRequest("Invalid Basket");
+
+            if (user.Username != basket.AuctionModel.HostUsername)
+                return BadRequest("You do not own this auction");
+
+            if (basket.ReceiptSent)
+                return BadRequest("Receipt Already Sent");
+
+            if (!basket.AcceptedByOrg)
+                return BadRequest("Accept the basket before creating a receipt");
+
+            if (basket.SubmittingUsername == basket.AuctionModel.HostUsername)
+                return BadRequest("This basket was submitted by you, the nonprofit");
+
+            //now the host is valid and the basket exists...
+            basket.ReceiptSent = true;
+            if (EmailUtils.SendStyledEmail(basket.SubmittingUser, "Thank you for donating a basket!", $"On {basket.SubmissionDate} (UTC), you donated a basket to \"{basket.AuctionModel.Title}\", a basket raffle hosted by {basket.AuctionModel.HostUser.OrganizationName} (a 501(c) Nonprofit Organization, EIN {basket.AuctionModel.HostUser.EIN}) entitled \"{basket.BasketTitle}\". <br><br> " +
+                $"The donation was a basket described as follows: <br> \"{basket.BasketDescription}\" <br><br> The basket's contents were given as: \"{string.Join(",", basket.BasketContents)}\"" +
+                $"<br><br> We appreciate your donation to our cause!" +
+                $"<br><br>Best Regards,<br>Baskify and {basket.AuctionModel.HostUser.OrganizationName}" +
+                $"<br><br><hr><br><br>" +
+                $"No goods or services were provided by {basket.AuctionModel.HostUser.OrganizationName} in exchange for this donation. Your donation is tax-deductible to the extent allowable by law.", _env))
+            {
+                _context.SaveChangesAsync();
+                return Ok();
+            }
+            else
+                return BadRequest("An error occured sending the email");
+        }
     }
 }

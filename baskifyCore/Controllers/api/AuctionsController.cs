@@ -120,10 +120,9 @@ namespace baskifyCore.Controllers.api
             var OrgBasketDto = Mapper.Map<List<PrivBasketDto>>(permBasketModel); //includes donor address and email
 
             //cleanse info
-            OrgBasketDto.ForEach(b => b.Cleanse(auction.DeliveryType == DeliveryTypes.Pickup, auction.BasketRetrieval != BasketRetrieval.OrgPickup, false));
+            OrgBasketDto.ForEach(b => { b.Cleanse(auction.DeliveryType == DeliveryTypes.Pickup, auction.BasketRetrieval != BasketRetrieval.OrgPickup, false); if (b.SubmittingUser.Username == user.Username) b.ReceiptSent = true; }); //orgs cant send receipts to self
 
             return Ok(OrgBasketDto);
-
         }
 
 
@@ -367,8 +366,7 @@ namespace baskifyCore.Controllers.api
                 var resultSet = orderedQuery.ToList();
 
                 if(user != null)
-                    resultSet = resultSet.Where(a => (SearchUtils.getMiles(user.Latitude, user.Longitude, a.Latitude, a.Longitude) < a.MaxRange 
-                    || a.MaxRange == AuctionModel.MaxDistance) && a.TargetStates.Any(t => t.Equals(user.State))).ToList(); //remove results too far away or in disallowed states
+                    resultSet = resultSet.Where(a => a.CanParticipate(user, _context)).ToList(); //remove results too far away or in disallowed states
 
                 //order by distance
                 //DISTANCE MUST BE OUTSIDE OF LINQ QUERY
@@ -414,7 +412,7 @@ namespace baskifyCore.Controllers.api
                 };
                 return Ok(returnObject);
             }
-            catch (Exception e)
+            catch (Exception)
             {
                 var returnObject = new
                 {
@@ -428,6 +426,7 @@ namespace baskifyCore.Controllers.api
             }
         }
 
+        /*
         [HttpPost]
         [Route("{id}/payout")]
         public ActionResult GetPayout([FromHeader] string authorization, [FromRoute] int id)
@@ -481,5 +480,6 @@ namespace baskifyCore.Controllers.api
                 return BadRequest("Failed to begin transfer, perhaps balance is pending?");
             }
         }
+        *///Currently, payouts are not allowed due to regulations
     }
 }

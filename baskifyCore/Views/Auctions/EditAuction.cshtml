@@ -95,35 +95,35 @@
                     </div>
                     @if (Model.StartTime > DateTime.UtcNow)//auction not yet started
                     {
-                    <div class="form-group">
-                        @Html.Label("Auction Date Range")
-                        <input type="text" id="dateRangePicker" name="datetimes" class="form-control" />
-                        @Html.HiddenFor(Model => Model.StartTime)
-                        @Html.HiddenFor(Model => Model.EndTime)
-                        @Html.ValidationMessageFor(Model => Model.StartTime)
-                        @Html.ValidationMessageFor(Model => Model.EndTime)
-                    </div>
-                    <div class="form-group">
-                        @Html.LabelFor(Model => Model.TicketCost)
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text">$</span>
-                            </div>
-                            @Html.TextBoxFor(Model => Model.TicketCost, null, new { @class = "form-control" })
+                        <div class="form-group">
+                            @Html.Label("Auction Date Range")
+                            <input type="text" id="dateRangePicker" name="datetimes" class="form-control" />
+                            @Html.HiddenFor(Model => Model.StartTime)
+                            @Html.HiddenFor(Model => Model.EndTime)
+                            @Html.ValidationMessageFor(Model => Model.StartTime)
+                            @Html.ValidationMessageFor(Model => Model.EndTime)
                         </div>
-                        @Html.ValidationMessageFor(Model => Model.TicketCost)
-                    </div>
-                    <div class="form-group">
-                        @Html.LabelFor(Model => Model.MinPurchase)
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text">$</span>
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.TicketCost)
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">$</span>
+                                </div>
+                                @Html.TextBoxFor(Model => Model.TicketCost, null, new { @class = "form-control" })
                             </div>
-                            @Html.TextBoxFor(Model => Model.MinPurchase, null, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(Model => Model.TicketCost)
                         </div>
-                        @Html.ValidationMessageFor(Model => Model.MinPurchase)
-                    </div>
-                    <script>
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.MinPurchase)
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">$</span>
+                                </div>
+                                @Html.TextBoxFor(Model => Model.MinPurchase, null, new { @class = "form-control" })
+                            </div>
+                            @Html.ValidationMessageFor(Model => Model.MinPurchase)
+                        </div>
+                        <script>
                         $(function () {
                             $('input[name="datetimes"]').daterangepicker({
                                 timePicker: true,
@@ -143,41 +143,41 @@
                                 $("#EndTime").val($("#dateRangePicker").val().split(" - ")[1]);
                             });
                         });
-                    </script>
+                        </script>
                     }
                     else //this auction has begun!
                     {
-                    <div class="form-group">
-                        @Html.Label("Auction Start Date")
-                        @Html.TextBoxFor(Model => Model.StartTime, new { @readonly = "readonly", @class = "form-control" })
-                        @Html.ValidationMessageFor(Model => Model.StartTime)
-                    </div>
-                    <div class="form-group">
-                        @Html.Label("Auction End Date")
-                        @Html.TextBoxFor(Model => Model.EndTime, new { @class = "form-control" })
-                        @Html.ValidationMessageFor(Model => Model.EndTime)
-                    </div>
-                    <div class="form-group">
-                        @Html.LabelFor(Model => Model.TicketCost)
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text">$</span>
-                            </div>
-                            @Html.TextBoxFor(Model => Model.TicketCost, null, new { @class = "form-control", @readonly = "readonly" })
+                        <div class="form-group">
+                            @Html.Label("Auction Start Date")
+                            @Html.TextBoxFor(Model => Model.StartTime, new { @readonly = "readonly", @class = "form-control" })
+                            @Html.ValidationMessageFor(Model => Model.StartTime)
                         </div>
-                        @Html.ValidationMessageFor(Model => Model.TicketCost)
-                    </div>
-                    <div class="form-group">
-                        @Html.LabelFor(Model => Model.MinPurchase)
-                        <div class="input-group mb-3">
-                            <div class="input-group-prepend">
-                                <span class="input-group-text">$</span>
-                            </div>
-                            @Html.TextBoxFor(Model => Model.MinPurchase, null, new { @class = "form-control", @readonly = "readonly" })
+                        <div class="form-group">
+                            @Html.Label("Auction End Date")
+                            @Html.TextBoxFor(Model => Model.EndTime, new { @class = "form-control" })
+                            @Html.ValidationMessageFor(Model => Model.EndTime)
                         </div>
-                        @Html.ValidationMessageFor(Model => Model.MinPurchase)
-                    </div>
-                    <script>
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.TicketCost)
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">$</span>
+                                </div>
+                                @Html.TextBoxFor(Model => Model.TicketCost, null, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                            @Html.ValidationMessageFor(Model => Model.TicketCost)
+                        </div>
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.MinPurchase)
+                            <div class="input-group mb-3">
+                                <div class="input-group-prepend">
+                                    <span class="input-group-text">$</span>
+                                </div>
+                                @Html.TextBoxFor(Model => Model.MinPurchase, null, new { @class = "form-control", @readonly = "readonly" })
+                            </div>
+                            @Html.ValidationMessageFor(Model => Model.MinPurchase)
+                        </div>
+                        <script>
                             $(function () {
                                 $('input[name="EndTime"]').daterangepicker({
                                     singleDatePicker: true,
@@ -195,7 +195,7 @@
                                 });
                             });
 
-                    </script>
+                        </script>
                     }
                     <div class="form-group">
                         @Html.LabelFor(Model => Model.DeliveryType)
@@ -205,12 +205,12 @@
                     </div>
                     @if (Model.DeliveryType == DeliveryTypes.Pickup || Model.DeliveryType == DeliveryTypes.DeliveryByOrg)
                     {
-                    <div id="basketRetrievalGroup" class="form-group">
-                        @Html.LabelFor(Model => Model.BasketRetrieval)
-                        @Html.DropDownListFor(Model => Model.BasketRetrieval, Html.GetEnumSelectList<BasketRetrieval>(), "Select Retrieval Type", new { @class = "custom-select", @disabled = "disabled" })
-                        @Html.ValidationMessageFor(Model => Model.BasketRetrieval)
-                        @Html.HiddenFor(Model => Model.BasketRetrieval)
-                    </div>
+                        <div id="basketRetrievalGroup" class="form-group">
+                            @Html.LabelFor(Model => Model.BasketRetrieval)
+                            @Html.DropDownListFor(Model => Model.BasketRetrieval, Html.GetEnumSelectList<BasketRetrieval>(), "Select Retrieval Type", new { @class = "custom-select", @disabled = "disabled" })
+                            @Html.ValidationMessageFor(Model => Model.BasketRetrieval)
+                            @Html.HiddenFor(Model => Model.BasketRetrieval)
+                        </div>
                     }
                     <div class="form-group">
                         @Html.LabelFor(Model => Model.Address)
@@ -229,14 +229,30 @@
                         @Html.TextBoxFor(Model => Model.ZIP, new { @readonly = "readonly", @class = "form-control" })
                     </div>
 
-                    <div class="form-group">
-                        @Html.LabelFor(Model => Model.States)
-                        <div style="height:112px; background-color:#eceeef !important; opacity: 0.7;overflow: auto; color: #919aa1;width:100%; padding: 6px; padding-right:25px" disabled>
-                            @foreach(var state in Model.TargetStates){
-                            <div>@state.FullName</div>
-                            }
+                    @if (Model.InZIPModels != null && Model.InZIPModels.Count > 0)
+                    {
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.InZIPModels)
+                            <div style="height:112px; background-color:#eceeef !important; opacity: 0.7;overflow: auto; color: #919aa1;width:100%; padding: 6px; padding-right:25px" disabled>
+                                @foreach (var ZIPModel in Model.InZIPModels)
+                                {
+                                    <div>@($"{ZIPModel.ZIP} ({ZIPModel.City}, {ZIPModel.State})")</div>
+                                }
+                            </div>
                         </div>
-                    </div>
+                    }
+                    else
+                    {
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.Counties)
+                            <div style="height:112px; background-color:#eceeef !important; opacity: 0.7;overflow: auto; color: #919aa1;width:100%; padding: 6px; padding-right:25px" disabled>
+                                @foreach (var county in Model.TargetCounties)
+                                {
+                                    <div>@($"{county.CountyName}, {county.StateName}")</div>
+                                }
+                            </div>
+                        </div>
+                    }
 
                     @Html.HiddenFor(Model => Model.Latitude)
                     @Html.HiddenFor(Model => Model.Longitude)
@@ -405,6 +421,46 @@
     }
 
     $(document).ready(function () {
+
+        $(document).on("click", ".ReceiptIcon", function (e) { //submit receipt to donor
+            var tr = $(e.target).closest("tr");
+            var data = basketTable.DataTable().row(tr).data();
+
+            tr.find(".deleteReceiptCol").html(`\
+                <div class="loading-spinner" style="height: 20px; width: 20px; display: block; visibility: visible;">\
+                    <div class="loading-body">\
+                        <div></div><div></div><div></div>\
+                    </div>\
+                </div>\
+            `);
+
+            $(".tooltip").remove(); //avoids weird issues
+
+            $.ajax({
+                url: `/api/baskets/${data.basketId}/sendDonorReceipt`,
+                method: "post",
+                success: function (val) {
+                    data.receiptSent = true;
+                    basketTable.DataTable().row(tr).data(data).draw(false);
+                },
+                beforeSend: function (xhr) { //add token
+                    var token = getCookie("BearerToken");
+                    if (token != "")
+                        xhr.setRequestHeader("Authorization", "Bearer " + token);
+                },
+                error: function () {
+                    basketTable.DataTable().row(tr).data(data).draw(false);
+                }
+            });
+        });
+
+        basketTable.DataTable().on('draw', function () {
+            $('[data-toggle="receiptTooltip"]').tooltip(); //init tooltips on redraw
+        });
+        basketTable.DataTable().on('responsive-display', function () {
+            $('[data-toggle="receiptTooltip"]').tooltip(); //init tooltips on redraw
+        });
+
         initMap(); //load map
         loadChart(); //load performance tab
         $('a[data-toggle="tab"]').on('show.bs.tab', function (e) {
@@ -520,10 +576,15 @@
                                                 </button>\
                                                 <span class="rowError"></span>`
                     }
-                    else return "";
+                    else if (!row.receiptSent) {
+                        return `<img src="/Content/receipt.svg" class="ReceiptIcon" data-toggle="receiptTooltip" data-placement="left" data-html="true" title="Send Basket Donor a Receipt">`;
+                    }
+                    else
+                        return "";
                 },
                 orderable: false,
-                responsivePriority: 2
+                responsivePriority: 2,
+                className: "deleteReceiptCol"
             },
             {
                 data: "submittingUser.email",
@@ -539,7 +600,7 @@
                 },
                 className: "none"
             },
-            {//address 
+            {//address
                 data: "submittingUser",
                 render: function (data, type, row) {
                     if (data.address != null) {

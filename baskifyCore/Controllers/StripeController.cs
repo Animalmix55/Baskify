@@ -58,20 +58,6 @@ namespace baskifyCore.Controllers
             if(registrationModel.EmailVerificationId != null)
                 registrationModel.EmailVerification.Committed = true; //mark email verification as complete
 
-            var accountOptions = new AccountUpdateOptions()
-            {
-                Settings = new AccountSettingsOptions()
-                {
-                    Payouts = new AccountSettingsPayoutsOptions()
-                    {
-                        Schedule = new AccountSettingsPayoutsScheduleOptions() { Interval = "manual" }
-                    }
-                }
-            };
-
-            var accountUpdateService = new AccountService();
-            accountUpdateService.Update(response.StripeUserId, accountOptions); //set account to manual payouts
-
             if (string.IsNullOrWhiteSpace(response.StripeUserId))
             {
                 ViewData["Alert"] = "Stripe registration failed, please try again";

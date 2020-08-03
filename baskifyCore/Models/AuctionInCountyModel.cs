@@ -7,19 +7,18 @@ using System.Threading.Tasks;
 
 namespace baskifyCore.Models
 {
-    public class AuctionInStateModel
+    public class AuctionInCountyModel
     {
-        [ForeignKey("State")]
-        [Column(Order = 1)]
         [Key]
-        public string StateAbbrv { get; set; }
+        [Column(Order = 2)]
+        [ForeignKey("County")]
+        public int CountyId { get; set; }
 
-        [ForeignKey("StateAbbrv")]
-        public virtual StateModel State { get; set; }
+        public virtual CountyModel County { get; set; }
 
         [ForeignKey("Auction")]
         [Key]
-        [Column(Order = 2)]
+        [Column(Order = 3)]
         public int AuctionId { get; set; }
 
 

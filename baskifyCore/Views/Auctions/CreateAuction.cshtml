@@ -1,6 +1,7 @@
 ﻿@model baskifyCore.ViewModels.EditAuctionViewModel
 @{
     ViewData["Title"] = "Create Auction";
+    var useZIP = (Model.Auction.TargetZIP != null && Model.Auction.TargetZIP.Count != 0);
 }
 
 <style>
@@ -106,13 +107,51 @@
             <label style="color:red;" id="addressValidationResult"></label>
             <legend>Where Are Your Contributors?</legend>
 
-            <div class="form-group">
-                @Html.LabelFor(Model => Model.Auction.States)
-                <img src="/Content/unlock.svg" class="unlocked" data-toggle="tooltip" data-placement="top" title="" data-original-title="This field will lock once the auction is created">
-                <svg style="padding-left:3px" data-toggle="tooltip" data-placement="right" title="Select the states where you have solicitation priviledges, if you do not know where you can solicit legally, contact your organization's legal counsel. On Windows, use SHIFT or CTRL to select multiple states." xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm1 18h-2v-6h-2v-2h4v8zm-1-9.75c-.69 0-1.25-.56-1.25-1.25s.56-1.25 1.25-1.25 1.25.56 1.25 1.25-.56 1.25-1.25 1.25z" /></svg>
-                @Html.DropDownListFor(Model => Model.Auction.States, new MultiSelectList(Model.AllStates, "Abbrv", "FullName", Model.Auction.TargetStates), "Select Targetable States", new { @class = "custom-select", multiple="multiple" })
-                @Html.ValidationMessageFor(Model => Model.Auction.States)
+            <div class="form-group" style="display: flex; justify-content: center; flex-direction: column; align-items:center">
+                <div>
+                    <label>@(useZIP? "Target Postal Codes" : "Target Counties")</label>
+                    <img src="~/Content/swap.svg" class="swapIcon" onclick="swapZIP()" data-toggle="tooltip" data-placement="top" title="" data-original-title="Use ZIP Codes Instead"/>
+                    <img src="/Content/unlock.svg" class="unlocked" data-toggle="tooltip" data-placement="top" title="" data-original-title="This field will lock once the auction is created">
+                    <svg style="padding-left:3px" data-toggle="tooltip" data-placement="right" title="Select the states and counties where you have solicitation priviledges for games of chance, if you do not know where you can solicit legally, contact your organization's legal counsel." xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm1 18h-2v-6h-2v-2h4v8zm-1-9.75c-.69 0-1.25-.56-1.25-1.25s.56-1.25 1.25-1.25 1.25.56 1.25 1.25-.56 1.25-1.25 1.25z" /></svg>
+                </div>
+                <div class="CountySelectorContainer" style="@(!useZIP? "" : "display:none")">
+                    <div class="StateList">
+                        @foreach (var state in Model.AllStates)
+                        {
+                            <div class="StateItem">@state.FullName</div>
+                        }
+                    </div>
+                    <div class="CountyContainer">
+                        <input type="text" placeholder="Search Counties" class="CountySearch form-control" />
+                        <button type="button" class="btn btn-info SelectAllCountiesBtn" style="padding: unset;" data-allSelected="false">
+                            Select All
+                        </button>
+                        <div class="CountyList">
+                        </div>
+                    </div>
+                </div>
+                <div class="ZIPSelectorContainer" style="@(useZIP? "" : "display:none")">
+                    <div class="addZIP">
+                        <input class="InputZIP form-control" type="text" placeholder="5-digit ZIP"/>
+                        <button type="button" onclick="addZIP()" class="btn btn-info">+</button>
+                    </div>
+                    <div class="ZIPList">
+                        @if (Model.Auction.TargetZIP != null)
+                        {
+                            @foreach (var zip in Model.Auction.TargetZIP)
+                            {
+                            <div class="ZIPItem">
+                                <input name="Auction.TargetZIP[]" class="form-control" value="@zip" readonly>
+                                <button type="button" class="btn btn-danger removeZIP">-</button>
+                            </div>
+                            }
+                        }
+                    </div>
+                </div>
+                @Html.ValidationMessageFor(Model => Model.Auction.Counties)
             </div>
+
+            @Html.HiddenFor(Model => Model.Auction.Counties)
 
             <div class="form-group">
                 @Html.LabelFor(Model => Model.Auction.MaxRange)
@@ -139,6 +178,163 @@
     </div>
 </div>
 <script>
+    var selectedCountyIds = [];
+
+    @if (Model.Auction.Counties != null && !useZIP)
+    {
+    <text>
+    selectedCountyIds = JSON.parse('@Html.Raw(Model.Auction.Counties)');
+    </text>
+    }
+
+    function swapZIP() {
+        $(".ZIPSelectorContainer").toggle();
+        $(".CountySelectorContainer").toggle();
+
+        if ($(".ZIPSelectorContainer").css("display") != "none") {
+            $("label[for$=Counties]").html("Target Postal Codes");
+            selectedCountyIds = [];
+            $(".StateItem").removeClass("included");
+            $(".CountyCheckbox").prop("checked", false);
+        }
+        else {
+            $("label[for$=Counties]").html("Target Counties");
+            $(".ZIPList").html("");
+        }
+    }
+
+    function addZIP() {
+        var zipInput = $(".InputZIP");
+        var regex = new RegExp(`^[0-9]{5}(-[0-9]{4})?$`);
+        if (!zipInput.val().match(regex)) {
+            zipInput.addClass("is-invalid");
+            return;
+        }
+        else {
+            zipInput.removeClass("is-invalid");
+        }
+
+        if($(`.ZIPItem input[value=${zipInput.val()}]`).length == 0)
+            $(".ZIPList").append(`<div class="ZIPItem"><input name="Auction.TargetZIP[]" class="form-control" value="${zipInput.val()}" readonly><button type="button" class="btn btn-danger removeZIP">-</button></div>`);
+        zipInput.val("");
+        zipInput.focus();
+    }
+
+    function removeZIP(e) {
+        var $item = $(e.target).parent(".ZIPItem");
+        $item.remove();
+    }
+
+    function selectAllCounties(e) {
+        if ($(e.target).attr("data-allSelected") == "false") {
+            $(".CountyCheckbox:not(:checked)").click();
+            $(e.target).attr("data-allSelected", "true");
+            $(e.target).html("Unselect All");
+        }
+        else {
+            $(".CountyCheckbox:checked").click();
+            $(e.target).attr("data-allSelected", "false");
+            $(e.target).html("Select All");
+        }
+    }
+
+    function onSearchCounties(e) {
+        var query = $(e.target).val();
+        var container = $(".CountyList");
+        var matches = query.trim() != "" ? container.data()["counties"].filter(c => c.name.toLowerCase().includes(query.toLowerCase().trim())) : container.data()["counties"];
+        container.html("");
+        var i = 0;
+        for (var match of matches) {
+            container.append(`\
+                                <div class="CountyItem">\
+                                    <div class="custom-control custom-checkbox">\
+                                        <input type="checkbox" class="CountyCheckbox custom-control-input" value="${match.id}" id="county${match.id}">\
+                                        <label class="custom-control-label" for="county${match.id}">\
+                                            ${match.name}\
+                                        </label>\
+                                    </div>\
+                                </div>`);
+            i++;
+        }
+        for (var countyId of selectedCountyIds) {
+            $(`.CountyCheckbox[value='${countyId}']`).attr("checked", true); //check all that should be
+        }
+        $(".SelectAllCountiesBtn").attr("data-allSelected", "false");
+        $(".SelectAllCountiesBtn").html("Select All");
+    }
+
+    function addCounty(countyId) {
+        selectedCountyIds = [...selectedCountyIds, countyId];
+    }
+
+    function removeCounty(countyId) {
+        selectedCountyIds = selectedCountyIds.filter(a => a != countyId);
+        return selectedCountyIds.length == 0;
+    }
+
+    function onSelectCounty(e) {
+        var target = $(e.target);
+        var countyId = $(e.target).val();
+
+        if (target.is(":checked")) {
+            addCounty(countyId);
+            $(".StateItem.selected").first().addClass("included");
+        }
+        else {
+            if (removeCounty(countyId)) {
+                $(".StateItem.selected").first().removeClass("included");
+            }
+            $(".SelectAllCountiesBtn").attr("data-allSelected", "false");
+            $(".SelectAllCountiesBtn").html("Select All");
+        }
+    }
+
+    function onSelectState(e) {
+        var state = $(e.target).html();
+        $(".StateItem").removeClass("selected");
+        $(e.target).addClass("selected");
+        var container = $(".CountyList");
+        container.html(`
+            <div class="loading-spinner" style="height: 50px; width: 50px; display: block; visibility: visible;">\
+                <div class="loading-body">\
+                    <div></div><div></div><div></div>\
+                </div>\
+            </div>\
+        `);
+        $(".CountySearch").val("");
+        $(".SelectAllCountiesBtn").attr("data-allSelected", "false");
+        $(".SelectAllCountiesBtn").html("Select All");
+        $.ajax({
+            url: `/api/counties/${state}`,
+            method: "get",
+            beforeSend: function (xhr) { //add token
+                var token = getCookie("BearerToken");
+                if (token != "")
+                    xhr.setRequestHeader("Authorization", "Bearer " + token);
+            },
+            success: function (data) {
+                container.html("");
+                var i = 0;
+                for (var county of data) {
+                    container.append(`\
+                                <div class="CountyItem">\
+                                    <div class="custom-control custom-checkbox">\
+                                        <input type="checkbox" class="CountyCheckbox custom-control-input" value="${county.id}" id="county${county.id}">\
+                                        <label class="custom-control-label" for="county${county.id}">\
+                                            ${county.name}\
+                                        </label>\
+                                    </div>\
+                                </div>`);
+                    i++;
+                }
+                container.data("counties", data);
+                for (var countyId of selectedCountyIds) {
+                    $(`.CountyCheckbox[value='${countyId}']`).attr("checked", true); //check all that should be
+                }
+            }
+        })
+    }
+
     var ServiceRadius;
     var map;
     var marker;
@@ -190,6 +386,17 @@
     });
 
     $(function () {
+        $(document).on("click", ".removeZIP", removeZIP);
+        $("#auctionInfoForm").on("submit", function (e) {
+            $("input[name$=Counties]").val(JSON.stringify(selectedCountyIds)); //add counties as json
+        });
+
+        $(".SelectAllCountiesBtn").on("click", selectAllCounties);
+        $(".StateList").on("click", ".StateItem", onSelectState); //when selecting a state
+        $(".CountyList").on("change", ".CountyCheckbox", onSelectCounty); //when selecting/disselecting a county
+        $(".CountySearch").on("input", onSearchCounties); //when selecting/disselecting a county
+        $(".StateItem").first().click();
+
         $("[data-toggle=tooltip]").tooltip();
 
         $("#basketRetrievalGroup").css("display", "none");
@@ -231,7 +438,7 @@
                         xhr.setRequestHeader("Authorization", "Bearer " + token);
                 },
                 success: function (data) {
-                    $("#Auction_Address").val(data["addressLine1"]);
+                    $("#Auction_Address").val(data["address"]);
                     $("#Auction_City").val(data["city"]);
                     $("#Auction_State").val(data["state"]);
                     $("#Auction_ZIP").val(data["zip"]);

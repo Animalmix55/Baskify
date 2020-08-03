@@ -41,6 +41,9 @@ namespace baskifyCore.Models
         public DbSet<FAQModel> FAQModel { get; set; }
 
         public DbSet<StateModel> StateModel { get; set; }
-        public DbSet<AuctionInStateModel> AuctionInStateModel { get; set; }
+        public DbSet<AuctionInCountyModel> AuctionInCountyModel { get; set; }
+        public DbSet<CountyModel> CountyModel { get; set; }
+
+        public DbSet<AuctionInZIP> AuctionInZIPModel { get; set; }
     }
 }

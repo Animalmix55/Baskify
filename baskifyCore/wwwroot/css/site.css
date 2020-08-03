@@ -914,3 +914,63 @@ table.dataTable td{
 #basketContainer{
     padding-top: 25px;
 }
+.CountySelectorContainer{
+    display: flex;
+    width: 100%;
+    justify-content: center;
+}
+.CountySelectorContainer .StateList{
+    height: 300px;
+    overflow: auto;
+    margin-right: 10px;
+}
+.CountySelectorContainer .StateList .StateItem{
+    cursor: pointer;
+}
+.StateList .StateItem.selected{
+    background-color: #d2ebf5
+}
+
+.StateList .StateItem.included{
+    background-color: #4BBF73
+}
+
+.CountySelectorContainer .CountyContainer{
+    height: 300px;
+    display: flex;
+    flex-direction: column;
+}
+.CountySelectorContainer .CountyList{
+    overflow: auto;
+}
+.CountySelectorContainer .CountyCheckbox{
+    margin-right: 8px;
+}
+
+.ReceiptIcon{
+    cursor: pointer;
+    height: 20px;
+    width: auto;
+}
+.swapIcon{
+    height: 15px;
+    cursor: pointer;
+}
+
+.addZIP{
+    display:flex;
+}
+.addZIP button, .ZIPList button{
+    font-size: 1rem; 
+    padding: unset !important; 
+    height: 45px; 
+    width: 58px
+}
+.ZIPItem{
+    display: flex;
+}
+
+.ZIPList{
+    max-height: 225px;
+    overflow-y: auto;
+}

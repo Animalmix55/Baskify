@@ -1,7 +1,8 @@
 ﻿@model baskifyCore.ViewModels.UserAuctionViewModel
+@using baskifyCore.Utilities;
 @{
     ViewData["Title"] = Model.AuctionModel.Title;
-    var disablePurchase = Model.UserModel.UserRole != Roles.USER; //stops non-logged/companies
+    var disablePurchase = Model.UserModel.UserRole != Roles.USER || !Model.AuctionModel.CanParticipate(Model.UserModel); //stops non-logged/companies
 }
 
 
@@ -34,7 +35,7 @@
     <div class="alert alert-dismissible alert-warning" style="margin-bottom: 0;">
         <button type="button" class="close" data-hide="alert">&times;</button>
         <h4 class="alert-heading">You cannot currently contribute!</h4>
-        <p class="mb-0">Create a user account to contribute to this auction!</p>
+        <p class="mb-0">Create a user account within the auction's jurisdictions to contribute to this auction!</p>
     </div>
 }
 else if (Model.AuctionModel.DeliveryType == DeliveryTypes.DeliveryByOrg || Model.AuctionModel.DeliveryType == DeliveryTypes.DeliveryBySubmitter)
@@ -83,7 +84,13 @@ else if (Model.AuctionModel.DeliveryType == DeliveryTypes.Pickup)
 
     <img src="@Model.AuctionModel.BannerImageUrl" style="width: 100%; height: auto;" />
     <div style="padding-left:10px;margin-top: 10px; margin-bottom: 10px; width: 100%">
-        <div style="display:flex"><h2>@Model.AuctionModel.Title</h2><div class="text-muted" style="margin-left:auto">Benefitting @Model.AuctionModel.HostUser.OrganizationName</div></div>
+        <div style="display:flex">
+            <h2>@Model.AuctionModel.Title</h2>
+            <div class="text-muted" style="margin-left:auto">
+                Benefitting @Model.AuctionModel.HostUser.OrganizationName
+                <svg style="padding-left:3px" data-toggle="tooltip" data-placement="left" data-html="true" title="Contact Email: @Model.AuctionModel.HostUser.ContactEmail <br> EIN: @Model.AuctionModel.HostUser.EIN <br> 501(c) Verified " xmlns="http://www.w3.org/2000/svg" width="15" height="15" viewBox="0 0 24 24"><path d="M12 0c-6.627 0-12 5.373-12 12s5.373 12 12 12 12-5.373 12-12-5.373-12-12-12zm1 18h-2v-6h-2v-2h4v8zm-1-9.75c-.69 0-1.25-.56-1.25-1.25s.56-1.25 1.25-1.25 1.25.56 1.25 1.25-.56 1.25-1.25 1.25z"></path></svg>
+            </div>
+        </div>
         <div class="text-muted" style="display: flex; width: 100%; justify-content: inherit">
             <span>@Model.AuctionModel.StartTime - @Model.AuctionModel.EndTime</span>
         </div>
@@ -219,6 +226,7 @@ else if (Model.AuctionModel.DeliveryType == DeliveryTypes.Pickup)
         });
 
     $(function () {
+        $("[data-toggle=tooltip]").tooltip();
         Galleria.loadTheme('/galleria/themes/twelve/galleria.twelve.js');
         Galleria.configure({
             imageCrop: true,

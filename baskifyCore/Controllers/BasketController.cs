@@ -404,17 +404,20 @@ namespace baskifyCore.Controllers
             var user = LoginUtils.getUserFromToken(Request.Cookies["BearerToken"], _context, Response);
             if (user == null)
                 return Content("ERROR: INVALID LOGIN");
-            var AuctionLink = _context.AuctionLinkModel.Where(al => (al.Link == Link)).FirstOrDefault();
+            var AuctionLink = _context.AuctionLinkModel.Include(a => a.Auction).Where(al => (al.Link == Link)).FirstOrDefault();
             if (AuctionLink == null)
                 return Content("ERROR: INVALID AUCTION LINK");
 
-            _context.Entry(AuctionLink).Reference(l => l.Auction).Load();
             //Oragnizations are allowed to use this, but why?
             if(user.UserRole == Roles.COMPANY && AuctionLink.Auction.HostUsername != user.Username) //keep an org from owning baskets
                 return Content("ERROR: ORGANIZATIONS CANNOT CREATE BASKETS FOR OTHER ORGANIZATIONS");
 
             if (AuctionLink.Auction.EndTime < DateTime.UtcNow)
                 return Content("ERROR: AUCTION HAS ENDED"); //can't put a new basket in a terminated auction
+
+            //ONLY require matching state, since solicitation rights are statewide
+            if (!AuctionLink.Auction.CanParticipate(user, _context, true))
+                return Content("ERROR: YOU ARE NOT WITHIN THIS AUCTION'S JURISDICTION");
 
             if ((disputes = _context.BasketModel.Include(b => b.AuctionModel).Where(b => b.SubmittingUsername == user.Username && b.AuctionModel.DeliveryType == DeliveryTypes.DeliveryBySubmitter && b.DisputedShipment).ToList()).Count > 0)
             {

@@ -67,21 +67,24 @@ namespace baskifyCore.Controllers.api
                 return BadRequest("Auction is not live");
             if (ticketPurchaseDto.NumTickets * auction.TicketCost < auction.MinPurchase) //don't allow users to purchase below the min
                 return BadRequest(string.Format("Purchase must exceed ${0}", auction.MinPurchase));
+            //if county never loaded properly, ignore it
+            if (!auction.CanParticipate(user, _context))
+                return BadRequest("You are outside of the auction's jurisdiction");
 
             try
             {
                 if (!ticketPurchaseDto.UseAccountAddress) //get address from form
                 {
-                    var addressDict = accountUtils.validateAddress(ticketPurchaseDto.BillingAddress, ticketPurchaseDto.BillingCity, ticketPurchaseDto.BillingState, ticketPurchaseDto.BillingState);
-                    if (addressDict["resultStatus"] == "ADDRESS NOT FOUND")
+                    var addressDto = accountUtils.validateAddress(ticketPurchaseDto.BillingAddress, ticketPurchaseDto.BillingCity, ticketPurchaseDto.BillingState, ticketPurchaseDto.BillingState);
+                    if (addressDto.Status == "ADDRESS NOT FOUND")
                         return BadRequest("Invalid Address");
                     else if (string.IsNullOrEmpty(ticketPurchaseDto.CardholderName))
                         return BadRequest("Invalid Cardholder Name");
 
-                    ticketPurchaseDto.BillingAddress = addressDict["addressLine1"]; //set address
-                    ticketPurchaseDto.BillingCity = addressDict["city"];
-                    ticketPurchaseDto.BillingState = addressDict["state"];
-                    ticketPurchaseDto.BillingZIP = addressDict["zip"];
+                    ticketPurchaseDto.BillingAddress = addressDto.Address; //set address
+                    ticketPurchaseDto.BillingCity = addressDto.City;
+                    ticketPurchaseDto.BillingState = addressDto.State;
+                    ticketPurchaseDto.BillingZIP = addressDto.ZIP;
                 }
                 else if (!string.IsNullOrEmpty(ticketPurchaseDto.PaymentMethodId)) //get address from paymentModel
                 {

@@ -19,6 +19,79 @@ namespace baskifyCore.Utilities
     }
     public static class AuctionUtilities
     {
+
+        public static bool CanParticipate(this AuctionModel auction, UserModel user, ApplicationDbContext _context, bool donationOnly = false)
+        {
+            bool inJurisdiction = true;
+            var inRange = SearchUtils.getMiles(auction.Latitude, auction.Longitude, user.Latitude, user.Longitude) < auction.MaxRange;
+
+            if (!donationOnly) //dont worry about jurisdiction if they have solicitation rights in that state
+            {
+                if (auction.InZIPModels != null && auction.InZIPModels.Count != 0) //use zip
+                    inJurisdiction = auction.InZIPModels.Any(z => user.ZIP.Substring(0, 5) == z.ZIP);
+                else //use counties
+                    inJurisdiction = auction.InCountyModels.Any(c => c.County.Equals(user.County, user.State));
+            }
+            else
+            {
+                if (auction.InZIPModels != null && auction.InZIPModels.Count != 0) //use zip
+                    inJurisdiction = auction.InZIPModels.Any(z => {
+                        if (z.StateModel == null)
+                        {
+                            string state;
+                            string city;
+                            try //can throw invalid zip exception
+                            {
+                                if (TrackingUtils.getZipDetails(z.ZIP, out city, out state)) //try to get the state again
+                                {
+                                    z.StateModel = _context.StateModel.Where(s => s.Abbrv.ToLower() == state.ToLower()).FirstOrDefault();
+                                    _context.SaveChanges();
+                                }
+                            }
+                            catch (Exception) { }
+                            if (z.StateModel == null)
+                                return true;
+                            else
+                                return z.StateModel.Equals(user.State);
+                        }
+                        else
+                            return z.StateModel.Equals(user.State);
+                    });
+                else //use counties
+                    inJurisdiction = auction.InCountyModels.Any(c => c.County.StateModel.Equals(user.State));
+            }
+
+            return inJurisdiction && inRange;
+        }
+
+        public static bool CanParticipate(this AuctionModel auction, UserModel user, bool donationOnly = false)
+        {
+            bool inJurisdiction = true;
+            var inRange = SearchUtils.getMiles(auction.Latitude, auction.Longitude, user.Latitude, user.Longitude) > auction.MaxRange;
+
+            if (!donationOnly) //dont worry about jurisdiction if they have solicitation rights in that state
+            {
+                if (auction.InZIPModels != null && auction.InZIPModels.Count != 0) //use zip
+                    inJurisdiction = auction.InZIPModels.Any(z => user.ZIP.Substring(0, 5) == z.ZIP);
+                else //use counties
+                    inJurisdiction = auction.InCountyModels.Any(c => c.County.Equals(user.County, user.State));
+            }
+            else
+            {
+                if (auction.InZIPModels != null && auction.InZIPModels.Count != 0) //use zip
+                    inJurisdiction = auction.InZIPModels.Any(z => {
+                        if (z.StateModel == null)
+                                return true;
+                        else
+                            return z.StateModel.Equals(user.State);
+                    });
+                else //use counties
+                    inJurisdiction = auction.InCountyModels.Any(c => c.County.StateModel.Equals(user.State));
+            }
+
+            return inJurisdiction && inRange;
+        }
+
         /// <summary>
         /// Adds the auction provided the user has the right to
         /// </summary>

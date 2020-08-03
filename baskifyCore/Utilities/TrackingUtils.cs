@@ -44,6 +44,45 @@ namespace baskifyCore.Utilities
             USPSAPI = ConfigurationManager.AppSettings["USPSAPI"];
         }
 
+        /// <summary>
+        /// Returns the city and state (if available) for a given zip. Returns false if errored or not found
+        /// </summary>
+        /// <param name="zip"></param>
+        /// <returns></returns>
+        public static bool getZipDetails(string zip, out string city, out string state)
+        {
+            city = null;
+            state = null;
+
+            var values = new Dictionary<string, string>
+            {
+                {"zip", zip}
+            };
+            try
+            {
+                //assume true so that any error with API is not an issue
+                var content = new FormUrlEncodedContent(values);
+                var response = _client.PostAsync("https://tools.usps.com/tools/app/ziplookup/cityByZip", content).Result;
+
+                var requestBodyString = response.Content.ReadAsStringAsync().Result;
+
+                JObject parent = JObject.Parse(requestBodyString);
+                //this contains resultstatus and addresslist
+                var resultStatus = parent.Value<string>("resultStatus");
+                if (resultStatus == "SUCCESS")
+                {
+                    city = (string)parent["defaultCity"];
+                    state = (string)parent["defaultState"];
+                    return true;
+                }
+            }
+            catch (Exception)
+            {
+                return false;
+            }
+
+            throw new Exception("ZIP Not Valid");
+        }
 
         /// <summary>
         /// USPS dates are formatted as YYYYMMDD

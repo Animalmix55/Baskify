@@ -1,4 +1,5 @@
-﻿using baskifyCore.Migrations;
+﻿using baskifyCore.DTOs;
+using baskifyCore.Migrations;
 using baskifyCore.Models;
 using baskifyCore.ViewModels;
 using Microsoft.AspNetCore.Hosting;
@@ -76,7 +77,7 @@ namespace baskifyCore.Utilities
         ///                            lng: longitude
         ///                            }        
         /// </returns>
-        public static Dictionary<string, string> validateAddress(string Address, string City, string State, string ZIP)
+        public static AddressValidationDto validateAddress(string Address, string City, string State, string ZIP)
         {
             //ADDRESS VALIDATION VIA USPS
             var values = new Dictionary<string, string>
@@ -86,7 +87,6 @@ namespace baskifyCore.Utilities
                 {"state", State },
                 {"zip", ZIP }
             };
-            Dictionary<string, string> returnDict;
             try
             {
                 //assume true so that any error with API is not an issue
@@ -111,21 +111,22 @@ namespace baskifyCore.Utilities
                         out lat, out lng); //if USPS validates, Google can geolocate
 
                     if (lat == null || lng == null)
-                        return new Dictionary<string, string>() { { "resultStatus", "ADDRESS NOT FOUND" } };
+                        return new AddressValidationDto() {Status= "ADDRESS NOT FOUND" };
 
-                    returnDict = new Dictionary<string, string>() {
-                        { "resultStatus", resultStatus },
-                        {"addressLine1", addressObject.Value<string>("addressLine1") },
-                        {"city", addressObject.Value<string>("city") },
-                        {"state", addressObject.Value<string>("state") },
-                        {"zip", addressObject.Value<string>("zip5") + (string.IsNullOrEmpty(addressObject.Value<string>("zip4"))? "" : "-" + addressObject.Value<string>("zip4")) },
-                        {"lat", lat },
-                        {"lng", lng }
+                    var returnDto = new AddressValidationDto() {
+                        Status = resultStatus,
+                        County = addressObject.Value<string>("countyName"),
+                        Address = addressObject.Value<string>("addressLine1"),
+                        City =  addressObject.Value<string>("city"),
+                        State = addressObject.Value<string>("state"),
+                        ZIP = addressObject.Value<string>("zip5") + (string.IsNullOrEmpty(addressObject.Value<string>("zip4"))? "" : "-" + addressObject.Value<string>("zip4")),
+                        Lat = lat,
+                        Lng = lng
                     };
-                    return returnDict;
+                    return returnDto;
                 }
                 else
-                    return new Dictionary<string, string>() { { "resultStatus", "ADDRESS NOT FOUND" } };
+                    return new AddressValidationDto() { Status = "ADDRESS NOT FOUND" };
             }
             catch (Exception)
             {
@@ -133,9 +134,18 @@ namespace baskifyCore.Utilities
                 AuctionUtilities.getCoordinates(Address, City, State, ZIP, out lat, out lng); //if USPS fails for some reason, we can still try google...
 
                 if(lat == null || lng == null)
-                    return new Dictionary<string, string>() { { "resultStatus", "ADDRESS NOT FOUND" } }; //
+                    return new AddressValidationDto() { Status = "ADDRESS NOT FOUND" };
 
-                return new Dictionary<string, string>() { { "resultStatus", "DEFAULTED" }, { "addressLine1", Address },{ "city", City },{ "state", State },{ "zip", ZIP }, { "lat", lat }, { "lng", lng } };
+                return new AddressValidationDto()
+                {
+                    Status = "DEFAULTED",
+                    Address = Address,
+                    City = City,
+                    State = State,
+                    ZIP = ZIP,
+                    Lat = lat,
+                    Lng = lng
+                };
             }
 
         }
@@ -151,20 +161,21 @@ namespace baskifyCore.Utilities
         {
             var returnString = "";
 
-            Dictionary<string, string> addressDict = validateAddress(newUser.Address, newUser.City, newUser.State, newUser.ZIP);
-            if (addressDict["resultStatus"] == "ADDRESS NOT FOUND")
+            var addressDto = validateAddress(newUser.Address, newUser.City, newUser.State, newUser.ZIP);
+            if (addressDto.Status == "ADDRESS NOT FOUND")
             {
                 ModelState.AddModelError("Address", "Invalid Address");
                 return "";
             }
             else
             {
-                newUser.Address = addressDict["addressLine1"];
-                newUser.City = addressDict["city"];
-                newUser.State = addressDict["state"];
-                newUser.ZIP = addressDict["zip"];
-                newUser.Latitude = float.Parse(addressDict["lat"]);
-                newUser.Longitude = float.Parse(addressDict["lng"]);
+                newUser.Address = addressDto.Address;
+                newUser.City = addressDto.City;
+                newUser.State = addressDto.State;
+                newUser.ZIP = addressDto.ZIP;
+                newUser.County = addressDto.County;
+                newUser.Latitude = float.Parse(addressDto.Lat);
+                newUser.Longitude = float.Parse(addressDto.Lng);
             }
 
             if(oldUser.UserRole == Roles.COMPANY && oldUser.ContactEmail != newUser.ContactEmail)
@@ -274,6 +285,7 @@ namespace baskifyCore.Utilities
 
             oldUser.Address = newUser.Address; //update user
             oldUser.City = newUser.City;
+            oldUser.County = newUser.County;
             oldUser.State = newUser.State;
             oldUser.ZIP = newUser.ZIP;
             oldUser.Latitude = newUser.Latitude;

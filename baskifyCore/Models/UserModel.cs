@@ -75,6 +75,8 @@ namespace baskifyCore.Models
         [RegularExpression(@"^[-\.A-Za-z]+(\s[-\.A-Za-z]+)*$")]
         public string City { get; set; }
 
+        public string County { get; set; }
+
         [Required]
         [RegularExpression(@"^[-\.A-Za-z]+(\s[-\.A-Za-z]+)*$")]
         public string State { get; set; }

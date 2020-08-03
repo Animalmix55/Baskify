@@ -112,12 +112,12 @@
                         @Html.DropDownListFor(Model => Model.DeliveryType, Html.GetEnumSelectList<DeliveryTypes>(), "Select Delivery Type", new { @disabled = "disabled", @class = "custom-select" })
                     </div>
                     @if (Model.DeliveryType == DeliveryTypes.Pickup || Model.DeliveryType == DeliveryTypes.DeliveryByOrg)
-                        {
-                    <div id="basketRetrievalGroup" class="form-group">
-                        @Html.LabelFor(Model => Model.BasketRetrieval)
-                        @Html.DropDownListFor(Model => Model.BasketRetrieval, Html.GetEnumSelectList<BasketRetrieval>(), "Select Retrieval Type", new { @disabled = "disabled", @class = "custom-select" })
-                    </div>
-                        }
+                    {
+                        <div id="basketRetrievalGroup" class="form-group">
+                            @Html.LabelFor(Model => Model.BasketRetrieval)
+                            @Html.DropDownListFor(Model => Model.BasketRetrieval, Html.GetEnumSelectList<BasketRetrieval>(), "Select Retrieval Type", new { @disabled = "disabled", @class = "custom-select" })
+                        </div>
+                    }
                     <div class="form-group">
                         @Html.Label("Auction Start Date")
                         @Html.TextBoxFor(Model => Model.StartTime, new { @readonly = "readonly", @class = "form-control" })
@@ -160,6 +160,30 @@
                         @Html.LabelFor(Model => Model.ZIP)
                         @Html.TextBoxFor(Model => Model.ZIP, new { @readonly = "readonly", @class = "form-control" })
                     </div>
+                    @if (Model.InZIPModels != null && Model.InZIPModels.Count > 0)
+                    {
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.InZIPModels)
+                            <div style="height:112px; background-color:#eceeef !important; opacity: 0.7;overflow: auto; color: #919aa1;width:100%; padding: 6px; padding-right:25px" disabled>
+                                @foreach (var ZIPModel in Model.InZIPModels)
+                                {
+                                    <div>@($"{ZIPModel.ZIP} ({ZIPModel.City}, {ZIPModel.State})")</div>
+                                }
+                            </div>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="form-group">
+                            @Html.LabelFor(Model => Model.Counties)
+                            <div style="height:112px; background-color:#eceeef !important; opacity: 0.7;overflow: auto; color: #919aa1;width:100%; padding: 6px; padding-right:25px" disabled>
+                                @foreach (var county in Model.TargetCounties)
+                                {
+                                    <div>@($"{county.CountyName}, {county.StateName}")</div>
+                                }
+                            </div>
+                        </div>
+                    }
                     <div class="form-group">
                         @Html.LabelFor(Model => Model.MaxRange)
                         @Html.HiddenFor(Model => Model.MaxRange)
@@ -220,9 +244,9 @@
                 </table>
             </div>
             <div id="payout" class="tab-pane fade maxWidthContainer">
-                <div class="alert alert-dismissible alert-danger payoutAlert" style="display:none">
+                <div class="alert alert-dismissible alert-info payoutAlert">
                     <button type="button" class="close" data-dismiss="alert">&times;</button>
-                    <span></span>
+                    <span>Auctions payout to you as people donate, you do not need to worry about requesting a payout! Consult your <a href="javascript:viewStripeAccount()">Stripe account</a> to see payouts.</span>
                 </div>
                 <div id="auctionPayoutReqContainer">
                     <h2 style="text-align: left; width:70%">Statistics</h2>
@@ -239,77 +263,6 @@
                             <tr class="netRaised">
                                 <td>Net Fundraised: </td>
                                 <td>$@fundraisingTotals.NetFundraised</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                    <h2 style="text-align: left; width:70%; margin-top: 30px">Eligibility</h2>
-                    <table class="fundraisedTable table">
-                        <tbody>
-                            <tr>
-                                <td>Baskets Drawn</td>
-                                @if (fundraisingTotals.MeetsAuctionDrawnReq)
-                                {
-                                    <td class="valid">
-                                        &check;
-                                    </td>
-                                }
-                                else
-                                {
-                                    <td class="invalid">X</td>
-                                }
-                            </tr>
-                            <tr>
-                                <td>@(fundraisingTotals.PercentDeliveryReq*100)% of Baskets Delivered <span style="font-size:50%">(over 3 days ago)</span></td>
-                                @if (fundraisingTotals.MeetsDeliveryReq)
-                                {
-                                    <td class="valid">
-                                        &check;
-                                    </td>
-                                }
-                                else
-                                {
-                                    <td class="invalid">X</td>
-                                }
-                            </tr>
-                            <tr>
-                                <td>Zero Disputes</td>
-                                @if (fundraisingTotals.MeetsDisputeReq)
-                                {
-                                    <td class="valid">
-                                        &check;
-                                    </td>
-                                }
-                                else
-                                {
-                                    <td class="invalid">X</td>
-                                }
-                            </tr>
-                            <tr>
-                                <td>Not Already Paid:</td>
-                                @if (fundraisingTotals.MeetsAuctionNotPaidReq)
-                                {
-                                    <td class="valid paidOut">
-                                        &check;
-                                    </td>
-                                }
-                                else
-                                {
-                                    <td class="invalid paidOut">X</td>
-                                }
-                            </tr>
-                            <tr>
-                                @if (fundraisingTotals.isPayable)
-                                {
-                                    <td colspan="2" style="padding:unset" class="payoutButton">
-                                        <button class="btn btn-success" style="width: 100%; height: 70px" onclick="requestPayout()">Request Payout</button>
-                                    </td>
-                                }
-                                else
-                                {
-                                    <td colspan="2" style="padding:unset">
-                                        <button class="btn btn-secondary disabled" style="width: 100%; height: 70px">Requirements Not Met</button>
-                                    </td>
-                                }
                             </tr>
                         </tbody>
                     </table>
@@ -333,31 +286,6 @@
     display:none;">
 </div>
 <script>
-
-    function requestPayout() {
-        $("#PageLoadingModal").css("display", "flex"); //display loading
-        $.ajax({
-            url: "/api/auctions/@Model.AuctionId/payout",
-            method: "post",
-            beforeSend: function (xhr) { //add token
-                var token = getCookie("BearerToken");
-                if (token != "")
-                    xhr.setRequestHeader("Authorization", "Bearer " + token);
-            },
-            success: function (data) {
-                $(".paidOut").html("X").removeClass("valid").addClass("invalid");
-                $(".payoutButton").html("Requirements Not Met").removeClass("btn-success").addClass("btn-secondary disabled"); //disable button
-                $("#PageLoadingModal").css("display", "none"); //display loading
-                $("#payoutModal").modal("show"); //open modal
-            },
-            error: function (XMLHttpRequest, textStatus, errorThrown) {
-                //HANDLE DRAW ERROR
-                $(".payoutAlert span").html(XMLHttpRequest.responseText);
-                $(".payoutAlert").css("display", "block");
-                $("#PageLoadingModal").css("display", "none"); //display loading
-            }
-        });
-    }
 
     function viewStripeAccount() {
         //get link

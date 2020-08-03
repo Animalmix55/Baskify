@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Data.Entity;
 using System.IO;
 using System.Linq;
+using System.Text.RegularExpressions;
 using System.Threading.Tasks;
 using System.Web;
 using AutoMapper;
@@ -16,6 +17,7 @@ using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.FileProviders;
+using Newtonsoft.Json.Linq;
 
 namespace baskifyCore.Controllers
 {
@@ -66,7 +68,7 @@ namespace baskifyCore.Controllers
 
             ViewData["NavBarOverride"] = user;
             var auctionModel = new AuctionModel() { HostUsername = user.Username };
-            var viewModel = new EditAuctionViewModel() { AllStates = _context.StateModel.ToList(), Auction = auctionModel };
+            var viewModel = new EditAuctionViewModel() { AllStates = _context.StateModel.Include(s => s.Counties).ToList(), Auction = auctionModel };
             return View(viewModel);
         }
 
@@ -79,7 +81,7 @@ namespace baskifyCore.Controllers
             if (user == null) {
                 ViewData["LoginAgain"] = true; //require log back in
                 ViewData["NavBarOverride"] = user;
-                viewModel = new EditAuctionViewModel() { AllStates = _context.StateModel.ToList(), Auction = auction };
+                viewModel = new EditAuctionViewModel() { AllStates = _context.StateModel.Include(s => s.Counties).ToList(), Auction = auction };
                 return View(viewModel);
             }
             else if (user.UserRole != Roles.COMPANY)
@@ -96,34 +98,46 @@ namespace baskifyCore.Controllers
             {
                 ViewData["Alert"] = $"You cannot create any auctions when you have pending disputes in auction(s): {string.Join(',', disputes.Select(d => d.Title))}";
                 ViewData["NavBarOverride"] = user;
-                viewModel = new EditAuctionViewModel() { AllStates = _context.StateModel.ToList(), Auction = auction };
+                viewModel = new EditAuctionViewModel() { AllStates = _context.StateModel.Include(s => s.Counties).ToList(), Auction = auction };
                 return View(viewModel);
             }
-            
-            if(auction.States == null || !auction.States.Any(s => s != null))
-                ModelState.AddModelError("Auction.States", "Auction must have at least 1 solicitation state!");
+
+            if (auction.TargetZIP != null)
+            {
+                var ZIPregex = new Regex("^[0-9]{5}(-[0-9]{4})?$");
+                auction.TargetZIP = auction.TargetZIP.Where(z => ZIPregex.IsMatch(z)).ToList(); //cut out any bad zips
+            }
+            JArray stateCountyIds = new JArray();
+            try //jic improper formatting
+            {
+                stateCountyIds = JArray.Parse(auction.Counties);
+            }
+            catch (Exception) { }
+
+            if ((auction.Counties == null || stateCountyIds.Count == 0) && (auction.TargetZIP == null || auction.TargetZIP.Count == 0))
+                ModelState.AddModelError("Auction.Counties", "Auction must have at least 1 solicitation county/ZIP!");
 
             if (auction.StartTime < DateTime.UtcNow)
                 ModelState.AddModelError("Auction.StartTime", "Auction cannot have already started!");
 
-            var addressDict = accountUtils.validateAddress(auction.Address, auction.City, auction.State, auction.ZIP);
-            if (addressDict["resultStatus"] == "ADDRESS NOT FOUND") //now, addresses are validated in the model
+            var addressDto = accountUtils.validateAddress(auction.Address, auction.City, auction.State, auction.ZIP);
+            if (addressDto.Status == "ADDRESS NOT FOUND") //now, addresses are validated in the model
                 ModelState.AddModelError("Auction.Address", "Address not found");
             else
             {
-                auction.Address = addressDict["addressLine1"];
-                auction.City = addressDict["city"];
-                auction.State = addressDict["state"];
-                auction.ZIP = addressDict["zip"];
-                auction.Latitude = float.Parse(addressDict["lat"]);
-                auction.Longitude = float.Parse(addressDict["lng"]);
+                auction.Address = addressDto.Address;
+                auction.City = addressDto.City;
+                auction.State = addressDto.State;
+                auction.ZIP = addressDto.ZIP;
+                auction.Latitude = float.Parse(addressDto.Lat);
+                auction.Longitude = float.Parse(addressDto.Lng);
             }
 
             if (!ModelState.IsValid)
             {
                 ViewData["Alert"] = "Invalid input! Check your form values and readd any banner!";
                 ViewData["NavBarOverride"] = user;
-                viewModel = new EditAuctionViewModel() { AllStates = _context.StateModel.ToList(), Auction = auction };
+                viewModel = new EditAuctionViewModel() { AllStates = _context.StateModel.Include(s => s.Counties).ToList(), Auction = auction };
                 return View(viewModel);
             }
 
@@ -133,7 +147,7 @@ namespace baskifyCore.Controllers
                 ViewData["NavBarOverride"] = user;
                 auction.FeePerTrans = Fees.FeePerTrans;
                 auction.FeePercentage = Fees.FeePercent;
-                viewModel = new EditAuctionViewModel() { AllStates = _context.StateModel.ToList(), Auction = auction };
+                viewModel = new EditAuctionViewModel() { AllStates = _context.StateModel.Include(s => s.Counties).ToList(), Auction = auction };
                 return View(viewModel);
             }
 
@@ -147,14 +161,44 @@ namespace baskifyCore.Controllers
                 _context.AuctionModel.Add(auction);
                 if (auction.BannerImage != null)
                     auction.BannerImageUrl = imageUtilities.uploadFile(auction.BannerImage, _env.WebRootPath, "/Content/Auctions/BannerImages/", 300, 1000, "auctionBanner" + auction.AuctionId.ToString()); //save image
-                
-                _context.SaveChanges(); //get id for states
-                foreach (var state in auction.States) //set target states
+
+                if (auction.TargetZIP == null || auction.TargetZIP.Count == 0) //only use counties if zips not provided
                 {
-                    if (state == null)
-                        continue;
-                    var auctioninstate = new AuctionInStateModel() { Auction = auction, StateAbbrv = state };
-                    _context.AuctionInStateModel.Add(auctioninstate);
+                    foreach (int id in stateCountyIds) //set target states
+                    {
+                        var auctionInCountyModel = new AuctionInCountyModel() { Auction = auction, CountyId = id };
+                        _context.AuctionInCountyModel.Add(auctionInCountyModel);
+                    }
+                }
+                else
+                {
+                    var numValidZips = 0;
+                    foreach (string zip in auction.TargetZIP) //set target states
+                    {
+                        string city;
+                        string state;
+                        try //skip any time that the zip is not found
+                        {
+                            TrackingUtils.getZipDetails(zip, out city, out state);
+                            StateModel stateModel = null;
+
+                            if (state != null)
+                                stateModel = _context.StateModel.Where(s => s.Abbrv.ToLower() == state.ToLower()).FirstOrDefault();
+
+                            var auctionInZIPModel = new AuctionInZIP() { Auction = auction, ZIP = zip.Trim().Substring(0, 5), City = city, StateModel = stateModel }; //only first 5 of zip matter
+                            _context.AuctionInZIPModel.Add(auctionInZIPModel);
+                            numValidZips++;
+                        }
+                        catch (Exception) { }
+                    }
+
+                    if(numValidZips == 0)
+                    {
+                        ViewData["Alert"] = "Invalid input! You provided no valid ZIP codes!";
+                        ViewData["NavBarOverride"] = user;
+                        viewModel = new EditAuctionViewModel() { AllStates = _context.StateModel.Include(s => s.Counties).ToList(), Auction = auction };
+                        return View(viewModel);
+                    }
                 }
 
                 _context.SaveChanges();
@@ -170,7 +214,7 @@ namespace baskifyCore.Controllers
             {
                 ViewData["NavBarOverride"] = user;
                 ViewData["Alert"] = "An unknown error occurred, please try again...";
-                viewModel = new EditAuctionViewModel() { AllStates = _context.StateModel.ToList(), Auction = auction };
+                viewModel = new EditAuctionViewModel() { AllStates = _context.StateModel.Include(s => s.Counties).ToList(), Auction = auction };
                 return View(viewModel);
             }
 
@@ -354,9 +398,9 @@ namespace baskifyCore.Controllers
             }
 
             //don't allow donations out of range
-            if (SearchUtils.getMiles(model.Auction.Latitude, model.Auction.Longitude, user.Latitude, user.Longitude) > model.Auction.MaxRange)
+            if (!model.Auction.CanParticipate(user, _context, true))
             {
-                ViewData["Alert"] = "You are outside of the auction's specified range";
+                ViewData["Alert"] = "You are outside of the auction's specified jurisdiction";
                 return View("~/Views/Home/Index.cshtml", user);
             }
 
@@ -447,6 +491,12 @@ namespace baskifyCore.Controllers
                     return View("~/Views/Home/Index.cshtml", new UserModel()); //no login, send back home
                 else
                     return View("~/Views/Home/Index.cshtml", user);
+            }
+
+            if (!auction.isLive)
+            {
+                ViewData["Alert"] = auction.EndTime < DateTime.UtcNow? "Auction has ended!" : "Auction has not yet begun!";
+                return View("~/Views/Home/Index.cshtml", user);
             }
 
             //BASKETS ARE ALL LOADED IN LATER VIA AJAX

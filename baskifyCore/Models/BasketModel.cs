@@ -93,6 +93,11 @@ namespace baskifyCore.Models
 
         public DateTime? DisputeTime { get; set; }
 
+        /// <summary>
+        /// Notes if the donor has recieved a reciept of donation
+        /// </summary>
+        public bool ReceiptSent { get; set; }
+
         //--------------------------------------------UNMAPPED ATTRIBUTES---------------------------------
 
         [NotMapped]

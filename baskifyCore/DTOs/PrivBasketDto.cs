@@ -27,6 +27,7 @@ namespace baskifyCore.DTOs
         public AuctionDto AuctionModel { get; set; }
         public bool Delivered { get; set; }
         public string Status { get; set; }
+        public bool ReceiptSent { get; set; }
         public int NumTickets
         {
             get { return Tickets.Sum(t => t.NumTickets); }

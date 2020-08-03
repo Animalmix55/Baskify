@@ -185,15 +185,16 @@ namespace baskifyCore.Controllers.api
 
             float lat = 0;
             float lng = 0;
-            var addressDict = accountUtils.validateAddress(signUpDto.Address, signUpDto.City, signUpDto.State, signUpDto.ZIP);
-            if(addressDict["resultStatus"] != "ADDRESS NOT FOUND")
+            var addressDto = accountUtils.validateAddress(signUpDto.Address, signUpDto.City, signUpDto.State, signUpDto.ZIP);
+            if(addressDto.Status != "ADDRESS NOT FOUND")
             {
-                signUpDto.Address = addressDict["addressLine1"];
-                signUpDto.City = addressDict["city"];
-                signUpDto.State = addressDict["state"];
-                signUpDto.ZIP = addressDict["zip"];
-                lat = float.Parse(addressDict["lat"]);
-                lng = float.Parse(addressDict["lng"]);
+                signUpDto.Address = addressDto.Address;
+                signUpDto.City = addressDto.City;
+                signUpDto.State = addressDto.State;
+                signUpDto.ZIP = addressDto.ZIP;
+                signUpDto.County = addressDto.County;
+                lat = float.Parse(addressDto.Lat);
+                lng = float.Parse(addressDto.Lng);
             }
             else
                 ModelState.AddModelError("Address", "Invalid Address");
@@ -245,6 +246,7 @@ namespace baskifyCore.Controllers.api
                 Address = signUpDto.Address,
                 City = signUpDto.City,
                 State = signUpDto.State,
+                County = signUpDto.County,
                 ZIP = signUpDto.ZIP,
                 Longitude = lng,
                 Latitude = lat,

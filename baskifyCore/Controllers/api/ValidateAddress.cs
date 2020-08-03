@@ -36,11 +36,7 @@ namespace baskifyCore.Controllers.api
             if (user == null)
                 return Unauthorized("Invalid auuthorization"); //require people be logged in to avoid abuse...
 
-            var response = accountUtils.validateAddress(Address, City, State, ZIP); //this response will already contain lat and lng
-            if (response.ContainsKey("addressLine1"))
-            {
-                response.Add("GoogleMapUrl", accountUtils.getMapLink(response["addressLine1"], response["city"], response["state"], response["zip"]));
-            }
+            var response = accountUtils.validateAddress(Address, City, State, ZIP); //this response will already contain lat and lng and google
 
             return Ok(response);
         }

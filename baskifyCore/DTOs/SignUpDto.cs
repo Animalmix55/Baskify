@@ -57,6 +57,8 @@ namespace baskifyCore.DTOs
         [RegularExpression(@"^[-\.A-Za-z]+(\s[-\.A-Za-z]+)*$", ErrorMessage = "City is improperly formatted")]
         public string City { get; set; }
 
+        public string County { get; set; }
+
         [Required(AllowEmptyStrings = false, ErrorMessage = "Cannot be empty")]
         [RegularExpression(@"^[-\.A-Za-z]+(\s[-\.A-Za-z]+)*$", ErrorMessage = "State is improperly formatted")]
         public string State { get; set; }

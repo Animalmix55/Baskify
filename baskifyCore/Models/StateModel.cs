@@ -9,12 +9,14 @@ namespace baskifyCore.Models
 {
     public class StateModel
     {
-        [Key]
         [Required]
         public string Abbrv { get; set; }
 
+        [Key]
         [Required]
         public string FullName { get; set; }
+
+        public List<CountyModel> Counties { get; set; }
 
         public bool Equals(string compareString)
         {

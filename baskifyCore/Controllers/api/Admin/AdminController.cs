@@ -49,15 +49,15 @@ namespace baskifyCore.Controllers.api.Admin
                 //check address
                 var address = Utilities.accountUtils.validateAddress(user.Address, user.City, user.State, user.ZIP);
 
-                if (address["resultStatus"] == "ADDRESS NOT FOUND")
+                if (address.Status == "ADDRESS NOT FOUND")
                     return BadRequest("Invalid address");
                 //now set everything!
-                destUser.Address = address["addressLine1"];
-                destUser.City = address["city"];
-                destUser.State = address["state"];
-                destUser.ZIP = address["zip"];
-                destUser.Latitude = float.Parse(address["lat"]);
-                destUser.Longitude = float.Parse(address["lng"]);
+                destUser.Address = address.Address;
+                destUser.City = address.City;
+                destUser.State = address.State;
+                destUser.ZIP = address.ZIP;
+                destUser.Latitude = float.Parse(address.Lat);
+                destUser.Longitude = float.Parse(address.Lng);
             }
 
             destUser.UserRole = user.UserRole;
